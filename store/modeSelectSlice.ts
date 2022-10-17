@@ -3,7 +3,7 @@ import { State } from '../types';
 
 // default state that mode initializes to on app bootup
 const initialState = {
-    mode: 'forehand'
+    mode: 'Forehand'
 };
 
 
@@ -12,6 +12,7 @@ export const modeSelectSlice = createSlice({
     name: 'modeSelect',
     initialState,
     reducers: {
+        /** Sets the current mode of swings (forehand, backhand, serve, etc) */
         setMode: (state, action: PayloadAction<State["modeSelect"]["mode"]>) => {
             state.mode = action.payload;
         },

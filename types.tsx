@@ -41,7 +41,7 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
  */
 
 // The modes of swings that are supported
-export type Mode = "Serve" | "Forehand" | "Backhand";;
+export type Mode = "Serve" | "Forehand" | "Backhand";
 
 
 /**
@@ -50,5 +50,10 @@ export type Mode = "Serve" | "Forehand" | "Backhand";;
 export type State = {
     modeSelect: {
         mode: Mode;
+    }
+    time: {
+        endTimeMilliseconds: number,
+        currentTimeMilliseconds: number,
+        timeOfImpactMilliseconds: number,
     }
 };

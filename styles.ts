@@ -5,18 +5,17 @@ import { StyleSheet } from "react-native";
 export const styles = StyleSheet.create({
 
     // Drop Down
+    dropdownUnopened: {
+        width: 200
+    },
     dropdown: {
-        flex: 1,
         fontSize: 20,
-        
     },
     dropdownItem: {
-        flex: 1,
-        
+        width: "100%"
     },
     dropdownText: {
         fontSize: 20,
-        
     },
     dropdownSelectedText: {
         fontSize: 20,
@@ -29,12 +28,21 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    topContainer: {
+        flex: 1,
+        alignItems: 'center',
+    },
 
     
     // Text
     title: {
         fontSize: 20,
         fontWeight: 'bold',
+    },
+    regularText: {
+        fontSize: 18,
+        marginRight: 15,
+        marginLeft: 15
     },
 
     
@@ -43,6 +51,13 @@ export const styles = StyleSheet.create({
         marginVertical: 30,
         height: 1,
         width: '80%',
+    },
+    lineUnderTitle: {
+        marginBottom: 15,
+        marginTop: 5,
+        height: 2,
+        width: '80%',
+        backgroundColor: '#444444'
     },
 
     
