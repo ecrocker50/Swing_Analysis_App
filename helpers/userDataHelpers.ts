@@ -1,12 +1,35 @@
 import { useReducer } from 'react';
-import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession, Quaternion } from '../types'
+import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession, Quaternion, Position } from '../types'
 
 /**
  * 
  */
 export const getQuaternions = (userData: UserSessionsData, sessionName: string, swing: number, time: number): Quaternion => {
-    const index = getIndexOfSession(userData, sessionName);
-    const swingData = getSwing(userData, sessionName, swing);
+    //const index = getIndexOfSession(userData, sessionName);
+    //const swingData = getSwing(userData, sessionName, swing);
+    const swingPoints = getPointsInsideASwing(userData, sessionName, swing);
+    let quaternion: Quaternion = {real: 0, i: 0, j: 0, k: 0};
+    swingPoints.forEach(dataPoint => {
+        if(time === dataPoint.time){
+            quaternion = dataPoint.quaternion;
+            return quaternion;
+        }
+    });
+    return quaternion;
+}
+
+export const getPosition = (userData: UserSessionsData, sessionName: string, swing: number, time: number): Position => {
+    //const index = getIndexOfSession(userData, sessionName);
+    //const swingData = getSwing(userData, sessionName, swing);
+    const swingPoints = getPointsInsideASwing(userData, sessionName, swing);
+    let position: Position = {x: 0, y: 0, z: 0};
+    swingPoints.forEach(dataPoint => {
+        if(time === dataPoint.time){
+            position = dataPoint.position;
+            return position;
+        }
+    });
+    return position;
 }
 
 
