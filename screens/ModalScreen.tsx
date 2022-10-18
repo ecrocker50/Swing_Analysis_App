@@ -7,7 +7,7 @@ import { Button, Platform } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
 import { convertMillisToSeconds} from '../helpers/numberConversions';
-import { getMaxTimeOfSwing, getTimeOfContact } from '../helpers/userDataHelpers';
+import { getMaxTimeOfSwing, getPosition, getQuaternions, getTimeOfContact } from '../helpers/userDataHelpers';
 import {
     setCurrentTime,
     selectCurrentTimeMilliseconds, 
@@ -54,8 +54,13 @@ export default function ModalScreen() {
             <Text style={styles.normalText}>Swing:   {selectedSwing}</Text>
 
             <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, selectedSwing)}ms</Text>
-
-
+            <Text style={styles.normalText}>Quaternion real:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).real}</Text>
+            <Text style={styles.normalText}>Quaternion i:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).i}</Text>
+            <Text style={styles.normalText}>Quaternion j:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).j}</Text>
+            <Text style={styles.normalText}>Quaternion k:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).k}</Text>
+            <Text style={styles.normalText}>Position x:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).x}</Text>
+            <Text style={styles.normalText}>Position y:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).y}</Text>
+            <Text style={styles.normalText}>Position z:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).z}</Text>
         </View>
     );
 }

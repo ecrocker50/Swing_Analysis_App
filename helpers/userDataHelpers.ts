@@ -1,6 +1,13 @@
 import { useReducer } from 'react';
-import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession } from '../types'
+import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession, Quaternion } from '../types'
 
+/**
+ * 
+ */
+export const getQuaternions = (userData: UserSessionsData, sessionName: string, swing: number, time: number): Quaternion => {
+    const index = getIndexOfSession(userData, sessionName);
+    const swingData = getSwing(userData, sessionName, swing);
+}
 
 
 /** Gets an array of all the session names inside the userData object
