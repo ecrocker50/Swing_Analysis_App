@@ -1,23 +1,33 @@
+
+import { Button } from 'react-native';
+import React, { Dispatch, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { AnyAction } from '@reduxjs/toolkit';
 import SelectList from 'react-native-dropdown-select-list';
 import { useNavigation } from '@react-navigation/native';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 import { styles } from '../styles';
-import React, { useState } from 'react';
 import {
     crappyDataMock,
     getAllSessionNames,
     getSwingsInsideSession
 } from '../helpers/userDataHelpers';
-import { Button } from 'react-native';
+import {
+    setSelectedSession,
+    setSelectedSwing
+} from '../store/swingDataSlice';
+
+
 
 
 
 
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
-    const [selectedSession, setSelectedSession] = useState<string>("");
-    const [selectedSwing,   setSelectedSwing]   = useState<number>(-1);
+    const dispatch = useDispatch();
+    const [chosenSession, setChosenSession] = useState<string>("");
+    const [chosenSwing,   setChosenSwing]   = useState<number>(-1);
 
     const navigationHook = useNavigation();
 
@@ -29,11 +39,11 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
 
         <View style={styles.space_extra_large} />
 
-        {chooseASessionSection(selectedSession, setSelectedSession)}
+        {chooseASessionSection(dispatch, chosenSession, setChosenSession)}
         <View style={styles.space_medium} />
-        {chooseASwingSection(selectedSwing, setSelectedSwing, selectedSession)}
+        {chooseASwingSection(dispatch, chosenSession, chosenSwing, setChosenSwing)}
         <View style={styles.space_extra_large} />
-        {viewSwingButton(selectedSwing, navigationHook)}
+        {viewSwingButton(chosenSwing, navigationHook)}
 
         </View>
     );
@@ -44,7 +54,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
 
 
 
-const chooseASessionSection = (selectedSession: string, setSelectedSession: React.Dispatch<React.SetStateAction<string>>): JSX.Element => {
+const chooseASessionSection = (dispatch: Dispatch<AnyAction>, chosenSession: string, setChosenSession: React.Dispatch<React.SetStateAction<string>>): JSX.Element => {
     return (
         <View>
             <Text style={styles.title}>
@@ -59,21 +69,21 @@ const chooseASessionSection = (selectedSession: string, setSelectedSession: Reac
                 dropdownItemStyles={styles.dropdownItem}
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelectedText}
-                setSelected={setSelectedSession}
-                onSelect={() => console.log("")}
+                setSelected={setChosenSession}
+                onSelect={() => dispatch(setSelectedSession(chosenSession))}
             />
         </View>
     );
-}
+};
 
 
-const chooseASwingSection = (selectedSwing: number, setselectedSwing: React.Dispatch<React.SetStateAction<number>>, selectedSession: string): JSX.Element => {
-    const swings = getSwingsInsideSession(crappyDataMock, selectedSession);
+const chooseASwingSection = (dispatch: Dispatch<AnyAction>, chosenSession: string, chosenSwing: number, setChosenSwing: React.Dispatch<React.SetStateAction<number>>): JSX.Element => {
+    const swings = getSwingsInsideSession(crappyDataMock, chosenSession);
     const swingIndexArray = Array.apply(null, Array(swings.length)).map((value, index) => index);
 
-    const placeholderDisplay = selectedSwing !== -1 ? selectedSwing.toString() : "select";
+    const placeholderDisplay = chosenSwing !== -1 ? chosenSwing.toString() : "select";
 
-    if (selectedSession) {
+    if (chosenSession) {
         return (
             <View>
                 <Text style={styles.title}>
@@ -88,8 +98,8 @@ const chooseASwingSection = (selectedSwing: number, setselectedSwing: React.Disp
                     dropdownItemStyles={styles.dropdownItem}
                     dropdownTextStyles={styles.dropdownText}
                     inputStyles={styles.dropdownSelectedText}
-                    setSelected={setselectedSwing}
-                    onSelect={() => console.log(selectedSwing)}
+                    setSelected={setChosenSwing}
+                    onSelect={() => dispatch(setSelectedSwing(chosenSwing))}
                 />
             </View>
         );
@@ -97,7 +107,7 @@ const chooseASwingSection = (selectedSwing: number, setselectedSwing: React.Disp
     else {
         return <View></View>;
     }
-}
+};
 
 
 
@@ -107,7 +117,7 @@ const viewSwingButton = (selectedSwing: number, navigation: any): JSX.Element =>
     if (selectedSwing !== -1) {
         return (
             <View>
-                <Button title="Visualize Swing" onPress={() => navigation.navigate('Modal')}></Button>
+                <Button title="Analyze Swing" onPress={() => navigation.navigate('Modal')}></Button>
             </View>
         );
     }
@@ -116,7 +126,7 @@ const viewSwingButton = (selectedSwing: number, navigation: any): JSX.Element =>
             <View></View>
         );
     }
-}
+};
 
 
 

@@ -53,9 +53,9 @@ export default function ModeSelectScreen({ navigation }: RootTabScreenProps<'Mod
  * @param mode The mode that the app is in (forehand, backhand, etc)
  * @returns JSX.Element - the text element to display for the specific mode
  */
-function ModeDescriptions(mode: Mode): JSX.Element {
+const ModeDescriptions = (mode: Mode): JSX.Element => {
     let textComponent;
-    const textStyle = styles.regularText;
+    const textStyle = styles.normalText;
 
     if (mode == ModeOptions[0]) {
         textComponent = 
@@ -86,4 +86,4 @@ function ModeDescriptions(mode: Mode): JSX.Element {
     }
 
     return textComponent;
-}
+};

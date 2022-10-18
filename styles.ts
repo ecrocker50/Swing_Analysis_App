@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
     },
-    regularText: {
+    normalText: {
         fontSize: 18,
         marginRight: 15,
         marginLeft: 15

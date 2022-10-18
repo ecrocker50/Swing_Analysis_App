@@ -79,16 +79,16 @@ export type UserSessionsData = Array<SingleSession>;
 /**
  * This is the global 'state' type. Everything in here will be able to be accessed globally by hooking into the store
  */
-export type State = {
+export type RootState = {
     modeSelect: {
         mode: Mode;
     };
     time: {
-        endTimeMilliseconds: number;
         currentTimeMilliseconds: number;
-        timeOfImpactMilliseconds: number;
     };
     swingData: {
         userSessions: UserSessionsData;
+        selectedSession: string;
+        selectedSwing: number;
     };
 };

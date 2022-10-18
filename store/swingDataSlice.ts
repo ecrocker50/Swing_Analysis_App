@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SingleDataPoint, SingleSwing, State } from '../types';
+import { SingleDataPoint, SingleSwing, RootState } from '../types';
 
 import { 
     crappyDataMock,
@@ -59,12 +59,12 @@ export const swingDataSlice = createSlice({
 
 
 // these are the actions we can dispatch
-export const { pushPointToSwing, pushSwingToSession, createNewSession } = swingDataSlice.actions;
+export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing } = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains
-export const selectUserSessions    = (state: State) => state.swingData.userSessions;
-export const selectSelectedSession = (state: State) => state.swingData.selectedSession;
-export const selectSelectedSwing   = (state: State) => state.swingData.selectedSwing;
+export const selectUserSessions    = (state: RootState) => state.swingData.userSessions;
+export const selectSelectedSession = (state: RootState) => state.swingData.selectedSession;
+export const selectSelectedSwing   = (state: RootState) => state.swingData.selectedSwing;
 
 // this is for configureStore()
 export const swingDataReducer = swingDataSlice.reducer;

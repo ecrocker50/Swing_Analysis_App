@@ -149,201 +149,223 @@ export const createNewEmptySession = (userData: UserSessionsData, sessionName: s
 
 
 
+/** Gets the maximum (ending) time of the swing in MILLISECONDS
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param sessionName the name of the session that the swing is in
+ * @param swingIndex the index of the swing to check
+ * @returns number - the max time in milliseconds
+ */
+export const getMaxTimeOfSwing = (userData: UserSessionsData, sessionName: string, swingIndex: number): number => {
+    const swing = getSwing(userData, sessionName, swingIndex);
+    const len = swing.points.length;
+
+    return swing.points[len - 1].time;
+};
 
 
+/** Gets the time of contact for a specified swing
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param sessionName the name of the session that the swing is in
+ * @param swingIndex the index of the swing to check
+ * @returns number - the time in milliseconds
+ */
+export const getTimeOfContact = (userData: UserSessionsData, sessionName: string, swingIndex: number): number => {
+    const swing = getSwing(userData, sessionName, swingIndex);
 
-
-
+    return swing.timeOfContact;
+};
 
 
 export const crappyDataMock = [
+    {
+        sessionName: "session0",
+        swings: [
+            {
+                points: [
+                    {
+                        time: 0,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 1,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 3,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 5,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 6,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 8,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 11,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 13,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                ],
+                timeOfContact: 8
+            },
+            {
+                points: [
+                    {
+                        time: 0,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 1,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 2,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 3,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 6,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 7,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 8,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                    {
+                        time: 9,
+                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
+                        position: {x: 1, y: 1, z: 1}
+                    },
+                ],
+                timeOfContact: 6
+            }
+        ]
+    },
     {
         sessionName: "session1",
         swings: [
             {
                 points: [
                     {
-                        time: 0.000,
+                        time: 0,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.001,
+                        time: 1,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.003,
+                        time: 4,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.004,
+                        time: 6,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.006,
+                        time: 12,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.008,
+                        time: 22,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.011,
+                        time: 26,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.013,
+                        time: 27,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                 ],
-                timeOfContact: .011
+                timeOfContact: 22
             },
             {
                 points: [
                     {
-                        time: 0.000,
+                        time: 0,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.001,
+                        time: 2,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.003,
+                        time: 4,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.004,
+                        time: 9,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.006,
+                        time: 11,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.008,
+                        time: 13,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.011,
+                        time: 14,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                     {
-                        time: 0.013,
+                        time: 19,
                         quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
                         position: {x: 1, y: 1, z: 1}
                     },
                 ],
-                timeOfContact: .011
-            }
-        ]
-    },
-    {
-        sessionName: "session2",
-        swings: [
-            {
-                points: [
-                    {
-                        time: 0.000,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.001,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.003,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.004,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.006,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.008,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.011,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.013,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                ],
-                timeOfContact: .011
-            },
-            {
-                points: [
-                    {
-                        time: 0.000,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.001,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.003,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.004,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.006,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.008,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.011,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 0.013,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                ],
-                timeOfContact: .011
+                timeOfContact: 9
             }
         ]
     },
