@@ -45,7 +45,7 @@ export default function ModalScreen() {
 
             <Slider 
                 style={styles.slider} 
-                onValueChange={(value) => dispatch(setCurrentTime(value))}
+                onValueChange={(value) => dispatch(setCurrentTime(parseInt(value.toString())))}
                 maximumValue={getMaxTimeOfSwing(userSessions, selectedSession, selectedSwing)}
                 minimumValue={0}
             />
