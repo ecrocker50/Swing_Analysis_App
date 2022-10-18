@@ -3,7 +3,6 @@ import { State } from '../types';
 
 // default state that mode initializes to on app bootup
 const initialState = {
-    mode: 'forehand', 
     endTimeMilliseconds: 0,          // the ending time of the swing
     currentTimeMilliseconds: 0,      // the time that is currently selected to view by the user
     timeOfImpactMilliseconds: 0,     // the time of impact with the ball
@@ -20,7 +19,7 @@ export const timeSlice = createSlice({
             state.timeOfImpactMilliseconds = action.payload;
         },
         /** Sets the time that the user has selected to view **/
-        setSelectedTime: (state, action: PayloadAction<number>) => {
+        setCurrentTime: (state, action: PayloadAction<number>) => {
             state.currentTimeMilliseconds = action.payload;
         },
         /** Sets the ending time of the swing (used as an upper bound of time) **/
@@ -50,9 +49,9 @@ export const timeSlice = createSlice({
 
 
 // these are the actions we can dispatch
-export const { setTimeOfImpact, setSelectedTime, setEndTime, incrementCurrentTime, decrementCurrentTime } = timeSlice.actions;
+export const { setTimeOfImpact, setCurrentTime, setEndTime, incrementCurrentTime, decrementCurrentTime } = timeSlice.actions;
 
-// these are the 'selectord' that are used to peek what the state.pointInTime contains
+// these are the 'selectors' that are used to peek what the state.time contains
 export const selectCurrentTimeMilliseconds  = (state: State) => state.time.currentTimeMilliseconds;
 export const selectEndTimeMilliseconds      = (state: State) => state.time.endTimeMilliseconds;
 export const selectTimeOfImpactMilliseconds = (state: State) => state.time.timeOfImpactMilliseconds;

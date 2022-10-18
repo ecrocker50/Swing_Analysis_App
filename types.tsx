@@ -43,6 +43,38 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 // The modes of swings that are supported
 export type Mode = "Serve" | "Forehand" | "Backhand";
 
+export type Quaternion = {
+    real: number;
+    i:    number;
+    j:    number;
+    k:    number;
+};
+
+export type Position = {
+    x: number;
+    y: number;
+    z: number;
+};
+
+export type SingleDataPoint = {
+    time: number;
+    quaternion: Quaternion;
+    position: Position;
+};
+
+export type SingleSwing = {
+    points: Array<SingleDataPoint>;
+    timeOfContact: number;
+};
+
+export type SingleSession = {
+    sessionName: string;
+    swings: Array<SingleSwing>
+};
+
+export type UserSessionsData = Array<SingleSession>;
+    
+
 
 /**
  * This is the global 'state' type. Everything in here will be able to be accessed globally by hooking into the store
@@ -50,10 +82,13 @@ export type Mode = "Serve" | "Forehand" | "Backhand";
 export type State = {
     modeSelect: {
         mode: Mode;
-    }
+    };
     time: {
-        endTimeMilliseconds: number,
-        currentTimeMilliseconds: number,
-        timeOfImpactMilliseconds: number,
-    }
+        endTimeMilliseconds: number;
+        currentTimeMilliseconds: number;
+        timeOfImpactMilliseconds: number;
+    };
+    swingData: {
+        userSessions: UserSessionsData;
+    };
 };

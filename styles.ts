@@ -22,6 +22,12 @@ export const styles = StyleSheet.create({
     },
 
 
+    // Sliders
+    slider: {
+        width: "80%",
+    },
+
+
     // Containers
     container: {
         flex: 1,
@@ -30,6 +36,7 @@ export const styles = StyleSheet.create({
     },
     topContainer: {
         flex: 1,
+        paddingTop: 15,
         alignItems: 'center',
     },
 
@@ -55,7 +62,7 @@ export const styles = StyleSheet.create({
     lineUnderTitle: {
         marginBottom: 15,
         marginTop: 5,
-        height: 2,
+        height: 1,
         width: '80%',
         backgroundColor: '#444444'
     },
