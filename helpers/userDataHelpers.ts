@@ -1,5 +1,5 @@
 import { useReducer } from 'react';
-import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession, Quaternion, Position } from '../types'
+import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession, Quaternion, Position, Mode } from '../types'
 
 /**
  * 
@@ -167,10 +167,12 @@ export const pushDataPoint = (userData: UserSessionsData, sessionName: string, s
  * 
  * @param userData the userData object with all the sessions in it
  * @param sessionName the name of the session to create
+ * @param sessionMode the mode of the session
  */
-export const createNewEmptySession = (userData: UserSessionsData, sessionName: string) => {
+export const createNewEmptySession = (userData: UserSessionsData, sessionName: string, sessionMode: Mode) => {
     const newSession: SingleSession = {
         sessionName,
+        mode: sessionMode,
         swings: []
     }
 
@@ -208,9 +210,23 @@ export const getTimeOfContact = (userData: UserSessionsData, sessionName: string
 };
 
 
+/** Gets the mode of a session
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param sessionName the name of the session to get the mode of
+ * @returns Mode - the mode that the session is
+ */
+export const getModeOfSession = (userData: UserSessionsData, sessionName: string): Mode => {
+    const sessionIndex = getIndexOfSession(userData, sessionName);
+    
+    return userData[sessionIndex].mode;
+}
+
+
 export const crappyDataMock: UserSessionsData = [
     {
         sessionName: "session0",
+        mode: "Backhand",
         swings: [
             {
                 points: [
@@ -306,6 +322,7 @@ export const crappyDataMock: UserSessionsData = [
     },
     {
         sessionName: "session1",
+        mode: "Forehand",
         swings: [
             {
                 points: [

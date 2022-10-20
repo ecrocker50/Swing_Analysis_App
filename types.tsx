@@ -69,6 +69,7 @@ export type SingleSwing = {
 
 export type SingleSession = {
     sessionName: string;
+    mode: Mode;
     swings: Array<SingleSwing>
 };
 
