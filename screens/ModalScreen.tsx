@@ -1,5 +1,6 @@
 import React from 'react';
 import Slider from '@react-native-community/slider';
+//import Plot from 'react-plotly.js';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Platform } from 'react-native';
@@ -54,13 +55,15 @@ export default function ModalScreen() {
             <Text style={styles.normalText}>Swing:   {selectedSwing}</Text>
 
             <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, selectedSwing)}ms</Text>
-            <Text style={styles.normalText}>Quaternion real:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).real}</Text>
-            <Text style={styles.normalText}>Quaternion i:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).i}</Text>
-            <Text style={styles.normalText}>Quaternion j:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).j}</Text>
-            <Text style={styles.normalText}>Quaternion k:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).k}</Text>
-            <Text style={styles.normalText}>Position x:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).x}</Text>
-            <Text style={styles.normalText}>Position y:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).y}</Text>
-            <Text style={styles.normalText}>Position z:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).z}</Text>
+            
         </View>
     );
 }
+//raw data display with time
+//<Text style={styles.normalText}>Quaternion real:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).real}</Text>
+//<Text style={styles.normalText}>Quaternion i:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).i}</Text>
+//<Text style={styles.normalText}>Quaternion j:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).j}</Text>
+//<Text style={styles.normalText}>Quaternion k:   {getQuaternions(userSessions, selectedSession, selectedSwing, currentTimeMS).k}</Text>
+//<Text style={styles.normalText}>Position x:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).x}</Text>
+//<Text style={styles.normalText}>Position y:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).y}</Text>
+//<Text style={styles.normalText}>Position z:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).z}</Text>

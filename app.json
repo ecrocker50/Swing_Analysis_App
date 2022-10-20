@@ -25,7 +25,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ecrock.Swing_Analysis_477"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

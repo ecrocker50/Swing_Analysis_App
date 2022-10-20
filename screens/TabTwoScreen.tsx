@@ -38,7 +38,7 @@ const scanandConnect = (ble_Manager: BleManager) => {
             })
             .then((device) => {
                 // Do work on device with services and characteristics
-                const characteristic1 = device.readCharacteristicForService("0x00FF", "0xFF01");
+                let characteristic1 = device.readCharacteristicForService("0x00FF", "0xFF01");
                 console.log(characteristic1);
                 return characteristic1;
             })
