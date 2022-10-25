@@ -12,6 +12,7 @@ const ble_Manager = new BleManager();
 
 export default function TabTwoScreen() {
     const [characteristic, setCharacteristic] = useState<Characteristic | undefined>(undefined);
+    const [mode_characteristic, set_mode_characteristic] = useState<Characteristic | undefined>(undefined);
     const mode = useSelector(selectMode)
     return (
         <View style={styles.topContainer}>
@@ -25,10 +26,10 @@ export default function TabTwoScreen() {
             ?
                 <Button title={"Disconnect"} onPress={() => disconnect(setCharacteristic, ble_Manager)}></Button>
             :
-                <Button title={"Connect"} onPress={() => scanandConnect(setCharacteristic, ble_Manager)}></Button>
+                <Button title={"Connect"} onPress={() => scanandConnect(setCharacteristic, set_mode_characteristic, ble_Manager)}></Button>
             }
             <View style={styles.space_small} />
-            <Button title={"Write Dummy Data"} onPress={() => writeData(characteristic, mode)}></Button>
+            <Button title={"Write Dummy Data"} onPress={() => writeData(mode_characteristic, mode)}></Button>
             <View style={styles.space_small} />
             <Button title={"Read Dummy Data"} onPress={async () => console.log(await readData(characteristic))}></Button>
         </View>
@@ -37,16 +38,17 @@ export default function TabTwoScreen() {
 
 
 const writeData = (mode_characteristic: Characteristic | undefined, Mode: Mode): void => {
-    let mode_string = "3"
+    let mode_string = "EE"
     if(Mode === "Backhand"){
-        mode_string = "0";
+        mode_string = "AA";
     }
     else if(Mode === "Forehand"){
-        mode_string = "1";
+        mode_string = "BB";
     }
     else if(Mode === "Serve"){
-        mode_string = "2";
+        mode_string = "CC";
     }
+
     if (mode_characteristic !== undefined) {
         mode_characteristic.writeWithoutResponse(mode_string);
     }
@@ -118,7 +120,7 @@ const disconnect = async (setCharacteristic: React.Dispatch<React.SetStateAction
     setCharacteristic(undefined);
 };
 
-const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
+const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, set_mode_characteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
     
 
     ble_Manager.startDeviceScan(null, null, (error, device) => {
@@ -171,7 +173,7 @@ const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<C
                 }
                 */
                 const mode_characteristic = await device.readCharacteristicForService("000000ee-0000-1000-8000-00805f9b34fb", "0000ee01-0000-1000-8000-00805f9b34fb");
-                setCharacteristic(mode_characteristic);
+                set_mode_characteristic(mode_characteristic);
                 // console.log((await characteristic1.read()).value);
                 // while (true) {
                 //     // buffer = new Buffer((await characteristic1.read()).value);
