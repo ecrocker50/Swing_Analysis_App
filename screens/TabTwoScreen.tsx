@@ -3,27 +3,37 @@ import { styles } from '../styles';
 import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Button } from 'react-native';
 import { Buffer } from 'buffer';
+import { useState } from 'react';
 
 const ble_Manager = new BleManager();
-let characteristic: Characteristic | undefined = undefined;
 
 export default function TabTwoScreen() {
+    const [characteristic, setCharacteristic] = useState<Characteristic | undefined>(undefined);
+
     return (
         <View style={styles.topContainer}>
             <Text style={styles.title}>BLE</Text>
             <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
-            <Button title={"Scan + Connect"} onPress={() => scanandConnect(ble_Manager)}></Button>
+            <Text style={styles.title}>{characteristic !== undefined ? "Connected!" : "Not Connected!"}</Text>
+            <View style={styles.space_large} />
+
+            { characteristic !== undefined 
+            ?
+                <Button title={"Disconnect"} onPress={() => disconnect(setCharacteristic, ble_Manager)}></Button>
+            :
+                <Button title={"Connect"} onPress={() => scanandConnect(setCharacteristic, ble_Manager)}></Button>
+            }
             <View style={styles.space_small} />
-            <Button title={"Write Dummy Data"} onPress={() => writeData("XXYYZZ")}></Button>
+            <Button title={"Write Dummy Data"} onPress={() => writeData(characteristic, "XXYYZZ")}></Button>
             <View style={styles.space_small} />
-            <Button title={"Read Dummy Data"} onPress={async () => console.log(await readData())}></Button>
+            <Button title={"Read Dummy Data"} onPress={async () => console.log(await readData(characteristic))}></Button>
         </View>
     );
 }
 
 
-const writeData = (dataToWrite: string): void => {
+const writeData = (characteristic: Characteristic | undefined, dataToWrite: string): void => {
     if (characteristic !== undefined) {
         characteristic.writeWithoutResponse(dataToWrite);
     }
@@ -36,9 +46,10 @@ const writeData = (dataToWrite: string): void => {
 /** Sends a read request to the ESP32. 
  * It then reads the data sent by the ESP32 that was stored in it's storedData buffer.
  * 
+ * @param characteristic - the characteristic from which to read from
  * @returns Promise<Array<number> | undefined> - The array of floats that the ESP32 transmitted
  */
-const readData = async (): Promise<Array<number> | undefined> => {
+const readData = async (characteristic: Characteristic | undefined): Promise<Array<number> | undefined> => {
     if (characteristic !== undefined) {
         let data = (await characteristic.read()).value;
 
@@ -86,7 +97,15 @@ const readData = async (): Promise<Array<number> | undefined> => {
 };
 
 
-const scanandConnect = (ble_Manager: BleManager) => {
+const disconnect = async (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
+    // ble_Manager.cancelDeviceConnection('ESP_GATTS_DEMO');
+    const devices = await ble_Manager.connectedDevices(["000000ff-0000-1000-8000-00805f9b34fb"]);
+    ble_Manager.cancelDeviceConnection(devices[0].id);
+
+    setCharacteristic(undefined);
+};
+
+const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
     
 
     ble_Manager.startDeviceScan(null, null, (error, device) => {
@@ -124,7 +143,8 @@ const scanandConnect = (ble_Manager: BleManager) => {
                 //     characteristics.forEach((characteristic => {console.log(characteristic.uuid); console.log(characteristic.serviceUUID)}));
                 // });
 
-                characteristic = await device.readCharacteristicForService("000000ff-0000-1000-8000-00805f9b34fb", "0000ff01-0000-1000-8000-00805f9b34fb");
+                const characteristic = await device.readCharacteristicForService("000000ff-0000-1000-8000-00805f9b34fb", "0000ff01-0000-1000-8000-00805f9b34fb");
+                setCharacteristic(characteristic);
                 // console.log((await characteristic1.read()).value);
                 // while (true) {
                 //     // buffer = new Buffer((await characteristic1.read()).value);
