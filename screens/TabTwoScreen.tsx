@@ -4,12 +4,15 @@ import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Button } from 'react-native';
 import { Buffer } from 'buffer';
 import { useState } from 'react';
+import { Mode } from '../types';
+import { useSelector } from 'react-redux';
+import { selectMode } from '../store/modeSelectSlice';
 
 const ble_Manager = new BleManager();
 
 export default function TabTwoScreen() {
     const [characteristic, setCharacteristic] = useState<Characteristic | undefined>(undefined);
-
+    const mode = useSelector(selectMode)
     return (
         <View style={styles.topContainer}>
             <Text style={styles.title}>BLE</Text>
@@ -25,7 +28,7 @@ export default function TabTwoScreen() {
                 <Button title={"Connect"} onPress={() => scanandConnect(setCharacteristic, ble_Manager)}></Button>
             }
             <View style={styles.space_small} />
-            <Button title={"Write Dummy Data"} onPress={() => writeData(characteristic, "XXYYZZ")}></Button>
+            <Button title={"Write Dummy Data"} onPress={() => writeData(characteristic, mode)}></Button>
             <View style={styles.space_small} />
             <Button title={"Read Dummy Data"} onPress={async () => console.log(await readData(characteristic))}></Button>
         </View>
@@ -33,9 +36,19 @@ export default function TabTwoScreen() {
 }
 
 
-const writeData = (characteristic: Characteristic | undefined, dataToWrite: string): void => {
-    if (characteristic !== undefined) {
-        characteristic.writeWithoutResponse(dataToWrite);
+const writeData = (mode_characteristic: Characteristic | undefined, Mode: Mode): void => {
+    let mode_string = "3"
+    if(Mode === "Backhand"){
+        mode_string = "0";
+    }
+    else if(Mode === "Forehand"){
+        mode_string = "1";
+    }
+    else if(Mode === "Serve"){
+        mode_string = "2";
+    }
+    if (mode_characteristic !== undefined) {
+        mode_characteristic.writeWithoutResponse(mode_string);
     }
     else {
         console.log("ERROR - please connect first!");
@@ -144,7 +157,21 @@ const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<C
                 // });
 
                 const characteristic = await device.readCharacteristicForService("000000ff-0000-1000-8000-00805f9b34fb", "0000ff01-0000-1000-8000-00805f9b34fb");
+                let mode_string = "3";
                 setCharacteristic(characteristic);
+                /*
+                if(Mode === "Backhand"){
+                    mode_string = "0";
+                }
+                else if(Mode === "Forehand"){
+                    mode_string = "1";
+                }
+                else if(Mode === "Serve"){
+                    mode_string = "2";
+                }
+                */
+                const mode_characteristic = await device.readCharacteristicForService("000000ee-0000-1000-8000-00805f9b34fb", "0000ee01-0000-1000-8000-00805f9b34fb");
+                setCharacteristic(mode_characteristic);
                 // console.log((await characteristic1.read()).value);
                 // while (true) {
                 //     // buffer = new Buffer((await characteristic1.read()).value);
