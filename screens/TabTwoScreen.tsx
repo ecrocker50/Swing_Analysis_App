@@ -1,8 +1,8 @@
-import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
 import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Button } from 'react-native';
+import { Buffer } from 'buffer';
 
 const ble_Manager = new BleManager();
 let characteristic: Characteristic | undefined = undefined;
@@ -33,12 +33,55 @@ const writeData = (dataToWrite: string): void => {
 };
 
 
-const readData = async (): Promise<string | null | undefined> => {
+/** Sends a read request to the ESP32. 
+ * It then reads the data sent by the ESP32 that was stored in it's storedData buffer.
+ * 
+ * @returns Promise<Array<number> | undefined> - The array of floats that the ESP32 transmitted
+ */
+const readData = async (): Promise<Array<number> | undefined> => {
     if (characteristic !== undefined) {
-        return (await characteristic.read()).value;
+        let data = (await characteristic.read()).value;
+
+        if (data === null) {
+            return undefined;
+        }
+
+        const floatArray: Array<number> = [];
+
+        // Decode data from base64 to a string of hex digits
+        const buff = Buffer.from(data, 'base64');
+        const hexString = buff.toString('hex');
+        
+        // The number of bytes is two times less than the number of digits in the hex string
+        const stringLen = hexString.length;
+        const numOfBytes = stringLen / 2;
+
+        // Match any two digits with the regex. This separates it into an array of bytes instead of one long string
+        const bytes: Array<string> | null = hexString.match(/../g);
+
+        // Create the data view, which will hold and manipulate our stored data
+        const arrayBuff = new ArrayBuffer(stringLen);
+        const view = new DataView(arrayBuff);
+
+        // Populate the data view by converting each hex byte to a uint8_t
+        bytes?.forEach((value, index) => {
+            const int = parseInt(value, 16);
+            view.setUint8(index, int);
+        });
+
+        
+        // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to uint32_t.
+        // To convert to float, we simply divide by the same number we multiplied by on the ESP32 side (giving us 6 decimal precision)
+        for (let i = 0; i < numOfBytes; i += 4) {
+            floatArray.push(view.getUint32(i, true) / 1000000);
+        }
+
+        return floatArray;
     }
     else {
         console.log("ERROR - please connect first!");
+
+        return undefined;
     }
 };
 
