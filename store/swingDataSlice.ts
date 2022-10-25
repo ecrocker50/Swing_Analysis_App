@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SingleDataPoint, SingleSwing, RootState } from '../types';
+import { SingleDataPoint, SingleSwing, RootState, Mode } from '../types';
 
 import { 
     crappyDataMock,
@@ -18,6 +18,11 @@ type PushPointType = {
 type PushSwingType = {
     sessionName: string,
     swingToPush: SingleSwing
+};
+
+type CreateNewSessionType = {
+    sessionName: string,
+    sessionMode: Mode
 };
 
 
@@ -43,8 +48,8 @@ export const swingDataSlice = createSlice({
             pushSwing(state.userSessions, action.payload.sessionName, action.payload.swingToPush);
         },
         /** Creates a new, empty session that can have data pushed into it **/
-        createNewSession: (state, action: PayloadAction<string>) => {
-            createNewEmptySession(state.userSessions, action.payload);
+        createNewSession: (state, action: PayloadAction<CreateNewSessionType>) => {
+            createNewEmptySession(state.userSessions, action.payload.sessionName, action.payload.sessionMode);
         },
         /** Sets the session that was selected to analyze/view **/
         setSelectedSession: (state, action: PayloadAction<string>) => {
