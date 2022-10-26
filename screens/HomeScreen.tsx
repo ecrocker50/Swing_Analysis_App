@@ -14,27 +14,11 @@ import {
     getSwingsInsideSession
 } from '../helpers/userDataHelpers';
 import {
+    setFullUserData,
     setSelectedSession,
     setSelectedSwing
 } from '../store/swingDataSlice';
-import { firestore } from '../firebase';
-import * as database from 'firebase/firestore';
-
-
-async function getDatabaseSnapshot(firestore: database.Firestore): Promise<UserSessionsData> {
-    
-    let sessions: UserSessionsData = [];
-
-    // Get the Firestore collection reference
-    const collectionRef = database.collection(firestore, "user1");
-
-    await database.getDocs(collectionRef).then(docSnapshot => {
-        // Append each document (a single session) to the sessions variable
-        docSnapshot.docs.map((document) => sessions.push(document.data() as SingleSession));
-    });
-
-    return sessions
-}
+import { getUserSessionsFromDB } from '../firebase/read';
 
 
 
@@ -44,6 +28,10 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const [chosenSwing,   setChosenSwing]   = useState<number>(-1);
 
     const navigationHook = useNavigation();
+
+
+
+    // dispatch(setFullUserData(async () => await getUserSessionsFromDB()));
     
     return (
         <View style={styles.topContainer}>
@@ -51,7 +39,6 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         <View style={styles.lineUnderTitle} />
 
         <View style={styles.space_extra_large} />
-        <Button title={"try"} onPress={async () => console.log(await getDatabaseSnapshot(firestore))}></Button>
 
         {chooseASessionSection(dispatch, chosenSession, setChosenSession)}
         <View style={styles.space_medium} />
@@ -141,6 +128,7 @@ const viewSwingButton = (selectedSwing: number, navigation: any): JSX.Element =>
         );
     }
 };
+
 
 
 

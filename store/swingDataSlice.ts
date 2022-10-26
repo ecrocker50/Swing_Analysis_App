@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SingleDataPoint, SingleSwing, RootState, Mode } from '../types';
+import { SingleDataPoint, SingleSwing, RootState, Mode, UserSessionsData } from '../types';
 
 import { 
     crappyDataMock,
@@ -58,13 +58,17 @@ export const swingDataSlice = createSlice({
         /** Sets the swing that was selected to analyze/view **/
         setSelectedSwing: (state, action: PayloadAction<number>) => {
             state.selectedSwing = action.payload;
+        },
+        /** Sets the full user data. This will likely only be called on app boot when data is being populated from DB */
+        setFullUserData: (state, action: PayloadAction<UserSessionsData>) => {
+            state.userSessions = action.payload;
         }
     }
 });
 
 
 // these are the actions we can dispatch
-export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing } = swingDataSlice.actions;
+export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing, setFullUserData } = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains
 export const selectUserSessions    = (state: RootState) => state.swingData.userSessions;
