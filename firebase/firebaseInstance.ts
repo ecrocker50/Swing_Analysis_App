@@ -1,8 +1,12 @@
 import { initializeApp } from 'firebase/app';
 import * as database from 'firebase/firestore';
 
+
+/** Configures Firestore. DO NOT MODIFY THE FIREBASECONFIG VAR
+ * 
+ * @returns Firestore - the configured Firestore instance
+ */
 const configureFirebase = (): database.Firestore => {
-    console.log("configure");
     const firebaseConfig = {
         apiKey: "AIzaSyAco6QlMVq2XUul6wCGy2vKa2SClWFmo3E",
         authDomain: "swinganalysis-47b58.firebaseapp.com",
@@ -14,10 +18,11 @@ const configureFirebase = (): database.Firestore => {
     };
 
     const app = initializeApp(firebaseConfig);
-
     const firestore = database.initializeFirestore(app, {experimentalForceLongPolling: true});
     
     return firestore
 }
 
+
+// A variable holding our configured firebase instance. Use this if you need the raw Firestore object
 export const firestore = configureFirebase();

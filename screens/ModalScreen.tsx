@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { Dispatch } from 'react';
 import Slider from '@react-native-community/slider';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Platform } from 'react-native';
-
+import { Platform } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
 import { convertMillisToSeconds} from '../helpers/numberConversions';
-import { getMaxTimeOfSwing, getPosition, getQuaternions, getTimeOfContact } from '../helpers/userDataHelpers';
+import { getMaxTimeOfSwing, getPosition, getQuaternions, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataHelpers';
 import {
     setCurrentTime,
     selectCurrentTimeMilliseconds, 
@@ -17,6 +16,7 @@ import {
     selectSelectedSwing, 
     selectUserSessions
 } from '../store/swingDataSlice';
+import { AnyAction } from '@reduxjs/toolkit';
 
 
 
@@ -26,6 +26,8 @@ export default function ModalScreen() {
     const selectedSession = useSelector(selectSelectedSession);
     const selectedSwing   = useSelector(selectSelectedSwing);
     const userSessions    = useSelector(selectUserSessions);
+
+    const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, selectedSwing);
 
     return (
         <View style={styles.topContainer}>
@@ -45,7 +47,7 @@ export default function ModalScreen() {
 
             <Slider 
                 style={styles.slider} 
-                onValueChange={(value) => dispatch(setCurrentTime(parseInt(value.toString())))}
+                onValueChange={(value) => correctSliderValueAndSetStore(dispatch, value, allSwingTimePoints)}//dispatch(setCurrentTime(parseInt(value.toString())))}
                 maximumValue={getMaxTimeOfSwing(userSessions, selectedSession, selectedSwing)}
                 minimumValue={0}
             />
@@ -64,3 +66,25 @@ export default function ModalScreen() {
         </View>
     );
 }
+
+
+
+
+/** Corrects the raw slider value. Prevents the bug of it trying to find data for a time that we don't have any for
+ * @example correctSliderValueAndSetStore(dispatch, 8, [1, 2, 3, 6, 9, 10, 15, 21, 23]);
+ *          // This ^^^ sets currentTimeMilliseconds in the store
+ *      Then, the time will be set to the next largest after the target, so in this case 9.
+ * 
+ * @param dispatch The dispatch hook
+ * @param rawValue the raw value that the slider is set to
+ * @param allSwingTimePoints An array of numbers that represent all points in time of the swing. THESE MUST BE IN ASCENDING ORDER
+ */
+const correctSliderValueAndSetStore = (dispatch: Dispatch<AnyAction>, rawValue: number, allSwingTimePoints: Array<Number>) => {
+    // Find the element that is the first one to be >= the raw value it tries to set to.
+    // This ONLY works if allSwingTimePoints is in ascending order. 
+    const element = allSwingTimePoints.find((time) => time >= rawValue);
+
+    const newValue = element !== undefined ? element : rawValue
+
+    dispatch(setCurrentTime(parseInt(newValue.toString())))
+};

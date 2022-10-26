@@ -1,11 +1,19 @@
+import { AnyAction } from '@reduxjs/toolkit';
 import * as database from 'firebase/firestore';
-import { SingleSession, UserSessionsData } from '../types';
-import { firestore } from '../firebase/firebaseInstance';
+import { Dispatch } from 'react';
+import { setFullUserData } from '../store/swingDataSlice';
+import { UserSessionsData } from '../types';
+import { firestore } from './firebaseInstance';
 
 
 
-
-export async function getUserSessionsFromDB(): Promise<UserSessionsData> {
+/** Gets the user's sessions from the Firestore database and returns them.
+ * This will happen asynchronously. 
+ * 
+ * @param docToGet - the document to get the sessions from. Defaults to 'swingData', which can be left as so.
+ * @returns Promise<UserSessionsData> - The user's session data from the database
+ */
+export const getUserSessionsFromDocumentInDB = async (docToGet: string = "swingData"): Promise<UserSessionsData> => {
     
     let sessions: UserSessionsData = []; 
 
@@ -14,8 +22,29 @@ export async function getUserSessionsFromDB(): Promise<UserSessionsData> {
 
     await database.getDocs(collectionRef).then(docSnapshot => {
         // Append each document (a single session) to the sessions variable
-        docSnapshot.docs.map((document) => sessions.push(document.data() as SingleSession));
+        docSnapshot.docs.map((document) => {
+            if (document.id === docToGet) {
+                sessions = (document.data().userSessions as UserSessionsData)
+            }
+        });
     });
 
     return sessions
 }
+
+
+
+
+
+/** Populates the 'userData' property inside the store with data from the database.
+ * This happens asynchronously.
+ * 
+ * @param dispatch The dispatch hook
+ */
+ export const populateUserDataStoreFromDB = async (dispatch: Dispatch<AnyAction>) => {
+    // Get the user session data from the database
+    const userSessions = await getUserSessionsFromDocumentInDB();
+
+    // Dispatch the setFullUserData action to put the user session data in the store
+    dispatch(setFullUserData(userSessions));
+};
