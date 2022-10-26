@@ -8,7 +8,8 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "plugins": [
-      "@config-plugins/react-native-ble-plx"
+      "@config-plugins/react-native-ble-plx",
+      "@react-native-firebase/app"
     ],
     "splash": {
       "image": "./assets/images/splash.png",

@@ -6,7 +6,7 @@ import { AnyAction } from '@reduxjs/toolkit';
 import SelectList from 'react-native-dropdown-select-list';
 import { useNavigation } from '@react-navigation/native';
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import { RootTabScreenProps, UserSessionsData, SingleSession } from '../types';
 import { styles } from '../styles';
 import {
     crappyDataMock,
@@ -17,10 +17,24 @@ import {
     setSelectedSession,
     setSelectedSwing
 } from '../store/swingDataSlice';
+import { firestore } from '../firebase';
+import * as database from 'firebase/firestore';
 
 
+async function getDatabaseSnapshot(firestore: database.Firestore): Promise<UserSessionsData> {
+    
+    let sessions: UserSessionsData = [];
 
+    // Get the Firestore collection reference
+    const collectionRef = database.collection(firestore, "user1");
 
+    await database.getDocs(collectionRef).then(docSnapshot => {
+        // Append each document (a single session) to the sessions variable
+        docSnapshot.docs.map((document) => sessions.push(document.data() as SingleSession));
+    });
+
+    return sessions
+}
 
 
 
@@ -30,14 +44,14 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const [chosenSwing,   setChosenSwing]   = useState<number>(-1);
 
     const navigationHook = useNavigation();
-
-
+    
     return (
         <View style={styles.topContainer}>
         <Text style={styles.title}>Home</Text>
         <View style={styles.lineUnderTitle} />
 
         <View style={styles.space_extra_large} />
+        <Button title={"try"} onPress={async () => console.log(await getDatabaseSnapshot(firestore))}></Button>
 
         {chooseASessionSection(dispatch, chosenSession, setChosenSession)}
         <View style={styles.space_medium} />
