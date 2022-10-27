@@ -160,7 +160,16 @@ export const pushDataPoint = (userData: UserSessionsData, sessionName: string, s
     const indexOfSession = getIndexOfSession(userData, sessionName);
 
     userData[indexOfSession].swings[swingIndex].points.push(pointData);
+    //userData[indexOfSession].swings[swingIndex].points.position.x.push()
 };
+
+export const setPosition = (userData: UserSessionsData, sessionName: string, swingIndex: number, pointIndex: number, x: number, y: number, z: number) => {
+    const indexOfSession = getIndexOfSession(userData, sessionName);
+
+    userData[indexOfSession].swings[swingIndex].points[pointIndex].position.x = x;
+    userData[indexOfSession].swings[swingIndex].points[pointIndex].position.y = y;
+    userData[indexOfSession].swings[swingIndex].points[pointIndex].position.z = z;
+}
 
 
 /** Create a new, empty session that data can be pushed into

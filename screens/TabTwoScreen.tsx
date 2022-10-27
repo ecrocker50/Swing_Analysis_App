@@ -4,7 +4,7 @@ import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Button } from 'react-native';
 import { Buffer } from 'buffer';
 import { useState } from 'react';
-import { Mode } from '../types';
+import { Mode, SingleDataPoint } from '../types';
 import { useSelector } from 'react-redux';
 import { selectMode } from '../store/modeSelectSlice';
 
@@ -12,7 +12,7 @@ const ble_Manager = new BleManager();
 
 export default function TabTwoScreen() {
     const [characteristic, setCharacteristic] = useState<Characteristic | undefined>(undefined);
-    const [mode_characteristic, set_mode_characteristic] = useState<Characteristic | undefined>(undefined);
+    const [writeCharacteristic, set_writeCharacteristic] = useState<Characteristic | undefined>(undefined);
     const mode = useSelector(selectMode)
     return (
         <View style={styles.topContainer}>
@@ -26,18 +26,30 @@ export default function TabTwoScreen() {
             ?
                 <Button title={"Disconnect"} onPress={() => disconnect(setCharacteristic, ble_Manager)}></Button>
             :
-                <Button title={"Connect"} onPress={() => scanandConnect(setCharacteristic, set_mode_characteristic, ble_Manager)}></Button>
+                <Button title={"Connect"} onPress={() => scanandConnect(setCharacteristic, set_writeCharacteristic, ble_Manager)}></Button>
             }
             <View style={styles.space_small} />
-            <Button title={"Write Dummy Data"} onPress={() => writeData(mode_characteristic, mode)}></Button>
+            <Button title={"Write Mode Selection"} onPress={() => writeMode(writeCharacteristic, mode)}></Button>
             <View style={styles.space_small} />
             <Button title={"Read Dummy Data"} onPress={async () => console.log(await readData(characteristic))}></Button>
+            <View style={styles.space_small} />
+            <Button title={"End Session"} onPress={() => writeEndSession(writeCharacteristic)}></Button>
+            <View style={styles.space_small} />
         </View>
     );
 }
 
+const writeEndSession = (writeCharacteristic: Characteristic | undefined): void => {
+    let end_string = "CC"
+    if (writeCharacteristic !== undefined) {
+        writeCharacteristic.writeWithoutResponse(end_string);
+    }
+    else {
+        console.log("ERROR - please connect first!");
+    }
+}
 
-const writeData = (mode_characteristic: Characteristic | undefined, Mode: Mode): void => {
+const writeMode = (writeCharacteristic: Characteristic | undefined, Mode: Mode): void => {
     let mode_string = "EE"
     if(Mode === "Backhand"){
         mode_string = "AA";
@@ -49,8 +61,8 @@ const writeData = (mode_characteristic: Characteristic | undefined, Mode: Mode):
         mode_string = "CC";
     }
 
-    if (mode_characteristic !== undefined) {
-        mode_characteristic.writeWithoutResponse(mode_string);
+    if (writeCharacteristic !== undefined) {
+        writeCharacteristic.writeWithoutResponse(mode_string);
     }
     else {
         console.log("ERROR - please connect first!");
@@ -120,7 +132,7 @@ const disconnect = async (setCharacteristic: React.Dispatch<React.SetStateAction
     setCharacteristic(undefined);
 };
 
-const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, set_mode_characteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
+const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, set_writeCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
     
 
     ble_Manager.startDeviceScan(null, null, (error, device) => {
@@ -172,8 +184,8 @@ const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<C
                     mode_string = "2";
                 }
                 */
-                const mode_characteristic = await device.readCharacteristicForService("000000ee-0000-1000-8000-00805f9b34fb", "0000ee01-0000-1000-8000-00805f9b34fb");
-                set_mode_characteristic(mode_characteristic);
+                const writeCharacteristic = await device.readCharacteristicForService("000000ee-0000-1000-8000-00805f9b34fb", "0000ee01-0000-1000-8000-00805f9b34fb");
+                set_writeCharacteristic(writeCharacteristic);
                 // console.log((await characteristic1.read()).value);
                 // while (true) {
                 //     // buffer = new Buffer((await characteristic1.read()).value);
