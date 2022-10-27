@@ -40,7 +40,7 @@ export default function TabTwoScreen() {
 }
 
 const writeEndSession = (writeCharacteristic: Characteristic | undefined): void => {
-    let end_string = "CC"
+    let end_string = "DD"
     if (writeCharacteristic !== undefined) {
         writeCharacteristic.writeWithoutResponse(end_string);
     }
@@ -76,15 +76,15 @@ const writeMode = (writeCharacteristic: Characteristic | undefined, Mode: Mode):
  * @param characteristic - the characteristic from which to read from
  * @returns Promise<Array<number> | undefined> - The array of floats that the ESP32 transmitted
  */
-const readData = async (characteristic: Characteristic | undefined): Promise<Array<number> | undefined> => {
+const readData = async (characteristic: Characteristic | undefined): Promise<Array<SingleDataPoint> | undefined> => {
     if (characteristic !== undefined) {
         let data = (await characteristic.read()).value;
-
+        print("done reading")
         if (data === null) {
             return undefined;
         }
 
-        const floatArray: Array<number> = [];
+        const dataPointArray: Array<SingleDataPoint> = [];
 
         // Decode data from base64 to a string of hex digits
         const buff = Buffer.from(data, 'base64');
@@ -110,11 +110,25 @@ const readData = async (characteristic: Characteristic | undefined): Promise<Arr
         
         // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to uint32_t.
         // To convert to float, we simply divide by the same number we multiplied by on the ESP32 side (giving us 6 decimal precision)
-        for (let i = 0; i < numOfBytes; i += 4) {
-            floatArray.push(view.getUint32(i, true) / 1000000);
+        for (let i = 0; i < numOfBytes; i += 36) {
+            const singlePoint = {
+                time: view.getInt32(i+28, true) / 1000000,
+                quaternion: {
+                    real: view.getInt32(i+12, true) / 1000000,
+                    i: view.getInt32(i+16, true) / 1000000,
+                    j: view.getInt32(i+20, true) / 1000000,
+                    k: view.getInt32(i+24, true) / 1000000,
+                },
+                position: {
+                    x: view.getInt32(i, true) / 1000000,
+                    y: view.getInt32(i+4, true) / 1000000,
+                    z: view.getInt32(i+8, true) / 1000000,
+                },
+            }
+            dataPointArray.push(singlePoint as SingleDataPoint);
         }
 
-        return floatArray;
+        return dataPointArray;
     }
     else {
         console.log("ERROR - please connect first!");
