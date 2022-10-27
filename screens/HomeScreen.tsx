@@ -50,6 +50,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         <View style={styles.lineUnderTitle} />
 
         <View style={styles.space_extra_large} />
+        
 
         {chooseASessionSection(dispatch, userSessionsData, chosenSession, setChosenSession)}
         <View style={styles.space_medium} />

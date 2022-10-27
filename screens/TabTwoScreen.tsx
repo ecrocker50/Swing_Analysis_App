@@ -31,7 +31,9 @@ export default function TabTwoScreen() {
             <View style={styles.space_small} />
             <Button title={"Write Dummy Data"} onPress={() => writeData(mode_characteristic, mode)}></Button>
             <View style={styles.space_small} />
-            <Button title={"Read Dummy Data"} onPress={async () => console.log(await readData(characteristic))}></Button>
+
+            
+            <Button title={"Read Data"} onPress={async () => console.log(await readData(characteristic))}></Button>
         </View>
     );
 }
@@ -96,10 +98,10 @@ const readData = async (characteristic: Characteristic | undefined): Promise<Arr
         });
 
         
-        // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to uint32_t.
+        // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to int32_t.
         // To convert to float, we simply divide by the same number we multiplied by on the ESP32 side (giving us 6 decimal precision)
         for (let i = 0; i < numOfBytes; i += 4) {
-            floatArray.push(view.getUint32(i, true) / 1000000);
+            floatArray.push(view.getInt32(i, true) / 1000000);
         }
 
         return floatArray;
@@ -114,8 +116,14 @@ const readData = async (characteristic: Characteristic | undefined): Promise<Arr
 
 const disconnect = async (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
     // ble_Manager.cancelDeviceConnection('ESP_GATTS_DEMO');
-    const devices = await ble_Manager.connectedDevices(["000000ff-0000-1000-8000-00805f9b34fb"]);
-    ble_Manager.cancelDeviceConnection(devices[0].id);
+    try {
+        const devices = await ble_Manager.connectedDevices(["000000ff-0000-1000-8000-00805f9b34fb"]);
+        ble_Manager.cancelDeviceConnection(devices[0].id);
+    }
+    catch {
+        // nothing!
+    }
+
 
     setCharacteristic(undefined);
 };
@@ -173,6 +181,10 @@ const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<C
                 }
                 */
                 const mode_characteristic = await device.readCharacteristicForService("000000ee-0000-1000-8000-00805f9b34fb", "0000ee01-0000-1000-8000-00805f9b34fb");
+                if (mode_characteristic === undefined) {
+                    console.log("mode_characteristic == undefined");
+                }
+                console.log(mode_characteristic.id);
                 set_mode_characteristic(mode_characteristic);
                 // console.log((await characteristic1.read()).value);
                 // while (true) {
