@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SingleDataPoint, SingleSwing, RootState, Mode, UserSessionsData } from '../types';
+import { userDataMock } from '../helpers/userDataMethods/userDataMock';
 import { 
-    crappyDataMock,
     pushSwing,
     pushDataPoint,
     createNewEmptySession,
     removeSessionFromUserData
-} from '../helpers/userDataHelpers';
+} from '../helpers/userDataMethods/userDataWrite';
 
 
 type PushPointType = {
@@ -28,7 +28,7 @@ type CreateNewSessionType = {
 
 // default state that mode initializes to on app bootup
 const initialState = {
-    userSessions: crappyDataMock,   
+    userSessions: userDataMock,   
     selectedSession: "",
     selectedSwing: -1     
 };

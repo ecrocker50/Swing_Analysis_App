@@ -10,10 +10,9 @@ import { styles } from '../styles';
 import { populateUserDataStoreFromDB } from '../firebase/read';
 import { RootTabScreenProps, UserSessionsData } from '../types';
 import {
-    crappyDataMock,
     getAllSessionNames,
     getSwingsInsideSession
-} from '../helpers/userDataHelpers';
+} from '../helpers/userDataMethods/userDataRead';
 import {
     selectUserSessions,
     setSelectedSession,

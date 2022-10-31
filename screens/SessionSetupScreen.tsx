@@ -9,7 +9,7 @@ import { Mode } from '../types';
 import { styles } from '../styles';
 import { Dispatch, useState } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { doesSessionExist } from '../helpers/userDataHelpers';
+import { doesSessionExist } from '../helpers/userDataMethods/userDataRead';
 import { createNewSession, selectUserSessions, removeSession } from '../store/swingDataSlice';
 import { setDocumentInDB } from '../firebase/write';
 
