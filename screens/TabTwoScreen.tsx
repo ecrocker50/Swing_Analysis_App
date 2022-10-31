@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Mode, SingleDataPoint } from '../types';
 import { useSelector } from 'react-redux';
 import { selectMode } from '../store/modeSelectSlice';
+import { resolvePlugin } from '@babel/core';
 
 const ble_Manager = new BleManager();
 
@@ -31,7 +32,7 @@ export default function TabTwoScreen() {
             <View style={styles.space_small} />
             <Button title={"Write Mode Selection"} onPress={() => writeMode(writeCharacteristic, mode)}></Button>
             <View style={styles.space_small} />
-            <Button title={"Read Dummy Data"} onPress={async () => console.log(await readData(characteristic))}></Button>
+            <Button title={"Read Dummy Data"} onPress={async () => printReceivedDataNice(await readData(characteristic))}></Button>
             <View style={styles.space_small} />
             <Button title={"End Session"} onPress={() => writeEndSession(writeCharacteristic)}></Button>
             <View style={styles.space_small} />
@@ -76,15 +77,15 @@ const writeMode = (writeCharacteristic: Characteristic | undefined, Mode: Mode):
  * @param characteristic - the characteristic from which to read from
  * @returns Promise<Array<number> | undefined> - The array of floats that the ESP32 transmitted
  */
-const readData = async (characteristic: Characteristic | undefined): Promise<Array<SingleDataPoint> | undefined> => {
+const readData = async (characteristic: Characteristic | undefined): Promise<Array<SingleDataPoint>> => {
+    let arrayOfDataPoints: Array<SingleDataPoint> = [];
+
     if (characteristic !== undefined) {
         let data = (await characteristic.read()).value;
-        
-        if (data === null) {
-            return undefined;
-        }
 
-        const dataPointArray: Array<SingleDataPoint> = [];
+        if (data === null) {
+            return [];
+        }
 
         // Decode data from base64 to a string of hex digits
         const buff = Buffer.from(data, 'base64');
@@ -125,23 +126,24 @@ const readData = async (characteristic: Characteristic | undefined): Promise<Arr
                     z: view.getInt32(i+8, true) / 1000000,
                 },
             }
-            dataPointArray.push(singlePoint as SingleDataPoint);
+            arrayOfDataPoints.push(singlePoint as SingleDataPoint);
         }
-
-        return dataPointArray;
     }
     else {
         console.log("ERROR - please connect first!");
-
-        return undefined;
     }
+
+    return arrayOfDataPoints;
 };
 
 
 const disconnect = async (setCharacteristic: React.Dispatch<React.SetStateAction<Characteristic | undefined>>, ble_Manager: BleManager) => {
     // ble_Manager.cancelDeviceConnection('ESP_GATTS_DEMO');
     const devices = await ble_Manager.connectedDevices(["000000ff-0000-1000-8000-00805f9b34fb"]);
-    ble_Manager.cancelDeviceConnection(devices[0].id);
+
+    if (devices[0]?.id) {
+        ble_Manager.cancelDeviceConnection(devices[0].id);
+    }
 
     setCharacteristic(undefined);
 };
@@ -158,11 +160,8 @@ const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<C
         }
         
 
-        // Check if it is a device you are looking for based on advertisement data
-        // or other criteria.
+        // Check if it is a device you are looking for based on advertisement data or other criteria.
         if (device?.name === 'ESP_GATTS_DEMO') {
-            // connections++;
-            // console.log(connections)
             console.log("ESP_GATTS_DEMO")
             // Stop scanning as it's not necessary if you are scanning for one device.
             ble_Manager.stopDeviceScan();
@@ -171,56 +170,40 @@ const scanandConnect = (setCharacteristic: React.Dispatch<React.SetStateAction<C
 
             device.connect()
             .then((device) => {
-                console.log("try to discover all characteristics")
                 return device.discoverAllServicesAndCharacteristics();
             })
             .then(async (device) => {
                 // Do work on device with services and characteristics
-                // const characteristic1 = device.readCharacteristicForService("0x00FF", "0xFF01");
-                console.log("try to read characteristic")
-                // const services = await device.services();
-                // services.forEach(async service => {
-                //     const characteristics = await device.characteristicsForService(service.uuid);
-                //     characteristics.forEach((characteristic => {console.log(characteristic.uuid); console.log(characteristic.serviceUUID)}));
-                // });
 
                 const characteristic = await device.readCharacteristicForService("000000ff-0000-1000-8000-00805f9b34fb", "0000ff01-0000-1000-8000-00805f9b34fb");
-                let mode_string = "3";
                 setCharacteristic(characteristic);
-                /*
-                if(Mode === "Backhand"){
-                    mode_string = "0";
-                }
-                else if(Mode === "Forehand"){
-                    mode_string = "1";
-                }
-                else if(Mode === "Serve"){
-                    mode_string = "2";
-                }
-                */
+                
                 const writeCharacteristic = await device.readCharacteristicForService("000000ee-0000-1000-8000-00805f9b34fb", "0000ee01-0000-1000-8000-00805f9b34fb");
                 set_writeCharacteristic(writeCharacteristic);
-                // console.log((await characteristic1.read()).value);
-                // while (true) {
-                //     // buffer = new Buffer((await characteristic1.read()).value);
-                //     // Buffer.from(, 'base64');
-
-                //     console.log((await characteristic1.read()).value);
-
-                // }
-                // while (true)
-                // await characteristic.writeWithoutResponse("XXYYZZ");
-
 
                 return characteristic;
             })
             .catch((error) => {
                 // Handle errors
-                console.log("Oh no");
+                console.log("BLE Connection Error:");
+                console.log(error);
                 return
             });
 
             return;
         }
     });
+}
+
+
+
+
+const printReceivedDataNice = (data: Array<SingleDataPoint>) => {
+    data.forEach(element => {
+        console.log(element);
+    });
+
+    if (data.length === 0) {
+        console.log("No data");
+    }
 }
