@@ -6,6 +6,7 @@
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { Characteristic } from 'react-native-ble-plx';
 
 declare global {
     namespace ReactNavigation {
@@ -81,6 +82,10 @@ export type UserSessionsData = Array<SingleSession>;
  * This is the global 'state' type. Everything in here will be able to be accessed globally by hooking into the store
  */
 export type RootState = {
+    ble: {
+        writeCharacteristic: Characteristic,
+        readCharacteristic: Characteristic
+    }
     modeSelect: {
         mode: Mode;
     };
