@@ -34,8 +34,6 @@ export const getUserSessionsFromDocumentInDB = async (docToGet: string = "swingD
 
 
 
-
-
 /** Populates the 'userData' property inside the store with data from the database.
  * This happens asynchronously.
  * 
@@ -44,6 +42,11 @@ export const getUserSessionsFromDocumentInDB = async (docToGet: string = "swingD
  export const populateUserDataStoreFromDB = async (dispatch: Dispatch<AnyAction>) => {
     // Get the user session data from the database
     const userSessions = await getUserSessionsFromDocumentInDB();
+
+    if (userSessions.length === 0)
+    {
+        return;
+    }
 
     // Dispatch the setFullUserData action to put the user session data in the store
     dispatch(setFullUserData(userSessions));
