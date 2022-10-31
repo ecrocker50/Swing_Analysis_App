@@ -20,7 +20,7 @@ import {
 
 
 
-export default function ModalScreen() {
+export default function SwingVisualizeScreen() {
     const dispatch = useDispatch();
     const currentTimeMS   = useSelector(selectCurrentTimeMilliseconds);
     const selectedSession = useSelector(selectSelectedSession);

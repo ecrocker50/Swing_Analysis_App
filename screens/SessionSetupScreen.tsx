@@ -16,7 +16,7 @@ import { setDocumentInDB } from '../firebase/write';
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
 
-export default function ModeSelectScreen({ navigation }: RootTabScreenProps<'ModeSelect'>) {
+export default function SessionSetupScreen({ navigation }: RootTabScreenProps<'SessionSetup'>) {
     const dispatch = useDispatch();
     const mode = useSelector(selectMode);
     const userSessions = useSelector(selectUserSessions);

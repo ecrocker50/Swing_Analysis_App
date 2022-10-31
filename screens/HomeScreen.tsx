@@ -133,7 +133,7 @@ const viewSwingButton = (selectedSwing: number, navigation: any): JSX.Element =>
     if (selectedSwing !== -1) {
         return (
             <View>
-                <Button title="Analyze Swing" onPress={() => navigation.navigate('Modal')}></Button>
+                <Button title="Analyze Swing" onPress={() => navigation.navigate('SwingVisualize')}></Button>
             </View>
         );
     }

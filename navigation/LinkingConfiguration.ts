@@ -20,9 +20,9 @@ const linking: LinkingOptions<RootStackParamList> = {
               HomeScreen: 'Home',
             },
           },
-          ModeSelect: {
+          SessionSetup: {
             screens: {
-                ModeSelectScreen: 'mode',
+                SessionSetupScreen: 'mode',
             }
           },
           TabTwo: {
@@ -32,7 +32,7 @@ const linking: LinkingOptions<RootStackParamList> = {
           },
         },
       },
-      Modal: 'modal',
+      SwingVisualize: 'SwingVisualize',
       NotFound: '*',
     },
   },

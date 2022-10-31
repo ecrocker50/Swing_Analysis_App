@@ -79,7 +79,7 @@ const writeMode = (writeCharacteristic: Characteristic | undefined, Mode: Mode):
 const readData = async (characteristic: Characteristic | undefined): Promise<Array<SingleDataPoint> | undefined> => {
     if (characteristic !== undefined) {
         let data = (await characteristic.read()).value;
-        print("done reading")
+        
         if (data === null) {
             return undefined;
         }

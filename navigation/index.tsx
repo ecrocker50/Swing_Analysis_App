@@ -12,8 +12,8 @@ import { ColorSchemeName, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import ModalScreen from '../screens/ModalScreen';
-import ModeSelectScreen from '../screens/ModeSelectScreen';
+import SwingVisualizeScreen from '../screens/SwingVisualizeScreen';
+import SessionSetupScreen from '../screens/SessionSetupScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
@@ -42,7 +42,7 @@ function RootNavigator() {
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="Modal" component={ModalScreen} />
+        <Stack.Screen name="SwingVisualize" component={SwingVisualizeScreen} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -69,28 +69,28 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<'Home'>) => ({
           title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-          headerRight: () => (
-            <Pressable
-              onPress={() => navigation.navigate('Modal')}
-              style={({ pressed }) => ({
-                opacity: pressed ? 0.5 : 1,
-              })}>
-              <FontAwesome
-                name="info-circle"
-                size={25}
-                color={Colors[colorScheme].text}
-                style={{ marginRight: 15 }}
-              />
-            </Pressable>
-          ),
+        //   headerRight: () => (
+        //     <Pressable
+        //       onPress={() => navigation.navigate('SwingVisualize')}
+        //       style={({ pressed }) => ({
+        //         opacity: pressed ? 0.5 : 1,
+        //       })}>
+        //       <FontAwesome
+        //         name="info-circle"
+        //         size={25}
+        //         color={Colors[colorScheme].text}
+        //         style={{ marginRight: 15 }}
+        //       />
+        //     </Pressable>
+        //   ),
         })}
       />
       <BottomTab.Screen
-        name="ModeSelect"
-        component={ModeSelectScreen}
+        name="SessionSetup"
+        component={SessionSetupScreen}
         options={{
-          title: 'Mode Select',
-          tabBarIcon: ({ color }) => <TabBarIcon name="filter" color={color} />,
+          title: 'Session Setup',
+          tabBarIcon: ({ color }) => <TabBarIcon name="file-text" color={color} />,
         }}
       />
       <BottomTab.Screen
