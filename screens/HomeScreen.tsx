@@ -1,19 +1,21 @@
 
 import { Button } from 'react-native';
-import React, { Dispatch, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { Dispatch, useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { AnyAction } from '@reduxjs/toolkit';
 import SelectList from 'react-native-dropdown-select-list';
 import { useNavigation } from '@react-navigation/native';
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
 import { styles } from '../styles';
+import { populateUserDataStoreFromDB } from '../firebase/read';
+import { RootTabScreenProps, UserSessionsData } from '../types';
 import {
     crappyDataMock,
     getAllSessionNames,
     getSwingsInsideSession
 } from '../helpers/userDataHelpers';
 import {
+    selectUserSessions,
     setSelectedSession,
     setSelectedSwing
 } from '../store/swingDataSlice';
@@ -29,7 +31,21 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const [chosenSession, setChosenSession] = useState<string>("");
     const [chosenSwing,   setChosenSwing]   = useState<number>(-1);
 
+    const userSessionsData = useSelector(selectUserSessions);
+
     const navigationHook = useNavigation();
+
+    /*
+        This is a super useful hook, called useEffect. 
+        By default, it runs on component mount and every update to the component.
+        However, here I've passed an empty array to its dependency list (2nd param), meaning that it will only run on component mount.
+        If we were to put a variable in the dependency list, then whenever that variable updates, the useEffect function will run again
+        What it is doing here is running populateUserDataStoreFromDB() only on component mount. 
+        This way it doesn't fetch DB data more than once and overwrite the data we're getting from the ESP
+    */
+    useEffect(() => {
+        populateUserDataStoreFromDB(dispatch);
+    }, []);
 
 
     return (
@@ -39,9 +55,9 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
 
         <View style={styles.space_extra_large} />
 
-        {chooseASessionSection(dispatch, chosenSession, setChosenSession)}
+        {chooseASessionSection(dispatch, userSessionsData, chosenSession, setChosenSession)}
         <View style={styles.space_medium} />
-        {chooseASwingSection(dispatch, chosenSession, chosenSwing, setChosenSwing)}
+        {chooseASwingSection(dispatch, userSessionsData, chosenSession, chosenSwing, setChosenSwing)}
         <View style={styles.space_extra_large} />
         {viewSwingButton(chosenSwing, navigationHook)}
 
@@ -54,7 +70,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
 
 
 
-const chooseASessionSection = (dispatch: Dispatch<AnyAction>, chosenSession: string, setChosenSession: React.Dispatch<React.SetStateAction<string>>): JSX.Element => {
+const chooseASessionSection = (dispatch: Dispatch<AnyAction>, userSessionsData: UserSessionsData, chosenSession: string, setChosenSession: React.Dispatch<React.SetStateAction<string>>): JSX.Element => {
     return (
         <View>
             <Text style={styles.title}>
@@ -62,7 +78,7 @@ const chooseASessionSection = (dispatch: Dispatch<AnyAction>, chosenSession: str
             </Text>
             <SelectList
                 placeholder={"select a session"}
-                data={getAllSessionNames(crappyDataMock)}
+                data={getAllSessionNames(userSessionsData)}
                 search={false}
                 boxStyles={styles.dropdownUnopened}
                 dropdownStyles={styles.dropdown}
@@ -77,8 +93,8 @@ const chooseASessionSection = (dispatch: Dispatch<AnyAction>, chosenSession: str
 };
 
 
-const chooseASwingSection = (dispatch: Dispatch<AnyAction>, chosenSession: string, chosenSwing: number, setChosenSwing: React.Dispatch<React.SetStateAction<number>>): JSX.Element => {
-    const swings = getSwingsInsideSession(crappyDataMock, chosenSession);
+const chooseASwingSection = (dispatch: Dispatch<AnyAction>, userSessionsData: UserSessionsData, chosenSession: string, chosenSwing: number, setChosenSwing: React.Dispatch<React.SetStateAction<number>>): JSX.Element => {
+    const swings = getSwingsInsideSession(userSessionsData, chosenSession);
     const swingIndexArray = Array.apply(null, Array(swings.length)).map((value, index) => index);
 
     const placeholderDisplay = chosenSwing !== -1 ? chosenSwing.toString() : "select";
