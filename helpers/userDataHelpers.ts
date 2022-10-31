@@ -136,7 +136,7 @@ export const getTimesOfAllPointsInSwing = (userData: UserSessionsData, sessionNa
 };
 
 
-/** Adds a swing to the specified session
+/** Adds a swing to the specified session. Note that this needs to be called in a reducer to have effect on store.
  * 
  * @param userData the userData object with all the sessions in it
  * @param sessionName the name of the session to put the swing in
@@ -149,7 +149,7 @@ export const pushSwing = (userData: UserSessionsData, sessionName: string, swing
 };
 
 
-/** Add a new data point to a specified swing
+/** Add a new data point to a specified swing. Note that this needs to be called in a reducer to have effect on store.
  * 
  * @param userData the userData object with all the sessions in it
  * @param sessionName the name of the session that the swing is in
@@ -163,6 +163,7 @@ export const pushDataPoint = (userData: UserSessionsData, sessionName: string, s
     //userData[indexOfSession].swings[swingIndex].points.position.x.push()
 };
 
+
 export const setPosition = (userData: UserSessionsData, sessionName: string, swingIndex: number, pointIndex: number, x: number, y: number, z: number) => {
     const indexOfSession = getIndexOfSession(userData, sessionName);
 
@@ -172,7 +173,7 @@ export const setPosition = (userData: UserSessionsData, sessionName: string, swi
 }
 
 
-/** Create a new, empty session that data can be pushed into
+/** Create a new, empty session that data can be pushed into. Note that this needs to be called in a reducer to have effect on store.
  * 
  * @param userData the userData object with all the sessions in it
  * @param sessionName the name of the session to create
@@ -241,6 +242,20 @@ export const getModeOfSession = (userData: UserSessionsData, sessionName: string
 export const doesSessionExist = (userData: UserSessionsData, sessionName: string): Boolean => {
     const sessionNames = getAllSessionNames(userData);
     return sessionNames.includes(sessionName);
+};
+
+
+/** Removes a session from userData. Note that this needs to be called in a reducer to have effect on store
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param sessionName the name of the session to delete
+ */
+export const removeSessionFromUserData = (userData: UserSessionsData, sessionName: string): void => {
+    const index = getIndexOfSession(userData, sessionName);
+
+    if (index !== -1) {
+        userData.splice(index, 1);
+    }
 };
 
 

@@ -4,7 +4,8 @@ import {
     crappyDataMock,
     pushSwing,
     pushDataPoint,
-    createNewEmptySession
+    createNewEmptySession,
+    removeSessionFromUserData
 } from '../helpers/userDataHelpers';
 
 
@@ -61,13 +62,16 @@ export const swingDataSlice = createSlice({
         /** Sets the full user data. This will likely only be called on app boot when data is being populated from DB */
         setFullUserData: (state, action: PayloadAction<UserSessionsData>) => {
             state.userSessions = action.payload;
+        },
+        removeSession: (state, action: PayloadAction<string>) => {
+            removeSessionFromUserData(state.userSessions, action.payload);
         }
     }
 });
 
 
 // these are the actions we can dispatch
-export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing, setFullUserData } = swingDataSlice.actions;
+export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing, setFullUserData, removeSession } = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains
 export const selectUserSessions    = (state: RootState) => state.swingData.userSessions;

@@ -3,14 +3,15 @@ import SelectList from 'react-native-dropdown-select-list'
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import { RootTabScreenProps, UserSessionsData } from '../types';
 import { selectMode, setMode } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
 import { Dispatch, useState } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { createNewEmptySession, doesSessionExist } from '../helpers/userDataHelpers';
-import { createNewSession, selectUserSessions } from '../store/swingDataSlice';
+import { doesSessionExist } from '../helpers/userDataHelpers';
+import { createNewSession, selectUserSessions, removeSession } from '../store/swingDataSlice';
+import { setDocumentInDB } from '../firebase/write';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
@@ -40,7 +41,19 @@ export default function ModeSelectScreen({ navigation }: RootTabScreenProps<'Mod
                 <Text style={styles.normalText}>Number of swings recorded: {numOfSwings}</Text>
                 <View style={styles.space_small} />
 
-                <Button title="End Session" onPress={() => setIsSessionActive(false)}></Button>   
+                <View style={{flexDirection: 'row'}}>
+                    <Button title="Save Session" color='green' 
+                        onPress={() => {
+                            setIsSessionActive(false);
+                            setDocumentInDB(userSessions);
+                        }} />
+
+                    <Button title="Discard Session" color='red'
+                        onPress={() => {
+                            setIsSessionActive(false);
+                            dispatch(removeSession(inputtedNameOfSession));
+                        }} />
+                </View>
             </View>
         );
     }
@@ -67,26 +80,31 @@ export default function ModeSelectScreen({ navigation }: RootTabScreenProps<'Mod
                 </TextInput>
 
                 <View style={styles.space_medium} />
-
-                <Button title="Start Session" onPress={() => {
-                    if (inputtedNameOfSession === "") {
-                        Alert.alert("Please enter a session name");
-                    }
-                    else if (doesSessionExist(userSessions, inputtedNameOfSession)){
-                        Alert.alert("This session name has been used before, please enter a new name");
-                    }
-                    else
-                    {
-                        // There are no errors, proceed to start the session
-                        setIsSessionActive(true);
-                        dispatch(createNewSession({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
-                    }
-                }} />
+                { startSessionButton(dispatch, userSessions, inputtedNameOfSession, selectedModeLocal, setIsSessionActive) }
+                
             </View> 
 
         );
     }
 }
+
+
+const startSessionButton = (dispatch: Dispatch<AnyAction>, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>) => (
+    <Button title="Start Session" onPress={() => {
+        if (inputtedNameOfSession === "") {
+            Alert.alert("Please enter a session name");
+        }
+        else if (doesSessionExist(userSessions, inputtedNameOfSession)){
+            Alert.alert("This session name has been used before, please enter a new name");
+        }
+        else
+        {
+            // There are no errors, proceed to start the session
+            setIsSessionActive(true);
+            dispatch(createNewSession({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
+        }
+    }} />
+);
 
 
 
