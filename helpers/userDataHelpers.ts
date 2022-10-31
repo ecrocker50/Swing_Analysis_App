@@ -232,6 +232,18 @@ export const getModeOfSession = (userData: UserSessionsData, sessionName: string
 }
 
 
+/** Checks to see if the given session name already exists within the user's data
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param sessionName the name of the session to check
+ * @returns Boolean - whether the session was found or not
+ */
+export const doesSessionExist = (userData: UserSessionsData, sessionName: string): Boolean => {
+    const sessionNames = getAllSessionNames(userData);
+    return sessionNames.includes(sessionName);
+};
+
+
 export const crappyDataMock: UserSessionsData = [
     {
         sessionName: "session0",

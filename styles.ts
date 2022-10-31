@@ -21,6 +21,16 @@ export const styles = StyleSheet.create({
         fontSize: 20,
     },
 
+    // Text Input
+    textInputSessionName: {
+        borderWidth: 1, 
+        height: 50, 
+        width: 200, 
+        paddingLeft: 5, 
+        fontSize: 20, 
+        borderRadius: 8
+    },
+
 
     // Sliders
     slider: {

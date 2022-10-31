@@ -1,4 +1,4 @@
-import { Button } from 'react-native';
+import { Alert, Button, TextInput } from 'react-native';
 import SelectList from 'react-native-dropdown-select-list'
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -7,7 +7,10 @@ import { RootTabScreenProps } from '../types';
 import { selectMode, setMode } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
-import { useState } from 'react';
+import { Dispatch, useState } from 'react';
+import { AnyAction } from '@reduxjs/toolkit';
+import { createNewEmptySession, doesSessionExist } from '../helpers/userDataHelpers';
+import { createNewSession, selectUserSessions } from '../store/swingDataSlice';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
@@ -15,36 +18,98 @@ const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 export default function ModeSelectScreen({ navigation }: RootTabScreenProps<'ModeSelect'>) {
     const dispatch = useDispatch();
     const mode = useSelector(selectMode);
-    const [selected, setSelected] = useState<Mode>(ModeOptions[0]);
+    const userSessions = useSelector(selectUserSessions);
+    const [selectedModeLocal, setSelectedModeLocal]         = useState<Mode>(ModeOptions[0]);
+    const [isSessionActive, setIsSessionActive]             = useState<Boolean>(false);
+    const [numOfSwings, setNumOfSwings]                     = useState<number>(0);
+    const [inputtedNameOfSession, setInputtedNameOfSession] = useState<string>("");
 
-    return (
-        <View style={styles.topContainer}>
-            <Text style={{...styles.title}}>Select your mode!</Text>
-            <View style={styles.lineUnderTitle} />
 
-            {ModeDescriptions(mode)}
-            
-            <View style={styles.space_small} />
+    if (isSessionActive) {
+        return (
+            <View style={styles.topContainer}>
+                <Text style={{...styles.title}}>Session in Progress</Text>
+                <View style={styles.lineUnderTitle} />
 
-            <SelectList
-                placeholder={mode}
-                data={ModeOptions}
-                search={false}
-                boxStyles={styles.dropdownUnopened}
-                dropdownStyles={styles.dropdown}
-                dropdownItemStyles={styles.dropdownItem}
-                dropdownTextStyles={styles.dropdownText}
-                inputStyles={styles.dropdownSelectedText}
-                setSelected={setSelected}
-                onSelect={() => dispatch(setMode(selected))}
-            />
+                <View style={styles.space_extra_small} />
 
-            <View style={styles.space_small} />
+                <Text style={styles.normalText}>Session mode: {selectedModeLocal}</Text>
+                <View style={styles.space_small} />
+                <Text style={styles.normalText}>Session name: {inputtedNameOfSession}</Text>
+                <View style={styles.space_large} />
+                <Text style={styles.normalText}>Number of swings recorded: {numOfSwings}</Text>
+                <View style={styles.space_small} />
 
-            <Button title="Log mode" onPress={() => console.log(mode)}></Button>       
-        </View>
-    );
+                <Button title="End Session" onPress={() => setIsSessionActive(false)}></Button>   
+            </View>
+        );
+    }
+    else {
+        return (
+            <View style={styles.topContainer}>
+                <Text style={{...styles.title}}>Select your mode</Text>
+                <View style={styles.lineUnderTitle} />
+
+                <View style={styles.space_small} />
+
+                {sessionModeSelectSection(dispatch, mode, selectedModeLocal, setSelectedModeLocal)}
+
+                <View style={styles.space_medium} />
+
+                <Text style={{...styles.title}}>Name this session</Text>
+                <View style={styles.lineUnderTitle} />
+                
+                <TextInput 
+                    placeholder='session name' 
+                    textAlign='left' 
+                    onChangeText={(inputtedText) => setInputtedNameOfSession(inputtedText)}
+                    style={styles.textInputSessionName}>
+                </TextInput>
+
+                <View style={styles.space_medium} />
+
+                <Button title="Start Session" onPress={() => {
+                    if (inputtedNameOfSession === "") {
+                        Alert.alert("Please enter a session name");
+                    }
+                    else if (doesSessionExist(userSessions, inputtedNameOfSession)){
+                        Alert.alert("This session name has been used before, please enter a new name");
+                    }
+                    else
+                    {
+                        // There are no errors, proceed to start the session
+                        setIsSessionActive(true);
+                        dispatch(createNewSession({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
+                    }
+                }} />
+            </View> 
+
+        );
+    }
 }
+
+
+
+const sessionModeSelectSection = (dispatch: Dispatch<AnyAction>, mode: Mode, selectedModeLocal: Mode, setSelectedModeLocal: React.Dispatch<React.SetStateAction<Mode>>): JSX.Element => (
+    <View style={{alignItems: 'center'}}>
+        { ModeDescriptions(mode) }
+                
+        <View style={styles.space_medium} />
+
+        <SelectList
+            placeholder={mode}
+            data={ModeOptions}
+            search={false}
+            boxStyles={styles.dropdownUnopened}
+            dropdownStyles={styles.dropdown}
+            dropdownItemStyles={styles.dropdownItem}
+            dropdownTextStyles={styles.dropdownText}
+            inputStyles={styles.dropdownSelectedText}
+            setSelected={setSelectedModeLocal}
+            onSelect={() => dispatch(setMode(selectedModeLocal))}
+        />
+    </View>
+);
 
 
 
