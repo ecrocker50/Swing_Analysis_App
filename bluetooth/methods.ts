@@ -1,10 +1,11 @@
 import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
 import { Dispatch } from 'react';
-import { Mode, SingleDataPoint, SingleSwing } from '../types';
+import { Mode, SingleDataPoint, SingleSwing, UserSessionsData } from '../types';
 import { setDeviceId } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
-import { pushSwingToSession } from '../store/swingDataSlice';
+import { pushPointToSwing, pushSwingToSession } from '../store/swingDataSlice';
+import { getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC_UUID = "0000ee01-0000-1000-8000-00805f9b34fb";
@@ -69,7 +70,7 @@ export const writeMode = async (deviceId: string, Mode: Mode): Promise<void> => 
  * @param deviceId The ID of the device to connect to. Generally you can find this in a selector in the bleSlice
  * @returns Promise<Array<SingleDataPoint>> - The array of SingleDataPoints that the ESP32 transmitted
  */
-export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>, sessionName: string): Promise<void> =>  {
+export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>, sessionName: string, userdata: UserSessionsData): Promise<void> =>  {
     const readCharacteristic = await connectToReadCharacteristic(deviceId);
 
     let arrayOfDataPoints: Array<SingleDataPoint> = [];
@@ -124,6 +125,10 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
         
         // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to uint32_t.
         // To convert to float, we simply divide by the same number we multiplied by on the ESP32 side (giving us 6 decimal precision)
+        const swingArray = getSwingsInsideSession(userdata, sessionName)
+        const swingIndex = swingArray.length
+        dispatch(pushSwingToSession({sessionName: sessionName, swingToPush: {timeOfContact: 0, points: []}}))
+
         for (let i = 0; i < numOfBytes; i += 32) {
             const singlePoint = {
                 time: view.getInt32(i + 28, true) / 1000000, //might try 7 0s later
@@ -139,14 +144,14 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
                     z: view.getInt32(i+8, true) / 1000000,
                 },
             }
-            arrayOfDataPoints.push(singlePoint as SingleDataPoint);
+            dispatch(pushPointToSwing({sessionName: sessionName, swingIndex: swingIndex, dataPoint: singlePoint as SingleDataPoint}));
         }
         //const contactTime = view.getInt32(numOfBytes - 4, true)
-        const oneSwing : SingleSwing = {
-            points: arrayOfDataPoints,
-            timeOfContact: view.getInt32(numOfBytes - 4, true)
-        }
-        dispatch(pushSwingToSession({sessionName: sessionName, swingToPush: oneSwing}))
+        //const oneSwing : SingleSwing = {
+        //    points: arrayOfDataPoints,
+        //    timeOfContact: view.getInt32(numOfBytes - 4, true)
+        //}
+        //dispatch(pushSwingToSession({sessionName: sessionName, swingToPush: oneSwing}))
         return;
         
     }
