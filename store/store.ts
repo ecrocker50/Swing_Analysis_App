@@ -3,6 +3,7 @@ import { modeSelectReducer } from './modeSelectSlice';
 import { timeReducer } from './timeSlice';
 import { swingDataReducer } from './swingDataSlice';
 import { bleReducer } from './bleSlice';
+import { getDefaultMiddleware } from '@reduxjs/toolkit';
 
 export const store = configureStore({
     reducer: {
@@ -11,4 +12,5 @@ export const store = configureStore({
         swingData: swingDataReducer,
         ble: bleReducer
     },
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware({serializableCheck: false}),
 });

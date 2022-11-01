@@ -83,8 +83,8 @@ export type UserSessionsData = Array<SingleSession>;
  */
 export type RootState = {
     ble: {
-        writeCharacteristic: Characteristic,
-        readCharacteristic: Characteristic
+        deviceId:   string,
+        deviceName: string
     }
     modeSelect: {
         mode: Mode;
