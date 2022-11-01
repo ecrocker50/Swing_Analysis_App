@@ -20,6 +20,12 @@ type PushSwingType = {
     swingToPush: SingleSwing
 };
 
+type PushTimeOfContact = {
+    sessionName: string,
+    swingIndex: number,
+    timetoPush: number
+}
+
 type CreateNewSessionType = {
     sessionName: string,
     sessionMode: Mode
