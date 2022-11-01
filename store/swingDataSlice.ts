@@ -5,7 +5,8 @@ import {
     pushSwing,
     pushDataPoint,
     createNewEmptySession,
-    removeSessionFromUserData
+    removeSessionFromUserData,
+    addTimeOfContactToSwing
 } from '../helpers/userDataMethods/userDataWrite';
 
 
@@ -18,6 +19,12 @@ type PushPointType = {
 type PushSwingType = {
     sessionName: string,
     swingToPush: SingleSwing
+};
+
+type AddTimeOfContactType = {
+    sessionName: string,
+    swingIndex: number,
+    timeOfContact: number
 };
 
 type PushTimeOfContact = {
@@ -53,6 +60,9 @@ export const swingDataSlice = createSlice({
         pushSwingToSession: (state, action: PayloadAction<PushSwingType>) => {
             pushSwing(state.userSessions, action.payload.sessionName, action.payload.swingToPush);
         },
+        addTimeOfContact: (state, action: PayloadAction<AddTimeOfContactType>) => {
+            addTimeOfContactToSwing(state.userSessions, action.payload.sessionName, action.payload.swingIndex, action.payload.timeOfContact);
+        },
         /** Creates a new, empty session that can have data pushed into it **/
         createNewSession: (state, action: PayloadAction<CreateNewSessionType>) => {
             createNewEmptySession(state.userSessions, action.payload.sessionName, action.payload.sessionMode);
@@ -77,7 +87,7 @@ export const swingDataSlice = createSlice({
 
 
 // these are the actions we can dispatch
-export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing, setFullUserData, removeSession } = swingDataSlice.actions;
+export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing, setFullUserData, removeSession, addTimeOfContact } = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains
 export const selectUserSessions    = (state: RootState) => state.swingData.userSessions;

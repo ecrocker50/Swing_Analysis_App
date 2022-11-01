@@ -122,6 +122,7 @@ export const getPointsInsideASwing = (userData: UserSessionsData, sessionName: s
  */
 export const getSwing = (userData: UserSessionsData, sessionName: string, swingIndex: number): SingleSwing => {
     const swings = getSwingsInsideSession(userData, sessionName);
+    
     const selectedSwing = swings[swingIndex];
 
     return selectedSwing;
@@ -155,10 +156,15 @@ export const getTimesOfAllPointsInSwing = (userData: UserSessionsData, sessionNa
  * @returns number - the max time in milliseconds
  */
 export const getMaxTimeOfSwing = (userData: UserSessionsData, sessionName: string, swingIndex: number): number => {
-    const swing = getSwing(userData, sessionName, swingIndex);
-    const len = swing.points.length;
+    const times = getTimesOfAllPointsInSwing(userData, sessionName, swingIndex);
 
-    return swing.points[len - 1].time;
+    if (times.length === 0)
+    {
+        console.log("max time is 0 because could not get all times");
+        return 0;
+    }
+
+    return times[times.length - 1];
 };
 
 

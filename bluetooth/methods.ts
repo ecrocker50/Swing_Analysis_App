@@ -4,7 +4,7 @@ import { Dispatch } from 'react';
 import { Mode, SingleDataPoint, SingleSwing, UserSessionsData } from '../types';
 import { setDeviceId } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
-import { pushPointToSwing, pushSwingToSession } from '../store/swingDataSlice';
+import { addTimeOfContact, pushPointToSwing, pushSwingToSession } from '../store/swingDataSlice';
 import { getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
@@ -129,7 +129,7 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
         const swingIndex = swingArray.length
         dispatch(pushSwingToSession({sessionName: sessionName, swingToPush: {timeOfContact: 0, points: []}}))
 
-        for (let i = 0; i < numOfBytes; i += 32) {
+        for (let i = 0; i < numOfBytes - 4; i += 32) {
             const singlePoint = {
                 time: view.getInt32(i + 28, true) / 1000000, //might try 7 0s later
                 quaternion: {
@@ -146,14 +146,12 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
             }
             dispatch(pushPointToSwing({sessionName: sessionName, swingIndex: swingIndex, dataPoint: singlePoint as SingleDataPoint}));
         }
-        //const contactTime = view.getInt32(numOfBytes - 4, true)
-        //const oneSwing : SingleSwing = {
-        //    points: arrayOfDataPoints,
-        //    timeOfContact: view.getInt32(numOfBytes - 4, true)
-        //}
-        //dispatch(pushSwingToSession({sessionName: sessionName, swingToPush: oneSwing}))
+
+        if (numOfBytes > 0) {
+            dispatch(addTimeOfContact({sessionName, swingIndex, timeOfContact: view.getInt32(numOfBytes - 4, true) / 1000000}));
+        }
+
         return;
-        
     }
     else {
         console.log("ERROR - make sure the device info has been pushed to store!");
@@ -291,4 +289,5 @@ export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAct
         }
     });
 };
+
 

@@ -27,8 +27,15 @@ export default function TabTwoScreen() {
             <Button title={"Write Mode Selection"} onPress={() => writeMode(deviceId, mode)}></Button>
             <View style={styles.space_small} />
             <Button title={"Read Dummy Data"} onPress={async () => {await readData(deviceId, dispatch, "Session Name", sessiondata); 
-                                                                    printReceivedSwing(sessiondata)
+                                                                    // printReceivedSwing(sessiondata)
                                                                     }}></Button>
+            <View style={styles.space_small} />
+            <Button 
+                title={"Print data"} 
+                onPress={() => 
+                {printReceivedSwing(sessiondata)
+            }} />
+                                                                    
             <View style={styles.space_small} />
             <Button title={"End Session"} onPress={() => writeEndSession(deviceId)}></Button>
             <View style={styles.space_small} />

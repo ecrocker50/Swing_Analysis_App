@@ -6,11 +6,10 @@ import { Button, Platform } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
-import { convertMillisToSeconds} from '../helpers/numberConversions';
 import { getMaxTimeOfSwing, getPosition, getQuaternion, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import {
     setCurrentTime,
-    selectCurrentTimeMilliseconds, 
+    selectCurrentTimeSeconds, 
 } from '../store/timeSlice';
 import {
     selectSelectedSession,
@@ -22,12 +21,13 @@ import {
 
 export default function SwingVisualizeScreen() {
     const dispatch = useDispatch();
-    const currentTimeMS   = useSelector(selectCurrentTimeMilliseconds);
+    const currentTimeSeconds   = useSelector(selectCurrentTimeSeconds);
     const selectedSession = useSelector(selectSelectedSession);
     const selectedSwing   = useSelector(selectSelectedSwing);
     const userSessions    = useSelector(selectUserSessions);
     
     const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, selectedSwing);
+    const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, selectedSwing);
 
     return (
         <View style={styles.topContainer}>
@@ -37,32 +37,31 @@ export default function SwingVisualizeScreen() {
             {/* Use a light status bar on iOS to account for the black space above the modal */}
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
 
-
         
             <View style={styles.space_extra_large}/>
 
             <Text style={styles.title}>
-                Current Time: {convertMillisToSeconds(currentTimeMS).toFixed(3)}s
+                Current Time: {currentTimeSeconds.toFixed(6)}s
             </Text>
 
             <Slider 
                 style={styles.slider} 
-                onValueChange={(value) => correctSliderValueAndSetStore(dispatch, value, allSwingTimePoints)}//dispatch(setCurrentTime(parseInt(value.toString())))}
-                maximumValue={getMaxTimeOfSwing(userSessions, selectedSession, selectedSwing)}
+                onValueChange={(value) => correctSliderValueAndSetStore(dispatch, value, allSwingTimePoints)}
+                maximumValue={maxSwingValue}
                 minimumValue={0}
             />
 
             <Text style={styles.normalText}>Session: {selectedSession}</Text>
             <Text style={styles.normalText}>Swing:   {selectedSwing}</Text>
 
-            <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, selectedSwing)}ms</Text>
-            <Text style={styles.normalText}>Quaternion real:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeMS).real}</Text>
-            <Text style={styles.normalText}>Quaternion i:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeMS).i}</Text>
-            <Text style={styles.normalText}>Quaternion j:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeMS).j}</Text>
-            <Text style={styles.normalText}>Quaternion k:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeMS).k}</Text>
-            <Text style={styles.normalText}>Position x:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).x}</Text>
-            <Text style={styles.normalText}>Position y:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).y}</Text>
-            <Text style={styles.normalText}>Position z:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeMS).z}</Text>
+            <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, selectedSwing)}s</Text>
+            <Text style={styles.normalText}>Quaternion real:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeSeconds).real}</Text>
+            <Text style={styles.normalText}>Quaternion i:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeSeconds).i}</Text>
+            <Text style={styles.normalText}>Quaternion j:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeSeconds).j}</Text>
+            <Text style={styles.normalText}>Quaternion k:   {getQuaternion(userSessions, selectedSession, selectedSwing, currentTimeSeconds).k}</Text>
+            <Text style={styles.normalText}>Position x:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeSeconds).x}</Text>
+            <Text style={styles.normalText}>Position y:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeSeconds).y}</Text>
+            <Text style={styles.normalText}>Position z:   {getPosition(userSessions, selectedSession, selectedSwing, currentTimeSeconds).z}</Text>
         </View>
     );
 }
@@ -84,5 +83,5 @@ export default function SwingVisualizeScreen() {
 
     const newValue = element !== undefined ? element : rawValue
 
-    dispatch(setCurrentTime(parseInt(newValue.toString())))
+    dispatch(setCurrentTime(parseFloat(newValue.toFixed(6))));
 };

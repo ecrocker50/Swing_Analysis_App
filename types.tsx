@@ -90,7 +90,7 @@ export type RootState = {
         mode: Mode;
     };
     time: {
-        currentTimeMilliseconds: number;
+        currentTimeSeconds: number;
     };
     swingData: {
         userSessions: UserSessionsData;

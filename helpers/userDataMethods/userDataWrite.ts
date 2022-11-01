@@ -31,6 +31,21 @@ export const pushDataPoint = (userData: UserSessionsData, sessionName: string, s
     userData[indexOfSession].swings[swingIndex].points.push(pointData);
 };
 
+
+/** Add a time of contact to a swing
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param sessionName the name of the session that the swing is in
+ * @param swingIndex the index of the swing to put the timeOfContact in
+ * @param timeOfContact the time of contact for the swing
+ */
+ export const addTimeOfContactToSwing = (userData: UserSessionsData, sessionName: string, swingIndex: number, timeOfContact: number) => {
+    const indexOfSession = getIndexOfSession(userData, sessionName);
+
+    userData[indexOfSession].swings[swingIndex].timeOfContact = timeOfContact;
+};
+
+
 /** Add a new data point to a specified swing. Note that this needs to be called in a reducer to have effect on store.
  * 
  * @param userData the userData object with all the sessions in it
@@ -51,6 +66,9 @@ export const setPosition = (userData: UserSessionsData, sessionName: string, swi
     userData[indexOfSession].swings[swingIndex].points[pointIndex].position.y = y;
     userData[indexOfSession].swings[swingIndex].points[pointIndex].position.z = z;
 }
+
+
+
 
 
 /** Create a new, empty session that data can be pushed into. Note that this needs to be called in a reducer to have effect on store.
