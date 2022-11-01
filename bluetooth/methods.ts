@@ -56,7 +56,7 @@ export const writeMode = async (deviceId: string, Mode: Mode): Promise<void> => 
         writeCharacteristic.writeWithoutResponse(mode_string);
     }
     else {
-        console.log("ERROR - please connect first!");
+        console.log("ERROR - make sure the device info has been pushed to store!");
     }
 };
 
@@ -74,15 +74,34 @@ export const readData = async (deviceId: string): Promise<Array<SingleDataPoint>
     let arrayOfDataPoints: Array<SingleDataPoint> = [];
 
     if (readCharacteristic !== undefined) {
-        let data = readCharacteristic.value;
+        // This is the string that will store all our hex values as one long string as we read them in
+        let hexString: string = '';
 
-        if (data === null) {
+        // Read in the first string of data 
+        let newStringOfData = readCharacteristic.value;
+
+
+        // Check to see if we received something
+        if (newStringOfData === null) {
+            // If we didn't get anything at all, save some time and just return right now
             return [];
         }
+        
+        /*
+           The BLE packet size limit is 600 bytes. If we exceed this, we need to perform multiple reads back to back.
+           This block handles the reading of new data while there is new data being read in
+        */
+        while (newStringOfData !== null && newStringOfData !== '') {
+            // Decode data from base64 to a string of hex digits
+            const newBuffer = Buffer.from(newStringOfData, 'base64');
+            const hexStringToAppend = newBuffer.toString('hex', 0, newBuffer.length);
+            
+            // Concatenate the new hex data to our hexString - this will grow with each new read
+            hexString = hexString.concat(hexStringToAppend);
 
-        // Decode data from base64 to a string of hex digits
-        const buff = Buffer.from(data, 'base64');
-        const hexString = buff.toString('hex');
+            // Read in the next string of data (Base64 encoded)
+            newStringOfData = (await readCharacteristic.read()).value;
+        }
         
         // The number of bytes is two times less than the number of digits in the hex string
         const stringLen = hexString.length;
@@ -123,7 +142,7 @@ export const readData = async (deviceId: string): Promise<Array<SingleDataPoint>
         }
     }
     else {
-        console.log("ERROR - please connect first!");
+        console.log("ERROR - make sure the device info has been pushed to store!");
     }
 
     return arrayOfDataPoints;
@@ -152,6 +171,9 @@ export const disconnect = async (dispatch: Dispatch<AnyAction>) => {
  * @returns Promise<Characteristic | undefined> - The characteristic that can write data to the ESP32. 
  */
 export const connectToWriteCharacteristic = async (deviceId: string): Promise<Characteristic | undefined> => {
+    if (deviceId === '') {
+        return undefined;
+    }
 
     let characteristic: Characteristic | undefined = undefined;
     let device;
@@ -187,6 +209,9 @@ export const connectToWriteCharacteristic = async (deviceId: string): Promise<Ch
  * This already has the value in it, you don't have to call read() again, just call value on it to get the info
  */
 const connectToReadCharacteristic = async (deviceId: string): Promise<Characteristic | undefined> => {
+    if (deviceId === '') {
+        return undefined;
+    }
 
     let characteristic: Characteristic | undefined = undefined;
     let device;
