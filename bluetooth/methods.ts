@@ -2,9 +2,9 @@ import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
 import { Dispatch } from 'react';
 import { Mode, SingleDataPoint, SingleSwing, UserSessionsData } from '../types';
-import { setDeviceId } from '../store/bleSlice';
+import { REDUCER_setDeviceId } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
-import { addTimeOfContact, pushPointToSwing, pushSwingToSession } from '../store/swingDataSlice';
+import { REDUCER_ADD_TIME_OF_CONTACT_TO_STORE, REDUCER_PUSH_POINT_TO_SWING, REDUCER_PUSH_SWING_TO_SESSION } from '../store/swingDataSlice';
 import { getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
@@ -127,7 +127,7 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
         // To convert to float, we simply divide by the same number we multiplied by on the ESP32 side (giving us 6 decimal precision)
         const swingArray = getSwingsInsideSession(userdata, sessionName)
         const swingIndex = swingArray.length
-        dispatch(pushSwingToSession({sessionName: sessionName, swingToPush: {timeOfContact: 0, points: []}}))
+        dispatch(REDUCER_PUSH_SWING_TO_SESSION({sessionName: sessionName, swingToPush: {timeOfContact: 0, points: []}}))
 
         for (let i = 0; i < numOfBytes - 4; i += 32) {
             const singlePoint = {
@@ -144,11 +144,11 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
                     z: view.getInt32(i+8, true) / 1000000,
                 },
             }
-            dispatch(pushPointToSwing({sessionName: sessionName, swingIndex: swingIndex, dataPoint: singlePoint as SingleDataPoint}));
+            dispatch(REDUCER_PUSH_POINT_TO_SWING({sessionName: sessionName, swingIndex: swingIndex, dataPoint: singlePoint as SingleDataPoint}));
         }
 
         if (numOfBytes > 0) {
-            dispatch(addTimeOfContact({sessionName, swingIndex, timeOfContact: view.getInt32(numOfBytes - 4, true) / 1000000}));
+            dispatch(REDUCER_ADD_TIME_OF_CONTACT_TO_STORE({sessionName, swingIndex, timeOfContact: view.getInt32(numOfBytes - 4, true) / 1000000}));
         }
 
         return;
@@ -276,7 +276,7 @@ export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAct
             })
             .then(async (device) => {
                 // Store the connection details of the device
-                dispatch(setDeviceId(device.id));
+                dispatch(REDUCER_setDeviceId(device.id));
             })
             .catch((error) => {
                 // Handle errors

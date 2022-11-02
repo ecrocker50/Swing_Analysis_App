@@ -53,33 +53,33 @@ export const swingDataSlice = createSlice({
     initialState,
     reducers: {
         /** Pushes a new point to a specified swing **/ 
-        pushPointToSwing: (state, action: PayloadAction<PushPointType>) => {
+        REDUCER_PUSH_POINT_TO_SWING_IN_STORE: (state, action: PayloadAction<PushPointType>) => {
             pushDataPoint(state.userSessions, action.payload.sessionName, action.payload.swingIndex, action.payload.dataPoint);
         },
         /** Pushes a new swing to a specified session **/ 
-        pushSwingToSession: (state, action: PayloadAction<PushSwingType>) => {
+        REDUCER_PUSH_SWING_TO_SESSION_IN_STORE: (state, action: PayloadAction<PushSwingType>) => {
             pushSwing(state.userSessions, action.payload.sessionName, action.payload.swingToPush);
         },
-        addTimeOfContact: (state, action: PayloadAction<AddTimeOfContactType>) => {
+        REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE: (state, action: PayloadAction<AddTimeOfContactType>) => {
             addTimeOfContactToSwing(state.userSessions, action.payload.sessionName, action.payload.swingIndex, action.payload.timeOfContact);
         },
         /** Creates a new, empty session that can have data pushed into it **/
-        createNewSession: (state, action: PayloadAction<CreateNewSessionType>) => {
+        REDUCER_CREATE_NEW_SESSION_IN_STORE: (state, action: PayloadAction<CreateNewSessionType>) => {
             createNewEmptySession(state.userSessions, action.payload.sessionName, action.payload.sessionMode);
         },
         /** Sets the session that was selected to analyze/view **/
-        setSelectedSession: (state, action: PayloadAction<string>) => {
+        REDUCER_SET_SELECTED_SESSION_IN_STORE: (state, action: PayloadAction<string>) => {
             state.selectedSession = action.payload;
         },
         /** Sets the swing that was selected to analyze/view **/
-        setSelectedSwing: (state, action: PayloadAction<number>) => {
+        REDUCER_SET_SELECTED_SWING_IN_STORE: (state, action: PayloadAction<number>) => {
             state.selectedSwing = action.payload;
         },
         /** Sets the full user data. This will likely only be called on app boot when data is being populated from DB */
-        setFullUserData: (state, action: PayloadAction<UserSessionsData>) => {
+        REDUCER_SET_ALL_USER_DATA_IN_STORE: (state, action: PayloadAction<UserSessionsData>) => {
             state.userSessions = action.payload;
         },
-        removeSession: (state, action: PayloadAction<string>) => {
+        REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE: (state, action: PayloadAction<string>) => {
             removeSessionFromUserData(state.userSessions, action.payload);
         }
     }
@@ -87,7 +87,7 @@ export const swingDataSlice = createSlice({
 
 
 // these are the actions we can dispatch
-export const { pushPointToSwing, pushSwingToSession, createNewSession, setSelectedSession, setSelectedSwing, setFullUserData, removeSession, addTimeOfContact } = swingDataSlice.actions;
+export const { REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE, REDUCER_CREATE_NEW_SESSION_IN_STORE, REDUCER_SET_SELECTED_SESSION_IN_STORE, REDUCER_SET_SELECTED_SWING_IN_STORE, REDUCER_SET_ALL_USER_DATA_IN_STORE, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE, REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE } = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains
 export const selectUserSessions    = (state: RootState) => state.swingData.userSessions;

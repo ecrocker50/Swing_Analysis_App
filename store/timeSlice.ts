@@ -19,11 +19,11 @@ export const timeSlice = createSlice({
     initialState,
     reducers: {
         /** Sets the time that the user has selected to view **/
-        setCurrentTime: (state, action: PayloadAction<number>) => {
+        REDUCER_SET_CURRENT_TIME_IN_STORE: (state, action: PayloadAction<number>) => {
             state.currentTimeSeconds = action.payload;
         },
         /** Increments time by an amount of seconds, passed in as a param. (will not increment if its at the endTime) **/
-        incrementCurrentTime: (state, action: PayloadAction<IncrementCurrentTimeType>) => {
+        REDUCER_INCREMENT_CURRENT_TIME_IN_STORE: (state, action: PayloadAction<IncrementCurrentTimeType>) => {
             if (state.currentTimeSeconds + action.payload.incrementAmount <= action.payload.maximumSliderValue) {
                 state.currentTimeSeconds += action.payload.incrementAmount;
             }
@@ -32,7 +32,7 @@ export const timeSlice = createSlice({
             }
         },
         /** Decrements time by an amount of seconds, passed in as a param. (will not decrement if its at the 0) **/
-        decrementCurrentTime: (state, action: PayloadAction<number>) => {
+        REDUCER_DECREMENT_CURRENT_TIME_IN_STORE: (state, action: PayloadAction<number>) => {
             if (state.currentTimeSeconds - action.payload >= 0) {
                 state.currentTimeSeconds -= action.payload;
             }
@@ -45,7 +45,7 @@ export const timeSlice = createSlice({
 
 
 // these are the actions we can dispatch
-export const { setCurrentTime, incrementCurrentTime, decrementCurrentTime } = timeSlice.actions;
+export const { REDUCER_SET_CURRENT_TIME_IN_STORE, REDUCER_INCREMENT_CURRENT_TIME_IN_STORE, REDUCER_DECREMENT_CURRENT_TIME_IN_STORE } = timeSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.time contains
 export const selectCurrentTimeSeconds  = (state: RootState) => state.time.currentTimeSeconds;

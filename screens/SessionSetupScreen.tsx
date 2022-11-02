@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps, UserSessionsData } from '../types';
-import { selectMode, setMode } from '../store/modeSelectSlice';
+import { selectMode, REDUCER_setMode } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
 import { Dispatch, useState } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { doesSessionExist } from '../helpers/userDataMethods/userDataRead';
-import { createNewSession, selectUserSessions, removeSession } from '../store/swingDataSlice';
+import { REDUCER_CREATE_NEW_SESSION_IN_STORE, selectUserSessions, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE } from '../store/swingDataSlice';
 import { setDocumentInDB } from '../firebase/write';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
@@ -51,7 +51,7 @@ export default function SessionSetupScreen({ navigation }: RootTabScreenProps<'S
                     <Button title="Discard Session" color='red'
                         onPress={() => {
                             setIsSessionActive(false);
-                            dispatch(removeSession(inputtedNameOfSession));
+                            dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(inputtedNameOfSession));
                         }} />
                 </View>
             </View>
@@ -101,7 +101,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, userSessions: UserSes
         {
             // There are no errors, proceed to start the session
             setIsSessionActive(true);
-            dispatch(createNewSession({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
+            dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
         }
     }} />
 );
@@ -124,7 +124,7 @@ const sessionModeSelectSection = (dispatch: Dispatch<AnyAction>, mode: Mode, sel
             dropdownTextStyles={styles.dropdownText}
             inputStyles={styles.dropdownSelectedText}
             setSelected={setSelectedModeLocal}
-            onSelect={() => dispatch(setMode(selectedModeLocal))}
+            onSelect={() => dispatch(REDUCER_setMode(selectedModeLocal))}
         />
     </View>
 );

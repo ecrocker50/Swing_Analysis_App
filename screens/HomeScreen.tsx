@@ -15,8 +15,8 @@ import {
 } from '../helpers/userDataMethods/userDataRead';
 import {
     selectUserSessions,
-    setSelectedSession,
-    setSelectedSwing
+    REDUCER_SET_SELECTED_SESSION_IN_STORE,
+    REDUCER_SET_SELECTED_SWING_IN_STORE
 } from '../store/swingDataSlice';
 
 
@@ -85,7 +85,7 @@ const chooseASessionSection = (dispatch: Dispatch<AnyAction>, userSessionsData: 
                 dropdownTextStyles={styles.dropdownText}
                 inputStyles={styles.dropdownSelectedText}
                 setSelected={setChosenSession}
-                onSelect={() => dispatch(setSelectedSession(chosenSession))}
+                onSelect={() => dispatch(REDUCER_SET_SELECTED_SESSION_IN_STORE(chosenSession))}
             />
         </View>
     );
@@ -114,7 +114,7 @@ const chooseASwingSection = (dispatch: Dispatch<AnyAction>, userSessionsData: Us
                     dropdownTextStyles={styles.dropdownText}
                     inputStyles={styles.dropdownSelectedText}
                     setSelected={setChosenSwing}
-                    onSelect={() => dispatch(setSelectedSwing(chosenSwing))}
+                    onSelect={() => dispatch(REDUCER_SET_SELECTED_SWING_IN_STORE(chosenSwing))}
                 />
             </View>
         );

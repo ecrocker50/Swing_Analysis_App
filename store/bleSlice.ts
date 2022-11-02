@@ -14,11 +14,11 @@ export const bleSlice = createSlice({
     initialState,
     reducers: {
         /** Sets the device ID of the ble device to connect to */
-        setDeviceId: (state, action: PayloadAction<string>) => {
+        REDUCER_SET_DEVICE_ID: (state, action: PayloadAction<string>) => {
             state.deviceId = action.payload;
         },
         /** Sets the device name of the ble device to connect to*/
-        setDeviceName: (state, action: PayloadAction<string>) => {
+        REDUCER_SET_DEVICE_NAME: (state, action: PayloadAction<string>) => {
             state.deviceName = action.payload;
         }
     }
@@ -26,7 +26,7 @@ export const bleSlice = createSlice({
 
 
 // these are the actions we can dispatch
-export const { setDeviceId, setDeviceName } = bleSlice.actions;
+export const { REDUCER_SET_DEVICE_ID, REDUCER_SET_DEVICE_NAME } = bleSlice.actions;
 
 // these are 'selector's that is used to peek what the store contains
 export const selectDeviceId    = (state: RootState) => state.ble.deviceId;

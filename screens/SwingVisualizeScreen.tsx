@@ -8,7 +8,7 @@ import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
 import { getMaxTimeOfSwing, getPosition, getQuaternion, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import {
-    setCurrentTime,
+    REDUCER_SET_CURRENT_TIME_IN_STORE,
     selectCurrentTimeSeconds, 
 } from '../store/timeSlice';
 import {
@@ -83,5 +83,5 @@ export default function SwingVisualizeScreen() {
 
     const newValue = element !== undefined ? element : rawValue
 
-    dispatch(setCurrentTime(parseFloat(newValue.toFixed(6))));
+    dispatch(REDUCER_SET_CURRENT_TIME_IN_STORE(parseFloat(newValue.toFixed(6))));
 };

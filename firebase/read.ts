@@ -1,7 +1,7 @@
 import { AnyAction } from '@reduxjs/toolkit';
 import * as database from 'firebase/firestore';
 import { Dispatch } from 'react';
-import { setFullUserData } from '../store/swingDataSlice';
+import { REDUCER_SET_ALL_USER_DATA_IN_STORE } from '../store/swingDataSlice';
 import { UserSessionsData } from '../types';
 import { firestore } from './firebaseInstance';
 
@@ -49,5 +49,5 @@ export const getUserSessionsFromDocumentInDB = async (docToGet: string = "swingD
     }
 
     // Dispatch the setFullUserData action to put the user session data in the store
-    dispatch(setFullUserData(userSessions));
+    dispatch(REDUCER_SET_ALL_USER_DATA_IN_STORE(userSessions));
 };
