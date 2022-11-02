@@ -79,6 +79,7 @@ export const swingDataSlice = createSlice({
         REDUCER_SET_ALL_USER_DATA_IN_STORE: (state, action: PayloadAction<UserSessionsData>) => {
             state.userSessions = action.payload;
         },
+        /** Removes a session from the store */
         REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE: (state, action: PayloadAction<string>) => {
             removeSessionFromUserData(state.userSessions, action.payload);
         }

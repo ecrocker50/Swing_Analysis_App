@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps, UserSessionsData } from '../types';
-import { SELECTOR_MODE, REDUCER_SET_MODE } from '../store/modeSelectSlice';
+import { SELECTOR_MODE, REDUCER_SET_MODE_IN_STORE } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
 import { Dispatch, useState } from 'react';
@@ -124,7 +124,7 @@ const sessionModeSelectSection = (dispatch: Dispatch<AnyAction>, mode: Mode, sel
             dropdownTextStyles={styles.dropdownText}
             inputStyles={styles.dropdownSelectedText}
             setSelected={setSelectedModeLocal}
-            onSelect={() => dispatch(REDUCER_SET_MODE(selectedModeLocal))}
+            onSelect={() => dispatch(REDUCER_SET_MODE_IN_STORE(selectedModeLocal))}
         />
     </View>
 );
