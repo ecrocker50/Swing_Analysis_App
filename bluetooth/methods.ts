@@ -144,7 +144,6 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
                     z: view.getInt32(i+8, true) / 1000000,
                 },
             }
-            dispatch(REDUCER_PUSH_POINT_TO_SWING({sessionName: sessionName, swingIndex: swingIndex, dataPoint: singlePoint as SingleDataPoint}));
             dispatch(REDUCER_PUSH_POINT_TO_SWING_IN_STORE({sessionName: sessionName, swingIndex: swingIndex, dataPoint: singlePoint as SingleDataPoint}));
         }
 
