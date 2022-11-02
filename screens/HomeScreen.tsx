@@ -14,7 +14,7 @@ import {
     getSwingsInsideSession
 } from '../helpers/userDataMethods/userDataRead';
 import {
-    selectUserSessions,
+    SELECTOR_USER_SESSIONS,
     REDUCER_SET_SELECTED_SESSION_IN_STORE,
     REDUCER_SET_SELECTED_SWING_IN_STORE
 } from '../store/swingDataSlice';
@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const [chosenSession, setChosenSession] = useState<string>("");
     const [chosenSwing,   setChosenSwing]   = useState<number>(-1);
 
-    const userSessionsData = useSelector(selectUserSessions);
+    const userSessionsData = useSelector(SELECTOR_USER_SESSIONS);
 
     const navigationHook = useNavigation();
 

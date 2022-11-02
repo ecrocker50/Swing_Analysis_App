@@ -29,8 +29,8 @@ export const bleSlice = createSlice({
 export const { REDUCER_SET_DEVICE_ID, REDUCER_SET_DEVICE_NAME } = bleSlice.actions;
 
 // these are 'selector's that is used to peek what the store contains
-export const selectDeviceId    = (state: RootState) => state.ble.deviceId;
-export const selectDeviceName  = (state: RootState) => state.ble.deviceName;
+export const SELECTOR_DEVICE_ID    = (state: RootState) => state.ble.deviceId;
+export const SELECTOR_DEVICE_NAME  = (state: RootState) => state.ble.deviceName;
 
 // this is for configureStore()
 export const bleReducer = bleSlice.reducer;

@@ -9,22 +9,22 @@ import { styles } from '../styles';
 import { getMaxTimeOfSwing, getPosition, getQuaternion, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import {
     REDUCER_SET_CURRENT_TIME_IN_STORE,
-    selectCurrentTimeSeconds, 
+    SELECTOR_CURRENT_TIME_SECONDS, 
 } from '../store/timeSlice';
 import {
-    selectSelectedSession,
-    selectSelectedSwing, 
-    selectUserSessions
+    SELECTOR_SELECTED_SESSION,
+    SELECTOR_SELECTED_SWING, 
+    SELECTOR_USER_SESSIONS
 } from '../store/swingDataSlice';
 
 
 
 export default function SwingVisualizeScreen() {
     const dispatch = useDispatch();
-    const currentTimeSeconds   = useSelector(selectCurrentTimeSeconds);
-    const selectedSession = useSelector(selectSelectedSession);
-    const selectedSwing   = useSelector(selectSelectedSwing);
-    const userSessions    = useSelector(selectUserSessions);
+    const currentTimeSeconds   = useSelector(SELECTOR_CURRENT_TIME_SECONDS);
+    const selectedSession = useSelector(SELECTOR_SELECTED_SESSION);
+    const selectedSwing   = useSelector(SELECTOR_SELECTED_SWING);
+    const userSessions    = useSelector(SELECTOR_USER_SESSIONS);
     
     const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, selectedSwing);
     const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, selectedSwing);

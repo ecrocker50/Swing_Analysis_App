@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps, UserSessionsData } from '../types';
-import { selectMode, REDUCER_setMode } from '../store/modeSelectSlice';
+import { SELECTOR_MODE, REDUCER_SET_MODE } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
 import { Dispatch, useState } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { doesSessionExist } from '../helpers/userDataMethods/userDataRead';
-import { REDUCER_CREATE_NEW_SESSION_IN_STORE, selectUserSessions, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE } from '../store/swingDataSlice';
+import { REDUCER_CREATE_NEW_SESSION_IN_STORE, SELECTOR_USER_SESSIONS, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE } from '../store/swingDataSlice';
 import { setDocumentInDB } from '../firebase/write';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
@@ -18,8 +18,8 @@ const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
 export default function SessionSetupScreen({ navigation }: RootTabScreenProps<'SessionSetup'>) {
     const dispatch = useDispatch();
-    const mode = useSelector(selectMode);
-    const userSessions = useSelector(selectUserSessions);
+    const mode = useSelector(SELECTOR_MODE);
+    const userSessions = useSelector(SELECTOR_USER_SESSIONS);
     const [selectedModeLocal, setSelectedModeLocal]         = useState<Mode>(ModeOptions[0]);
     const [isSessionActive, setIsSessionActive]             = useState<Boolean>(false);
     const [numOfSwings, setNumOfSwings]                     = useState<number>(0);
@@ -124,7 +124,7 @@ const sessionModeSelectSection = (dispatch: Dispatch<AnyAction>, mode: Mode, sel
             dropdownTextStyles={styles.dropdownText}
             inputStyles={styles.dropdownSelectedText}
             setSelected={setSelectedModeLocal}
-            onSelect={() => dispatch(REDUCER_setMode(selectedModeLocal))}
+            onSelect={() => dispatch(REDUCER_SET_MODE(selectedModeLocal))}
         />
     </View>
 );

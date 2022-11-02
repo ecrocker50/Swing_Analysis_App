@@ -3,17 +3,17 @@ import { styles } from '../styles';
 import { Button } from 'react-native';
 import { SingleDataPoint, SingleSession, SingleSwing, UserSessionsData } from '../types';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectMode } from '../store/modeSelectSlice';
-import { selectDeviceId } from '../store/bleSlice';
+import { SELECTOR_MODE } from '../store/modeSelectSlice';
+import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { scanAndStoreDeviceConnectionInfo, writeMode, writeEndSession, readData } from '../bluetooth/methods';
 import { getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
-import { selectUserSessions } from '../store/swingDataSlice';
+import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 
 export default function TabTwoScreen() {
     const dispatch = useDispatch();
-    const mode = useSelector(selectMode);
-    const deviceId = useSelector(selectDeviceId);
-    const sessiondata = useSelector(selectUserSessions)
+    const mode = useSelector(SELECTOR_MODE);
+    const deviceId = useSelector(SELECTOR_DEVICE_ID);
+    const sessiondata = useSelector(SELECTOR_USER_SESSIONS)
 
     return (
         <View style={styles.topContainer}>

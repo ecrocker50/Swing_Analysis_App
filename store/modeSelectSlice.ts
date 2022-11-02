@@ -24,7 +24,7 @@ export const modeSelectSlice = createSlice({
 export const { REDUCER_SET_MODE } = modeSelectSlice.actions;
 
 // this is a 'selector' that is used to peek what state.modeSelect.mode contains
-export const selectMode = (state: RootState) => state.modeSelect.mode;
+export const SELECTOR_MODE = (state: RootState) => state.modeSelect.mode;
 
 // this is for configureStore()
 export const modeSelectReducer = modeSelectSlice.reducer;

@@ -48,7 +48,7 @@ export const timeSlice = createSlice({
 export const { REDUCER_SET_CURRENT_TIME_IN_STORE, REDUCER_INCREMENT_CURRENT_TIME_IN_STORE, REDUCER_DECREMENT_CURRENT_TIME_IN_STORE } = timeSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.time contains
-export const selectCurrentTimeSeconds  = (state: RootState) => state.time.currentTimeSeconds;
+export const SELECTOR_CURRENT_TIME_SECONDS  = (state: RootState) => state.time.currentTimeSeconds;
 
 // this is for configureStore()
 export const timeReducer = timeSlice.reducer;

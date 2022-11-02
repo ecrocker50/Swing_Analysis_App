@@ -90,9 +90,9 @@ export const swingDataSlice = createSlice({
 export const { REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE, REDUCER_CREATE_NEW_SESSION_IN_STORE, REDUCER_SET_SELECTED_SESSION_IN_STORE, REDUCER_SET_SELECTED_SWING_IN_STORE, REDUCER_SET_ALL_USER_DATA_IN_STORE, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE, REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE } = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains
-export const selectUserSessions    = (state: RootState) => state.swingData.userSessions;
-export const selectSelectedSession = (state: RootState) => state.swingData.selectedSession;
-export const selectSelectedSwing   = (state: RootState) => state.swingData.selectedSwing;
+export const SELECTOR_USER_SESSIONS    = (state: RootState) => state.swingData.userSessions;
+export const SELECTOR_SELECTED_SESSION = (state: RootState) => state.swingData.selectedSession;
+export const SELECTOR_SELECTED_SWING   = (state: RootState) => state.swingData.selectedSwing;
 
 // this is for configureStore()
 export const swingDataReducer = swingDataSlice.reducer;
