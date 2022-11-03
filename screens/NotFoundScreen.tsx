@@ -1,15 +1,18 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { Button, StyleSheet, TouchableOpacity } from 'react-native';
 
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 
+
 export default function NotFoundScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     return (
         <View style={styles.container}>
-        <Text style={styles.title}>This screen doesn't exist.</Text>
-        <TouchableOpacity onPress={() => navigation.replace('Root')} style={styles.link}>
-            <Text style={styles.linkText}>Go to home screen!</Text>
-        </TouchableOpacity>
+        <Text style={styles.title}>Session in progress.</Text>
+        <View style={styles.space_medium}></View>
+        <Button title="End Session" onPress={() => {
+        navigation.navigate('Root')
+        }} />
         </View>
     );
 }
@@ -30,7 +33,10 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
     },
     linkText: {
-        fontSize: 14,
+        fontSize: 20,
         color: '#2e78b7',
+    },
+    space_medium: {
+        height: "4%",
     },
 });
