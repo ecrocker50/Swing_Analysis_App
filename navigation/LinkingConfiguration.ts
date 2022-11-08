@@ -25,9 +25,9 @@ const linking: LinkingOptions<RootStackParamList> = {
                 RecordedSessionsScreen: 'RecordedSessions',
             }
           },
-          TabTwo: {
+          Settings: {
             screens: {
-              TabTwoScreen: 'two',
+                Settings: 'Settings',
             },
           },
         },

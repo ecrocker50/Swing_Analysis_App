@@ -1,7 +1,7 @@
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
 import { Button } from 'react-native';
-import { SingleDataPoint, SingleSession, SingleSwing, UserSessionsData } from '../types';
+import { SingleDataPoint, UserSessionsData } from '../types';
 import { useDispatch, useSelector } from 'react-redux';
 import { SELECTOR_MODE } from '../store/modeSelectSlice';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
@@ -9,7 +9,7 @@ import { scanAndStoreDeviceConnectionInfo, writeMode, writeEndSession, readData 
 import { getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 
-export default function TabTwoScreen() {
+export default function Settings() {
     const dispatch = useDispatch();
     const mode = useSelector(SELECTOR_MODE);
     const deviceId = useSelector(SELECTOR_DEVICE_ID);

@@ -68,6 +68,9 @@ export const writeMode = async (deviceId: string, Mode: Mode): Promise<void> => 
  * It then reads the data sent by the ESP32 that was stored in its storedData buffer.
  * 
  * @param deviceId The ID of the device to connect to. Generally you can find this in a selector in the bleSlice
+ * @param dispatch the dispatch hook
+ * @param sessionName the session name to put the received data in
+ * @param userData the userData stored in the store
  * @returns Promise<Array<SingleDataPoint>> - The array of SingleDataPoints that the ESP32 transmitted
  */
 export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>, sessionName: string, userdata: UserSessionsData): Promise<void> =>  {
