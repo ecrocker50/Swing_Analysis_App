@@ -6,7 +6,8 @@ import {
     pushDataPoint,
     createNewEmptySession,
     removeSessionFromUserData,
-    addTimeOfContactToSwing
+    addTimeOfContactToSwing,
+    renameSessionFromUserData
 } from '../helpers/userDataMethods/userDataWrite';
 
 
@@ -27,16 +28,16 @@ type AddTimeOfContactType = {
     timeOfContact: number
 };
 
-type PushTimeOfContact = {
-    sessionName: string,
-    swingIndex: number,
-    timetoPush: number
+type RenameSessionType = {
+    oldSessionName: string,
+    newSessionName: string
 }
 
 type CreateNewSessionType = {
     sessionName: string,
     sessionMode: Mode
 };
+
 
 
 // default state that mode initializes to on app bootup
@@ -82,13 +83,27 @@ export const swingDataSlice = createSlice({
         /** Removes a session from the store */
         REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE: (state, action: PayloadAction<string>) => {
             removeSessionFromUserData(state.userSessions, action.payload);
+        },
+        /** Removes a session from the store */
+        REDUCER_RENAME_SESSION_IN_STORE: (state, action: PayloadAction<RenameSessionType>) => {
+            renameSessionFromUserData(state.userSessions, action.payload.oldSessionName, action.payload.newSessionName);
         }
     }
 });
 
 
 // these are the actions we can dispatch
-export const { REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE, REDUCER_CREATE_NEW_SESSION_IN_STORE, REDUCER_SET_SELECTED_SESSION_IN_STORE, REDUCER_SET_SELECTED_SWING_IN_STORE, REDUCER_SET_ALL_USER_DATA_IN_STORE, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE, REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE } = swingDataSlice.actions;
+export const { 
+    REDUCER_PUSH_POINT_TO_SWING_IN_STORE, 
+    REDUCER_PUSH_SWING_TO_SESSION_IN_STORE, 
+    REDUCER_CREATE_NEW_SESSION_IN_STORE, 
+    REDUCER_SET_SELECTED_SESSION_IN_STORE,
+    REDUCER_SET_SELECTED_SWING_IN_STORE, 
+    REDUCER_SET_ALL_USER_DATA_IN_STORE, 
+    REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE, 
+    REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE,
+    REDUCER_RENAME_SESSION_IN_STORE
+} = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains
 export const SELECTOR_USER_SESSIONS    = (state: RootState) => state.swingData.userSessions;

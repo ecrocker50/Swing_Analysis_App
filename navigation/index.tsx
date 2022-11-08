@@ -13,7 +13,7 @@ import { ColorSchemeName, Pressable } from 'react-native';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import SwingVisualizeScreen from '../screens/SwingVisualizeScreen';
-import SessionSetupScreen from '../screens/SessionSetupScreen';
+import RecordedSessionsScreen from '../screens/RecordedSessionsScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
@@ -86,10 +86,10 @@ function BottomTabNavigator() {
         })}
       />
       <BottomTab.Screen
-        name="SessionSetup"
-        component={SessionSetupScreen}
+        name="RecordedSessions"
+        component={RecordedSessionsScreen}
         options={{
-          title: 'Session Setup',
+          title: 'Recorded Sessions',
           tabBarIcon: ({ color }) => <TabBarIcon name="file-text" color={color} />,
         }}
       />

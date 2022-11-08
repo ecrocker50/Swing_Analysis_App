@@ -190,6 +190,11 @@ export const getTimeOfContact = (userData: UserSessionsData, sessionName: string
  */
 export const getModeOfSession = (userData: UserSessionsData, sessionName: string): Mode => {
     const sessionIndex = getIndexOfSession(userData, sessionName);
+
+    if (sessionIndex === -1) 
+    {
+        return "Unknown";
+    }
     
     return userData[sessionIndex].mode;
 }

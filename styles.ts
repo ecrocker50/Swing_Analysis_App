@@ -49,6 +49,19 @@ export const styles = StyleSheet.create({
         paddingTop: 15,
         alignItems: 'center',
     },
+    modalView: {
+        marginTop: 150,
+        height: 200,
+        width: '60%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowRadius: 7,
+        elevation: 5
+    },
 
     
     // Text
@@ -65,9 +78,10 @@ export const styles = StyleSheet.create({
     
     // Separating Lines
     separator: {
-        marginVertical: 30,
+        // marginVertical: 30,
         height: 1,
         width: '80%',
+        backgroundColor: '#444444'
     },
     lineUnderTitle: {
         marginBottom: 15,

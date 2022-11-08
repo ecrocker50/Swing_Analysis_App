@@ -6,7 +6,6 @@
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Characteristic } from 'react-native-ble-plx';
 
 declare global {
     namespace ReactNavigation {
@@ -28,7 +27,7 @@ export type RootStackScreenProps<Screen extends keyof RootStackParamList> = Nati
 export type RootTabParamList = {
     Home: undefined;
     TabTwo: undefined;
-    SessionSetup: undefined;
+    RecordedSessions: undefined;
 };
 
 export type RootTabScreenProps<Screen extends keyof RootTabParamList> = CompositeScreenProps<
@@ -42,7 +41,7 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
  */
 
 // The modes of swings that are supported
-export type Mode = "Serve" | "Forehand" | "Backhand";
+export type Mode = "Serve" | "Forehand" | "Backhand" | "Unknown";
 
 export type Quaternion = {
     real: number;

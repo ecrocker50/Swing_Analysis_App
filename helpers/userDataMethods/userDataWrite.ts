@@ -100,3 +100,17 @@ export const removeSessionFromUserData = (userData: UserSessionsData, sessionNam
         userData.splice(index, 1);
     }
 };
+
+
+
+/** Renames a session inside userData. Note that this needs to be called in a reducer to have effect on store
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param oldSessionName the old session name that will be replaced by newSessionName
+ * @param newSessionName the new session name that will replace oldSessionName
+ */
+export const renameSessionFromUserData = (userData: UserSessionsData, oldSessionName: string, newSessionName: string): void => {
+    const index = getIndexOfSession(userData, oldSessionName);
+
+    userData[index].sessionName = newSessionName;
+};

@@ -20,9 +20,9 @@ const linking: LinkingOptions<RootStackParamList> = {
               HomeScreen: 'Home',
             },
           },
-          SessionSetup: {
+          RecordedSessions: {
             screens: {
-                SessionSetupScreen: 'mode',
+                RecordedSessionsScreen: 'RecordedSessions',
             }
           },
           TabTwo: {
