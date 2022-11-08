@@ -8,15 +8,18 @@ import { RootTabScreenProps, UserSessionsData } from '../types';
 import { SELECTOR_MODE, REDUCER_SET_MODE_IN_STORE } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
-import { Dispatch, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { doesSessionExist, getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { REDUCER_CREATE_NEW_SESSION_IN_STORE, SELECTOR_USER_SESSIONS, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE } from '../store/swingDataSlice';
 import { setDocumentInDB } from '../firebase/write';
 import Navigation from '../navigation';
 import { useNavigation } from '@react-navigation/native';
+import { scanAndStoreDeviceConnectionInfo, writeMode } from '../bluetooth/methods';
+import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
+
 
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
@@ -27,6 +30,13 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const [isSessionActive, setIsSessionActive]             = useState<Boolean>(false);
     const [inputtedNameOfSession, setInputtedNameOfSession] = useState<string>("");
     const navigationHook = useNavigation();
+
+    //useEffect for connecting to ble device as soon as app is loaded
+    useEffect(() => {
+        scanAndStoreDeviceConnectionInfo(dispatch);
+    }, []);
+
+    const deviceId = useSelector(SELECTOR_DEVICE_ID); //make sure to set deviceId after connection
 
     if (isSessionActive) {
         return (
@@ -82,7 +92,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 </TextInput>
 
                 <View style={styles.space_medium} />
-                { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, setIsSessionActive) }
+                { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, deviceId, setIsSessionActive) }
                 
             </View> 
 
@@ -94,7 +104,7 @@ const timeOut = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
 )
 
-const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>) => (
+const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, deviceId: string, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>) => (
     <Button title="Start Session" onPress={async () => {
         if (inputtedNameOfSession === "") {
             Alert.alert("Please enter a session name");
@@ -106,7 +116,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
         {
             // There are no errors, proceed to start the session
             dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
-
+            writeMode(deviceId, selectedModeLocal)
             navigation.navigate('NotFound')
             await timeOut(1000)
             

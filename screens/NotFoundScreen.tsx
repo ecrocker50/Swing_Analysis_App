@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Dispatch } from 'react';
 import { Button } from 'react-native';
 import { Text, View } from '../components/Themed';
-import { RootStackScreenProps } from '../types';
+import { Mode, RootStackScreenProps, UserSessionsData } from '../types';
 import { styles } from '../styles';
-import { readData } from '../bluetooth/methods';
+import { readData, writeEndSession } from '../bluetooth/methods';
 import { useDispatch, useSelector } from 'react-redux';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 import { getLastAddedSessionName, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
+import { AnyAction } from '@reduxjs/toolkit';
 
 
 
@@ -58,10 +59,14 @@ export default function NotFoundScreen({ navigation }: RootStackScreenProps<'Not
 
             <View style={styles.space_medium}></View>
 
-            <Button title="End Session" onPress={() => navigation.navigate('Root')} />
+            <Button title="End Session" onPress={() => {
+                writeEndSession(deviceId)
+                navigation.navigate('Root')}} />
         </View>
     );
 }
+
+
 
 
 
