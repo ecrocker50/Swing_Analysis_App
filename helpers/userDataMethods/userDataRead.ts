@@ -79,6 +79,24 @@ export const getIndexOfSession = (userData: UserSessionsData, sessionName: strin
 };
 
 
+/** Gets number of swings inside a session
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @param sessionName the name of the session to get the swings of
+ * @returns number - the number of swings inside the session
+ */
+export const getNumberOfSwingsInsideSession = (userData: UserSessionsData, sessionName: string): number => {
+    let numberOfSwings = -1;
+    userData.forEach(session => {
+        if (session.sessionName === sessionName) {
+            numberOfSwings = session.swings.length;
+        }
+    });
+
+    return numberOfSwings;
+};
+
+
 /** Gets an array of the swings inside of a session
  * 
  * @param userData the userData object with all the sessions in it
@@ -90,7 +108,9 @@ export const getSwingsInsideSession = (userData: UserSessionsData, sessionName: 
 
     userData.forEach(session => {
         if (session.sessionName === sessionName) {
-            swings = session.swings;
+            session.swings.forEach((element) => {
+                swings.push(element);
+            });
         }
     });
 
@@ -212,3 +232,12 @@ export const doesSessionExist = (userData: UserSessionsData, sessionName: string
 };
 
 
+
+/** Gets the last added session name in userData
+ * 
+ * @param userData the userData object with all the sessions in it
+ * @returns string - the sessionName of the last added session
+ */
+export const getLastAddedSessionName = (userData: UserSessionsData): string => {
+    return userData[userData.length - 1].sessionName;
+};

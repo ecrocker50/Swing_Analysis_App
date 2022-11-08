@@ -7,39 +7,54 @@ import { readData } from '../bluetooth/methods';
 import { useDispatch, useSelector } from 'react-redux';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
-import { getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
+import { getLastAddedSessionName, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
+
+
 
 
 export default function NotFoundScreen({ navigation }: RootStackScreenProps<'NotFound'>) {
     const dispatch = useDispatch();
-    const [numOfSwings, setNumOfSwings] = useState<number>(0);
-
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
-    const sessiondata = useSelector(SELECTOR_USER_SESSIONS);
+    const userSessions = useSelector(SELECTOR_USER_SESSIONS);
+    const [tryReadESP32, setTryReadESP32] = useState<boolean>(true);
+
+
+    // Gets the last added session in userSessions. This is Sean's cheap way of getting the current session name without adding a var to keep track of it in store :)
+    const lastAddedSessionName = getLastAddedSessionName(userSessions);
+
+    
 
     // The glorious useEffect hook, which runs when this component is mounted
     useEffect(() => {
-
         // This is our timer for reading data from the ESP32
-        let dataReadTimerID = setInterval(() => {
+        const intervalId = setInterval(() => { // <-- setInterval is a special React Expo function. It sets up a timer and runs the contents after 500 milliseconds in this case
             console.log("timer fired");
 
-            if (deviceId != '') {
-                readData(deviceId, dispatch, "Session Name", sessiondata); 
+            if (deviceId != '' && tryReadESP32) {
+                // don't want to trigger another read if we're in the middle of a read, so set this to false
+                setTryReadESP32(false);
+
+                // try reading from the ESP32
+                readData(deviceId, dispatch, lastAddedSessionName, userSessions).then(() => {  
+                    // wait until done with this read to open up reading to the timer again
+                    setTryReadESP32(true);
+                }); 
             }
+
         }, 500);
 
-        // The return from the useEffect is special. It only returns when the component is unmounted
-        return () => clearInterval(dataReadTimerID);
+        // returns from a useEffect are special. They only fire on component unmount
+        return () => clearInterval(intervalId);
+    }, [userSessions]); 
 
-    }, []); // <-- looky here, an empty array as the second param. That's the dependency list. If it's empty, useEffect will only run once.
+
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Session in progress.</Text>
             <View style={styles.space_medium}></View>
 
-            <Text style={styles.normalText}>Number of swings recorded: {0}</Text>
+            <Text style={styles.normalText}>Number of swings recorded: {getSwingsInsideSession(userSessions, lastAddedSessionName).length}</Text>
 
             <View style={styles.space_medium}></View>
 

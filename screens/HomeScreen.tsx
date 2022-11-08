@@ -10,7 +10,7 @@ import { Mode } from '../types';
 import { styles } from '../styles';
 import { Dispatch, useState } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
-import { doesSessionExist } from '../helpers/userDataMethods/userDataRead';
+import { doesSessionExist, getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { REDUCER_CREATE_NEW_SESSION_IN_STORE, SELECTOR_USER_SESSIONS, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE } from '../store/swingDataSlice';
 import { setDocumentInDB } from '../firebase/write';
 import Navigation from '../navigation';
@@ -25,10 +25,8 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const userSessions = useSelector(SELECTOR_USER_SESSIONS);
     const [selectedModeLocal, setSelectedModeLocal]         = useState<Mode>(ModeOptions[0]);
     const [isSessionActive, setIsSessionActive]             = useState<Boolean>(false);
-    const [numOfSwings, setNumOfSwings]                     = useState<number>(0);
     const [inputtedNameOfSession, setInputtedNameOfSession] = useState<string>("");
     const navigationHook = useNavigation();
-
 
     if (isSessionActive) {
         return (
@@ -42,7 +40,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 <View style={styles.space_small} />
                 <Text style={styles.normalText}>Session mode: {selectedModeLocal}</Text>
                 <View style={styles.space_large} />
-                <Text style={styles.normalText}>Number of swings recorded: {numOfSwings}</Text>
+                <Text style={styles.normalText}>Number of swings recorded: {getNumberOfSwingsInsideSession(userSessions, inputtedNameOfSession)}</Text>
                 <View style={styles.space_small} />
 
                 <View style={{flexDirection: 'row'}}>
@@ -107,9 +105,10 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
         else
         {
             // There are no errors, proceed to start the session
+            dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
+
             navigation.navigate('NotFound')
             await timeOut(1000)
-            dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
             
             setIsSessionActive(true);
         }

@@ -43,8 +43,8 @@ type CreateNewSessionType = {
 // default state that mode initializes to on app bootup
 const initialState = {
     userSessions: userDataMock,   
-    selectedSession: "",
-    selectedSwing: -1     
+    selectedSession: '',
+    selectedSwing: -1
 };
 
 
@@ -84,7 +84,7 @@ export const swingDataSlice = createSlice({
         REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE: (state, action: PayloadAction<string>) => {
             removeSessionFromUserData(state.userSessions, action.payload);
         },
-        /** Removes a session from the store */
+        /** Renames a session in the store */
         REDUCER_RENAME_SESSION_IN_STORE: (state, action: PayloadAction<RenameSessionType>) => {
             renameSessionFromUserData(state.userSessions, action.payload.oldSessionName, action.payload.newSessionName);
         }

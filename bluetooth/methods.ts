@@ -5,7 +5,7 @@ import { Mode, SingleDataPoint, SingleSwing, UserSessionsData } from '../types';
 import { REDUCER_SET_DEVICE_ID_IN_STORE } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
 import { REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
-import { getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
+import { getNumberOfSwingsInsideSession, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC_UUID = "0000ee01-0000-1000-8000-00805f9b34fb";
@@ -76,8 +76,6 @@ export const writeMode = async (deviceId: string, Mode: Mode): Promise<void> => 
 export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>, sessionName: string, userdata: UserSessionsData): Promise<void> =>  {
     const readCharacteristic = await connectToReadCharacteristic(deviceId);
 
-    let arrayOfDataPoints: Array<SingleDataPoint> = [];
-
     if (readCharacteristic !== undefined) {
         // This is the string that will store all our hex values as one long string as we read them in
         let hexString: string = '';
@@ -87,7 +85,7 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
 
 
         // Check to see if we received something
-        if (newStringOfData === null) {
+        if (newStringOfData === null || newStringOfData == '') {
             // If we didn't get anything at all, save some time and just return right now
             return;
         }
@@ -128,8 +126,7 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
         
         // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to uint32_t.
         // To convert to float, we simply divide by the same number we multiplied by on the ESP32 side (giving us 6 decimal precision)
-        const swingArray = getSwingsInsideSession(userdata, sessionName)
-        const swingIndex = swingArray.length
+        const swingIndex = getNumberOfSwingsInsideSession(userdata, sessionName);
         dispatch(REDUCER_PUSH_SWING_TO_SESSION_IN_STORE({sessionName: sessionName, swingToPush: {timeOfContact: 0, points: []}}))
 
         for (let i = 0; i < numOfBytes - 4; i += 32) {
