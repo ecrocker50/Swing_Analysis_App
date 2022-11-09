@@ -3,12 +3,12 @@ import { Button } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
 import { styles } from '../styles';
-import { readPointData, writeEndSession } from '../bluetooth/methods';
+import { readPointData, writeEndSession, startBatteryVoltageRequestTimer } from '../bluetooth/methods';
 import { useDispatch, useSelector } from 'react-redux';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 import { getLastAddedSessionName, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
-import { startBatteryVoltageRequestTimer, stopBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
+import { stopBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
 import { SELECTOR_BATTERY_TIMER_REF } from '../store/batteryPercentage';
 
 

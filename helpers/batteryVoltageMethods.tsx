@@ -3,29 +3,10 @@ import { View, Text } from '../components/Themed';
 import * as React from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Dispatch } from 'react';
-import { REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentage';
-import { readBatteryPercent } from '../bluetooth/methods';
+import { REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentage';
 
 
-/**
- * 
- * @param dispatch 
- * @param isBatteryTimerRunning 
- * @param deviceId 
- */
-export const startBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, isBatteryTimerRunning: boolean, deviceId: string) => {
-    if (!isBatteryTimerRunning)
-    {
-        dispatch(REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING(true));
 
-        const intervalId = setInterval(() => { // <-- setInterval is a special React Expo function. It sets up a timer and runs the contents after 1000 milliseconds in this case
-            console.log("battery timer fired: " + deviceId);
-            readBatteryPercent(deviceId, dispatch);
-        }, 1000);
-
-        dispatch(REDUCER_SET_BATTER_TIMER_REF(intervalId)); 
-    }
-};
 
 
 /** Stops the battery voltage request timer. This will stop all requests for the battery voltage
@@ -39,6 +20,11 @@ export const stopBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, ba
 };
 
 
+/** Gets the battery percentage icon, not including text
+ * 
+ * @param percentLeft The percentage of the battery remaining
+ * @returns JSX.Element - The icon to display for the battery percentage
+ */
 export const getBatteryPercentageIcon = (percentLeft: number): JSX.Element => {
     let componentName: any;
     let componentColor: string;
@@ -94,6 +80,12 @@ export const getBatteryPercentageIcon = (percentLeft: number): JSX.Element => {
 };
 
 
+/** Gets the full battery percentage icon that appears in the top-right of the app.
+ *  This includes botht the icon and the text
+ * 
+ * @param percentLeft The percentage of battery life remaining
+ * @returns JSX.Element - The battery percentage component. Includes the percentage as text and the icon.
+ */
 export const getBatteryPercentageComponent = (percentLeft: number): JSX.Element => {
 
     return (

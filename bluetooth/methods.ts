@@ -1,13 +1,12 @@
 import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
 import { Dispatch } from 'react';
-import { Mode, SingleDataPoint, SingleSwing, UserSessionsData } from '../types';
+import { Mode, SingleDataPoint, UserSessionsData } from '../types';
 import { REDUCER_SET_DEVICE_ID_IN_STORE } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
 import { REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
-import { getNumberOfSwingsInsideSession, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
-import { REDUCER_SET_BATTERY_PERCENT } from '../store/batteryPercentage';
-import { startBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
+import { getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
+import { REDUCER_SET_BATTERY_PERCENT, REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentage';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC_UUID = "0000ee01-0000-1000-8000-00805f9b34fb";
@@ -17,6 +16,28 @@ const READ_CHARACTERISTIC_UUID = "0000ff01-0000-1000-8000-00805f9b34fb";
 
 // This is our ble_manager object, nothing too special here
 const ble_Manager = new BleManager();
+
+
+
+/**
+ * 
+ * @param dispatch 
+ * @param isBatteryTimerRunning 
+ * @param deviceId 
+ */
+ export const startBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, isBatteryTimerRunning: boolean, deviceId: string) => {
+    if (!isBatteryTimerRunning)
+    {
+        dispatch(REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING(true));
+
+        const intervalId = setInterval(() => { // <-- setInterval is a special React Expo function. It sets up a timer and runs the contents after 1000 milliseconds in this case
+            console.log("battery timer fired");
+            readBatteryPercent(deviceId, dispatch);
+        }, 1000);
+
+        dispatch(REDUCER_SET_BATTER_TIMER_REF(intervalId)); 
+    }
+};
 
 
 /** Takes the decoded base64 hex string and converts it into a DataView object so we can get other types from it
