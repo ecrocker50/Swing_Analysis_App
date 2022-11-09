@@ -1,14 +1,15 @@
-import React, { useState, useEffect, Dispatch } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from 'react-native';
 import { Text, View } from '../components/Themed';
-import { Mode, RootStackScreenProps, UserSessionsData } from '../types';
+import { Mode, RootStackScreenProps } from '../types';
 import { styles } from '../styles';
 import { readData, writeEndSession } from '../bluetooth/methods';
 import { useDispatch, useSelector } from 'react-redux';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 import { getLastAddedSessionName, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
-import { AnyAction } from '@reduxjs/toolkit';
+import { startBatteryVoltageRequestTimer, stopBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
+import { SELECTOR_BATTERY_TIMER_REF, SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentage';
 
 
 
@@ -17,6 +18,7 @@ export default function NotFoundScreen({ navigation }: RootStackScreenProps<'Not
     const dispatch = useDispatch();
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
     const userSessions = useSelector(SELECTOR_USER_SESSIONS);
+    const battTimerRef = useSelector(SELECTOR_BATTERY_TIMER_REF);
     const [tryReadESP32, setTryReadESP32] = useState<boolean>(true);
 
 
@@ -27,6 +29,8 @@ export default function NotFoundScreen({ navigation }: RootStackScreenProps<'Not
 
     // The glorious useEffect hook, which runs when this component is mounted
     useEffect(() => {
+        stopBatteryVoltageRequestTimer(dispatch, battTimerRef);
+
         // This is our timer for reading data from the ESP32
         const intervalId = setInterval(() => { // <-- setInterval is a special React Expo function. It sets up a timer and runs the contents after 500 milliseconds in this case
             console.log("timer fired");
@@ -45,7 +49,10 @@ export default function NotFoundScreen({ navigation }: RootStackScreenProps<'Not
         }, 500);
 
         // returns from a useEffect are special. They only fire on component unmount
-        return () => clearInterval(intervalId);
+        return () => {
+            clearInterval(intervalId);
+            startBatteryVoltageRequestTimer(dispatch, false);
+        };
     }, [userSessions]); 
 
 

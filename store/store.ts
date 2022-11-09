@@ -4,13 +4,15 @@ import { timeReducer } from './timeSlice';
 import { swingDataReducer } from './swingDataSlice';
 import { bleReducer } from './bleSlice';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
+import { batteryPercentReducer } from './batteryPercentage';
 
 export const store = configureStore({
     reducer: {
         modeSelect: modeSelectReducer,
         time: timeReducer,
         swingData: swingDataReducer,
-        ble: bleReducer
+        ble: bleReducer,
+        batteryPercent: batteryPercentReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware({serializableCheck: false}),
 });

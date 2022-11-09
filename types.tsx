@@ -84,7 +84,7 @@ export type RootState = {
     ble: {
         deviceId:   string,
         deviceName: string
-    }
+    };
     modeSelect: {
         mode: Mode;
     };
@@ -95,5 +95,10 @@ export type RootState = {
         userSessions: UserSessionsData;
         selectedSession: string;
         selectedSwing: number;
+    };
+    batteryPercent: {
+        batteryTimerRef: NodeJS.Timer;
+        isBatteryTimerRunning: boolean;
+        batteryPercent: number;
     };
 };

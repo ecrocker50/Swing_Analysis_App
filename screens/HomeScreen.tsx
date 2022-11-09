@@ -18,6 +18,8 @@ import { useNavigation } from '@react-navigation/native';
 import { scanAndStoreDeviceConnectionInfo, writeMode } from '../bluetooth/methods';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { populateUserDataStoreFromDB } from '../firebase/read';
+import { startBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
+import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentage';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
@@ -27,6 +29,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const dispatch = useDispatch();
     const mode = useSelector(SELECTOR_MODE);
     const userSessions = useSelector(SELECTOR_USER_SESSIONS);
+    const isBatteryTimerRunning = useSelector(SELECTOR_IS_BATTERY_TIMER_RUNNING);
     const [selectedModeLocal, setSelectedModeLocal]         = useState<Mode>(ModeOptions[0]);
     const [isSessionActive, setIsSessionActive]             = useState<Boolean>(false);
     const [inputtedNameOfSession, setInputtedNameOfSession] = useState<string>("");
@@ -36,6 +39,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     useEffect(() => {
         scanAndStoreDeviceConnectionInfo(dispatch);
         populateUserDataStoreFromDB(dispatch);
+        startBatteryVoltageRequestTimer(dispatch, isBatteryTimerRunning);
     }, []);
 
     const deviceId = useSelector(SELECTOR_DEVICE_ID); //make sure to set deviceId after connection

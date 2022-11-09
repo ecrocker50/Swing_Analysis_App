@@ -8,6 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
+import { Text } from '../components/Themed';
 import { ColorSchemeName, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
@@ -19,12 +20,17 @@ import HomeScreen from '../screens/HomeScreen';
 import Settings from '../screens/Settings';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
+import { getBatteryPercentageComponent, getBatteryPercentageIcon } from '../helpers/batteryVoltageMethods';
+import { useSelector } from 'react-redux';
+import { SELECTOR_BATTERY_PERCENT } from '../store/batteryPercentage';
+
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
       linking={LinkingConfiguration}
-      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        //    theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        theme={DefaultTheme}>
       <RootNavigator />
     </NavigationContainer>
   );
@@ -56,6 +62,7 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();
+  const batteryPercent = useSelector(SELECTOR_BATTERY_PERCENT);
 
   return (
     <BottomTab.Navigator
@@ -69,6 +76,9 @@ function BottomTabNavigator() {
         options={({ navigation }: RootTabScreenProps<'Home'>) => ({
           title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          headerRight: () => (
+            getBatteryPercentageComponent(batteryPercent)
+          )
         //   headerRight: () => (
         //     <Pressable
         //       onPress={() => navigation.navigate('SwingVisualize')}
@@ -91,6 +101,9 @@ function BottomTabNavigator() {
         options={{
           title: 'Recorded Sessions',
           tabBarIcon: ({ color }) => <TabBarIcon name="file-text" color={color} />,
+          headerRight: () => (
+            getBatteryPercentageComponent(batteryPercent)
+          )
         }}
       />
       <BottomTab.Screen
@@ -99,6 +112,9 @@ function BottomTabNavigator() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color }) => <TabBarIcon name="gear" color={color} />,
+          headerRight: () => (
+            getBatteryPercentageComponent(batteryPercent)
+          )
         }}
       />
     </BottomTab.Navigator>
