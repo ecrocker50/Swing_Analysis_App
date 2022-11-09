@@ -4,17 +4,23 @@ import * as React from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Dispatch } from 'react';
 import { REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentage';
-import { styles } from '../styles';
+import { readBatteryPercent } from '../bluetooth/methods';
 
 
-export const startBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, isBatteryTimerRunning: boolean) => {
+/**
+ * 
+ * @param dispatch 
+ * @param isBatteryTimerRunning 
+ * @param deviceId 
+ */
+export const startBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, isBatteryTimerRunning: boolean, deviceId: string) => {
     if (!isBatteryTimerRunning)
     {
         dispatch(REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING(true));
 
         const intervalId = setInterval(() => { // <-- setInterval is a special React Expo function. It sets up a timer and runs the contents after 1000 milliseconds in this case
-            console.log("battery timer fired");
-
+            console.log("battery timer fired: " + deviceId);
+            readBatteryPercent(deviceId, dispatch);
         }, 1000);
 
         dispatch(REDUCER_SET_BATTER_TIMER_REF(intervalId)); 
@@ -22,6 +28,11 @@ export const startBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, i
 };
 
 
+/** Stops the battery voltage request timer. This will stop all requests for the battery voltage
+ * 
+ * @param dispatch The dispatch hook
+ * @param batteryTimerRef The reference of the battery timer. This can be gotten from the SELECTOR_BATTERY_TIMER_REF selector in batteryPercentageSlice
+ */
 export const stopBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, batteryTimerRef: NodeJS.Timer) => {
     clearInterval(batteryTimerRef);
     dispatch(REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING(false));

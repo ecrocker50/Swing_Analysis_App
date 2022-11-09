@@ -5,7 +5,6 @@ import { AnyAction } from '@reduxjs/toolkit';
 import SelectList from 'react-native-dropdown-select-list';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
-import { populateUserDataStoreFromDB } from '../firebase/read';
 import { Mode, RootTabScreenProps, UserSessionsData } from '../types';
 import {
     getAllSessionNames,

@@ -3,7 +3,7 @@ import Slider from '@react-native-community/slider';
 import SelectList from 'react-native-dropdown-select-list';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
@@ -15,11 +15,9 @@ import {
 import {
     REDUCER_SET_SELECTED_SWING_IN_STORE,
     SELECTOR_SELECTED_SESSION,
-    SELECTOR_SELECTED_SWING, 
     SELECTOR_USER_SESSIONS
 } from '../store/swingDataSlice';
 import { UserSessionsData } from '../types';
-import { RouteProp } from '@react-navigation/native';
 
 
 

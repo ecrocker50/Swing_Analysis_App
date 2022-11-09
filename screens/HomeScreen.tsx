@@ -2,7 +2,6 @@
 import { Alert, Button, TextInput } from 'react-native';
 import SelectList from 'react-native-dropdown-select-list'
 import { useDispatch, useSelector } from 'react-redux';
-
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps, UserSessionsData } from '../types';
 import { SELECTOR_MODE, REDUCER_SET_MODE_IN_STORE } from '../store/modeSelectSlice';
@@ -13,12 +12,10 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { doesSessionExist, getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { REDUCER_CREATE_NEW_SESSION_IN_STORE, SELECTOR_USER_SESSIONS, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE } from '../store/swingDataSlice';
 import { setDocumentInDB } from '../firebase/write';
-import Navigation from '../navigation';
 import { useNavigation } from '@react-navigation/native';
 import { scanAndStoreDeviceConnectionInfo, writeMode } from '../bluetooth/methods';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { populateUserDataStoreFromDB } from '../firebase/read';
-import { startBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
 import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentage';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
@@ -30,6 +27,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const mode = useSelector(SELECTOR_MODE);
     const userSessions = useSelector(SELECTOR_USER_SESSIONS);
     const isBatteryTimerRunning = useSelector(SELECTOR_IS_BATTERY_TIMER_RUNNING);
+    const deviceId = useSelector(SELECTOR_DEVICE_ID);
     const [selectedModeLocal, setSelectedModeLocal]         = useState<Mode>(ModeOptions[0]);
     const [isSessionActive, setIsSessionActive]             = useState<Boolean>(false);
     const [inputtedNameOfSession, setInputtedNameOfSession] = useState<string>("");
@@ -37,12 +35,10 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
 
     //useEffect for connecting to ble device as soon as app is loaded
     useEffect(() => {
-        scanAndStoreDeviceConnectionInfo(dispatch);
+        scanAndStoreDeviceConnectionInfo(dispatch, isBatteryTimerRunning);
         populateUserDataStoreFromDB(dispatch);
-        startBatteryVoltageRequestTimer(dispatch, isBatteryTimerRunning);
     }, []);
 
-    const deviceId = useSelector(SELECTOR_DEVICE_ID); //make sure to set deviceId after connection
 
     if (isSessionActive) {
         return (

@@ -6,6 +6,8 @@ import { REDUCER_SET_DEVICE_ID_IN_STORE } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
 import { REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
 import { getNumberOfSwingsInsideSession, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
+import { REDUCER_SET_BATTERY_PERCENT } from '../store/batteryPercentage';
+import { startBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC_UUID = "0000ee01-0000-1000-8000-00805f9b34fb";
@@ -15,6 +17,44 @@ const READ_CHARACTERISTIC_UUID = "0000ff01-0000-1000-8000-00805f9b34fb";
 
 // This is our ble_manager object, nothing too special here
 const ble_Manager = new BleManager();
+
+
+/** Takes the decoded base64 hex string and converts it into a DataView object so we can get other types from it
+ * 
+ * @param hexString The hexstring containing bytes decoded from Base64
+ * @returns DataView - the dataview object with the hex converted into uint8's
+ */
+export const convertHexStringToUint8DataView = (hexString: string): DataView => {
+    // The number of bytes is two times less than the number of digits in the hex string
+    const stringLen = hexString.length;
+    const numOfBytes = stringLen / 2;
+
+    // Match any two digits with the regex. This separates it into an array of bytes instead of one long string
+    const bytes: Array<string> | null = hexString.match(/../g);
+
+    // Create the data view, which will hold and manipulate our stored data
+    const arrayBuff = new ArrayBuffer(stringLen);
+    const view = new DataView(arrayBuff);
+
+    // Populate the data view by converting each hex byte to a uint8_t
+    bytes?.forEach((value, index) => {
+        const int = parseInt(value, 16);
+        view.setUint8(index, int);
+    });
+
+    return view;
+};
+
+
+/** Converts the Base64 string into a string of hex bytes.
+ * 
+ * @param base64String A string that is Base64 encoded
+ * @returns String that contains all the hex bytes in the base64 string
+ */
+export const convertBase64StringToHexString = (base64String: string): string => {
+    const newBuffer = Buffer.from(base64String, 'base64');
+    return newBuffer.toString('hex', 0, newBuffer.length);
+};
 
 
 /** Write the end of session instruction to the ESP32
@@ -66,14 +106,14 @@ export const writeMode = async (deviceId: string, Mode: Mode): Promise<void> => 
 
 /** Sends a read request to the ESP32. 
  * It then reads the data sent by the ESP32 that was stored in its storedData buffer.
+ * This is what we call to get the dead reckoning data from the ESP32
  * 
  * @param deviceId The ID of the device to connect to. Generally you can find this in a selector in the bleSlice
  * @param dispatch the dispatch hook
  * @param sessionName the session name to put the received data in
  * @param userData the userData stored in the store
- * @returns Promise<Array<SingleDataPoint>> - The array of SingleDataPoints that the ESP32 transmitted
  */
-export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>, sessionName: string, userdata: UserSessionsData): Promise<void> =>  {
+export const readPointData = async (deviceId: string, dispatch: Dispatch <AnyAction>, sessionName: string, userdata: UserSessionsData): Promise<void> =>  {
     const readCharacteristic = await connectToReadCharacteristic(deviceId);
 
     if (readCharacteristic !== undefined) {
@@ -96,8 +136,7 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
         */
         while (newStringOfData !== null && newStringOfData !== '') {
             // Decode data from base64 to a string of hex digits
-            const newBuffer = Buffer.from(newStringOfData, 'base64');
-            const hexStringToAppend = newBuffer.toString('hex', 0, newBuffer.length);
+            const hexStringToAppend = convertBase64StringToHexString(newStringOfData);
             
             // Concatenate the new hex data to our hexString - this will grow with each new read
             hexString = hexString.concat(hexStringToAppend);
@@ -106,22 +145,8 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
             newStringOfData = (await readCharacteristic.read()).value;
         }
         
-        // The number of bytes is two times less than the number of digits in the hex string
-        const stringLen = hexString.length;
-        const numOfBytes = stringLen / 2;
-
-        // Match any two digits with the regex. This separates it into an array of bytes instead of one long string
-        const bytes: Array<string> | null = hexString.match(/../g);
-
-        // Create the data view, which will hold and manipulate our stored data
-        const arrayBuff = new ArrayBuffer(stringLen);
-        const view = new DataView(arrayBuff);
-
-        // Populate the data view by converting each hex byte to a uint8_t
-        bytes?.forEach((value, index) => {
-            const int = parseInt(value, 16);
-            view.setUint8(index, int);
-        });
+        const numOfBytes = hexString.length / 2;
+        const view = convertHexStringToUint8DataView(hexString);
 
         
         // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to uint32_t.
@@ -158,6 +183,34 @@ export const readData = async (deviceId: string, dispatch: Dispatch <AnyAction>,
     }
 };
 
+
+/** Read the battery percentage from the ESP32. This will automatically update the store with the read value.
+ * 
+ * @param deviceId The ID of the device to connect to. Generally you can find this in a selector in the bleSlice
+ * @param dispatch the dispatch hook
+ */
+export const readBatteryPercent = async (deviceId: string, dispatch: Dispatch <AnyAction>): Promise<void> => {
+    const readCharacteristic = await connectToReadCharacteristic(deviceId);
+
+    if (readCharacteristic !== undefined) {
+        // Read in the first string of data 
+        let newStringOfData = readCharacteristic.value;
+
+
+        // Check to see if we received something
+        if (newStringOfData === null || newStringOfData == '') {
+            // If we didn't get anything at all, save some time and just return right now
+            return;
+        }
+
+        const hexString = convertBase64StringToHexString(newStringOfData);
+        const dataview = convertHexStringToUint8DataView(hexString);
+
+        const batteryPercent = dataview.getUint8(0);
+
+        dispatch(REDUCER_SET_BATTERY_PERCENT(batteryPercent));
+    }
+}
 
 
 /** Disconnects from the connected device. Don't think we need this now with the BLE refactor on 10/31
@@ -254,14 +307,18 @@ const connectToReadCharacteristic = async (deviceId: string): Promise<Characteri
  *  Run this before ANY other BLE method!
  * 
  * @param dispatch The dispatch hook
+ * @param isBatteryTimerRunning This can be obtained from the SELECTOR_IS_BATTERY_TIMER_RUNNING selector in batteryPercentageSlice
+ * @return Promise\<string> - the deviceId that was connected to
  */
-export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAction>) => {
+export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAction>, isBatteryTimerRunning: boolean): Promise<string> => {
+    let deviceId: string = '';
+
     ble_Manager.startDeviceScan(null, null, (error, device) => {
         if (error) {
             // Handle error (scanning will be stopped automatically)
-            console.log("no connection")
-            console.log(error)
-            return
+            console.log("no connection");
+            console.log(error);
+            return;
         }
 
         // Check if it is a device you are looking for based on advertisement data or other criteria.
@@ -276,7 +333,10 @@ export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAct
             })
             .then(async (device) => {
                 // Store the connection details of the device
+                deviceId = device.id;
                 dispatch(REDUCER_SET_DEVICE_ID_IN_STORE(device.id));
+                startBatteryVoltageRequestTimer(dispatch, isBatteryTimerRunning, device.id);
+                return deviceId;
             })
             .catch((error) => {
                 // Handle errors
@@ -288,6 +348,8 @@ export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAct
             return;
         }
     });
+
+    return deviceId;
 };
 
 
