@@ -16,6 +16,7 @@ declare global {
 export type RootStackParamList = {
     Root: NavigatorScreenParams<RootTabParamList> | undefined;
     SwingVisualize: undefined;
+    SessionInProgress: undefined;
     NotFound: undefined;
 };
 

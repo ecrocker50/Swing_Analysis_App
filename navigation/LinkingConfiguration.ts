@@ -33,6 +33,7 @@ const linking: LinkingOptions<RootStackParamList> = {
         },
       },
       SwingVisualize: 'SwingVisualize',
+      SessionInProgress: 'SessionInProgress',
       NotFound: '*',
     },
   },

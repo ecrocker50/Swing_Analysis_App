@@ -16,7 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { scanAndStoreDeviceConnectionInfo, writeMode } from '../bluetooth/methods';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { populateUserDataStoreFromDB } from '../firebase/read';
-import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentage';
+import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
@@ -119,7 +119,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
             // There are no errors, proceed to start the session
             dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
             writeMode(deviceId, selectedModeLocal)
-            navigation.navigate('NotFound')
+            navigation.navigate('SessionInProgress')
             await timeOut(1000)
             
             setIsSessionActive(true);

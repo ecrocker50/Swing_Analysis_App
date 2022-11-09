@@ -17,12 +17,13 @@ import SwingVisualizeScreen from '../screens/SwingVisualizeScreen';
 import RecordedSessionsScreen from '../screens/RecordedSessionsScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import HomeScreen from '../screens/HomeScreen';
-import Settings from '../screens/Settings';
+import Settings from '../screens/SettingsScreen';
 import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import { getBatteryPercentageComponent, getBatteryPercentageIcon } from '../helpers/batteryVoltageMethods';
 import { useSelector } from 'react-redux';
-import { SELECTOR_BATTERY_PERCENT } from '../store/batteryPercentage';
+import { SELECTOR_BATTERY_PERCENT } from '../store/batteryPercentageSlice';
+import SessionInProgressScreen from '../screens/SessionInProgressScreen';
 
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -47,6 +48,9 @@ function RootNavigator() {
     <Stack.Navigator>
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+        <Stack.Screen name="SessionInProgress" component={SessionInProgressScreen} />
+      </Stack.Group>
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen name="SwingVisualize" component={SwingVisualizeScreen} />
       </Stack.Group>

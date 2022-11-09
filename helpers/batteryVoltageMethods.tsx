@@ -3,7 +3,7 @@ import { View, Text } from '../components/Themed';
 import * as React from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Dispatch } from 'react';
-import { REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentage';
+import { REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 
 
 

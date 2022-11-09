@@ -4,7 +4,7 @@ import { timeReducer } from './timeSlice';
 import { swingDataReducer } from './swingDataSlice';
 import { bleReducer } from './bleSlice';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
-import { batteryPercentReducer } from './batteryPercentage';
+import { batteryPercentReducer } from './batteryPercentageSlice';
 
 export const store = configureStore({
     reducer: {

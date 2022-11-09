@@ -6,7 +6,7 @@ import { REDUCER_SET_DEVICE_ID_IN_STORE } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
 import { REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
 import { getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
-import { REDUCER_SET_BATTERY_PERCENT, REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentage';
+import { REDUCER_SET_BATTERY_PERCENT, REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC_UUID = "0000ee01-0000-1000-8000-00805f9b34fb";
