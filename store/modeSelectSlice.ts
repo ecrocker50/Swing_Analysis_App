@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../types';
+import { Mode, RootState } from '../types';
 
 // default state that mode initializes to on app bootup
 const initialState = {
@@ -13,7 +13,7 @@ export const modeSelectSlice = createSlice({
     initialState,
     reducers: {
         /** Sets the current mode of swings (forehand, backhand, serve, etc) */
-        REDUCER_SET_MODE_IN_STORE: (state, action: PayloadAction<RootState["modeSelect"]["mode"]>) => {
+        REDUCER_SET_MODE_IN_STORE: (state, action: PayloadAction<Mode>) => {
             state.mode = action.payload;
         },
     }
