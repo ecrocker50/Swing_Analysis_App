@@ -35,19 +35,6 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
     const numberOfSwings = getSwingsInsideSession(userSessionsData, chosenSession).length;
 
 
-    /*
-        This is a super useful hook, called useEffect. 
-        By default, it runs on component mount and every update to the component.
-        However, here I've passed an empty array to its dependency list (2nd param), meaning that it will only run on component mount.
-        If we were to put a variable in the dependency list, then whenever that variable updates, the useEffect function will run again
-        What it is doing here is running populateUserDataStoreFromDB() only on component mount. 
-        This way it doesn't fetch DB data more than once and overwrite the data we're getting from the ESP
-    */
-    useEffect(() => {
-        populateUserDataStoreFromDB(dispatch);
-    }, []);
-
-
     return (
         <View style={styles.topContainer}>
             <Text style={styles.title}>Access Past Sessions</Text>

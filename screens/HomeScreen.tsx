@@ -17,6 +17,7 @@ import Navigation from '../navigation';
 import { useNavigation } from '@react-navigation/native';
 import { scanAndStoreDeviceConnectionInfo, writeMode } from '../bluetooth/methods';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
+import { populateUserDataStoreFromDB } from '../firebase/read';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
@@ -34,6 +35,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     //useEffect for connecting to ble device as soon as app is loaded
     useEffect(() => {
         scanAndStoreDeviceConnectionInfo(dispatch);
+        populateUserDataStoreFromDB(dispatch);
     }, []);
 
     const deviceId = useSelector(SELECTOR_DEVICE_ID); //make sure to set deviceId after connection
