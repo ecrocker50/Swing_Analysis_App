@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as React from 'react';
-import { Text } from '../components/Themed';
+import { Text, View } from '../components/Themed';
 import { ColorSchemeName, Pressable } from 'react-native';
 
 import Colors from '../constants/Colors';
@@ -24,6 +24,8 @@ import { getBatteryPercentageComponent, getBatteryPercentageIcon } from '../help
 import { useSelector } from 'react-redux';
 import { SELECTOR_BATTERY_PERCENT } from '../store/batteryPercentageSlice';
 import SessionInProgressScreen from '../screens/SessionInProgressScreen';
+import { SELECTOR_WAS_LAST_CONNECT_SUCCESS } from '../store/bleSlice';
+import { bleStatusComponent } from '../bluetooth/icon';
 
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -45,7 +47,8 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const batteryPercent = useSelector(SELECTOR_BATTERY_PERCENT);
-  
+  const wasLastBluetoothConnectSuccess = useSelector(SELECTOR_WAS_LAST_CONNECT_SUCCESS);
+
   return (
     <Stack.Navigator>
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
@@ -59,7 +62,10 @@ function RootNavigator() {
         component={SwingVisualizeScreen} 
         options={() => ({
           headerRight: () => (
-            getBatteryPercentageComponent(batteryPercent)
+            <View style={{flexDirection: 'row'}}>
+              { bleStatusComponent(wasLastBluetoothConnectSuccess) }
+              { getBatteryPercentageComponent(batteryPercent, wasLastBluetoothConnectSuccess) }
+            </View>
           ) 
         })}
         />
@@ -77,6 +83,7 @@ const BottomTab = createBottomTabNavigator<RootTabParamList>();
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();
   const batteryPercent = useSelector(SELECTOR_BATTERY_PERCENT);
+  const wasLastBluetoothConnectSuccess = useSelector(SELECTOR_WAS_LAST_CONNECT_SUCCESS);
 
   return (
     <BottomTab.Navigator
@@ -91,7 +98,10 @@ function BottomTabNavigator() {
           title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
           headerRight: () => (
-            getBatteryPercentageComponent(batteryPercent)
+            <View style={{flexDirection: 'row'}}>
+              { bleStatusComponent(wasLastBluetoothConnectSuccess) }
+              { getBatteryPercentageComponent(batteryPercent, wasLastBluetoothConnectSuccess) }
+            </View>
           )
         //   headerRight: () => (
         //     <Pressable
@@ -116,7 +126,10 @@ function BottomTabNavigator() {
           title: 'Recorded Sessions',
           tabBarIcon: ({ color }) => <TabBarIcon name="file-text" color={color} />,
           headerRight: () => (
-            getBatteryPercentageComponent(batteryPercent)
+            <View style={{flexDirection: 'row'}}>
+              { bleStatusComponent(wasLastBluetoothConnectSuccess) }
+              { getBatteryPercentageComponent(batteryPercent, wasLastBluetoothConnectSuccess) }
+            </View>
           )
         }}
       />
@@ -127,7 +140,10 @@ function BottomTabNavigator() {
           title: 'Settings',
           tabBarIcon: ({ color }) => <TabBarIcon name="gear" color={color} />,
           headerRight: () => (
-            getBatteryPercentageComponent(batteryPercent)
+            <View style={{flexDirection: 'row'}}>
+              { bleStatusComponent(wasLastBluetoothConnectSuccess) }
+              { getBatteryPercentageComponent(batteryPercent, wasLastBluetoothConnectSuccess) }
+            </View>
           )
         }}
       />

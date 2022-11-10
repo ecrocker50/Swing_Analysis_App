@@ -25,11 +25,15 @@ export const stopBatteryVoltageRequestTimer = (dispatch: Dispatch<AnyAction>, ba
  * @param percentLeft The percentage of the battery remaining
  * @returns JSX.Element - The icon to display for the battery percentage
  */
-export const getBatteryPercentageIcon = (percentLeft: number): JSX.Element => {
+export const getBatteryPercentageIcon = (percentLeft: number, wasLastConnectAttemptSuccess: boolean): JSX.Element => {
     let componentName: any;
     let componentColor: string;
 
-    if (percentLeft > 95) {
+    if (!wasLastConnectAttemptSuccess) {
+        componentName = 'battery-off-outline';
+        componentColor = 'gray';
+    }
+    else if (percentLeft > 95) {
         componentName = 'battery';
         componentColor = 'green';
     } 
@@ -74,9 +78,7 @@ export const getBatteryPercentageIcon = (percentLeft: number): JSX.Element => {
         componentColor = 'red';
     }
 
-    componentColor = 'black';
-
-    return <MaterialCommunityIcons name={componentName} color={componentColor} size={27} style={{marginRight: 10, marginTop: 10}} />;;
+    return <MaterialCommunityIcons name={componentName} color={componentColor} size={27} style={{marginRight: 10, marginTop: 10}} />;
 };
 
 
@@ -86,12 +88,16 @@ export const getBatteryPercentageIcon = (percentLeft: number): JSX.Element => {
  * @param percentLeft The percentage of battery life remaining
  * @returns JSX.Element - The battery percentage component. Includes the percentage as text and the icon.
  */
-export const getBatteryPercentageComponent = (percentLeft: number): JSX.Element => {
+export const getBatteryPercentageComponent = (percentLeft: number, wasLastBluetoothConnectSuccess: boolean): JSX.Element => {
 
     return (
         <View style={{flexDirection: 'row'}}>
-            <Text style={{fontSize: 18, marginRight: 1, marginTop: 11}}>{percentLeft + '%'}</Text>
-            { getBatteryPercentageIcon(percentLeft) }
+            { wasLastBluetoothConnectSuccess ?
+                <Text style={{fontSize: 18, marginRight: 1, marginTop: 11}}>{percentLeft + '%'}</Text>
+            :
+                null
+            }
+            { getBatteryPercentageIcon(percentLeft, wasLastBluetoothConnectSuccess) }
         </View>
     );
 };

@@ -84,7 +84,8 @@ export type UserSessionsData = Array<SingleSession>;
 export type RootState = {
     ble: {
         deviceId:   string,
-        deviceName: string
+        deviceName: string,
+        wasLastConnectAttemptSuccess: boolean
     };
     modeSelect: {
         mode: Mode;

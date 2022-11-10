@@ -2,7 +2,7 @@ import { BleManager, Characteristic } from 'react-native-ble-plx';
 import { Buffer } from 'buffer';
 import { Dispatch } from 'react';
 import { Mode, SingleDataPoint, UserSessionsData } from '../types';
-import { REDUCER_SET_DEVICE_ID_IN_STORE } from '../store/bleSlice';
+import { REDUCER_SET_DEVICE_ID_IN_STORE, REDUCER_SET_WAS_LAST_CONNECT_SUCCESS } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
 import { REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
 import { getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
@@ -135,7 +135,7 @@ export const writeMode = async (deviceId: string, Mode: Mode): Promise<void> => 
  * @param userData the userData stored in the store
  */
 export const readPointData = async (deviceId: string, dispatch: Dispatch <AnyAction>, sessionName: string, userdata: UserSessionsData): Promise<void> =>  {
-    const readCharacteristic = await connectToReadCharacteristic(deviceId);
+    const readCharacteristic = await connectToReadCharacteristic(dispatch, deviceId);
 
     if (readCharacteristic !== undefined) {
         // This is the string that will store all our hex values as one long string as we read them in
@@ -211,7 +211,7 @@ export const readPointData = async (deviceId: string, dispatch: Dispatch <AnyAct
  * @param dispatch the dispatch hook
  */
 export const readBatteryPercent = async (deviceId: string, dispatch: Dispatch <AnyAction>): Promise<void> => {
-    const readCharacteristic = await connectToReadCharacteristic(deviceId);
+    const readCharacteristic = await connectToReadCharacteristic(dispatch, deviceId);
 
     if (readCharacteristic !== undefined) {
         // Read in the first string of data 
@@ -292,7 +292,7 @@ export const connectToWriteCharacteristic = async (deviceId: string): Promise<Ch
  * @returns Promise<Characteristic | undefined> - The characteristic that can read data from the ESP32. 
  * This already has the value in it, you don't have to call read() again, just call value on it to get the info
  */
-const connectToReadCharacteristic = async (deviceId: string): Promise<Characteristic | undefined> => {
+const connectToReadCharacteristic = async (dispatch: Dispatch<AnyAction>, deviceId: string): Promise<Characteristic | undefined> => {
     if (deviceId === '') {
         return undefined;
     }
@@ -300,7 +300,7 @@ const connectToReadCharacteristic = async (deviceId: string): Promise<Characteri
     let characteristic: Characteristic | undefined = undefined;
     let device;
 
-    const connectedDevices = await ble_Manager.connectedDevices([READ_CHARACTERISTIC_SERVICE_UUID]);
+    const connectedDevices = await ble_Manager.connectedDevices([READ_CHARACTERISTIC_SERVICE_UUID]).catch((err) => {});
 
     if (connectedDevices && connectedDevices.length >= 1) {
         device = connectedDevices[0];
@@ -311,16 +311,14 @@ const connectToReadCharacteristic = async (deviceId: string): Promise<Characteri
 
 
     if (device !== undefined) {
-        try {
-            await device.discoverAllServicesAndCharacteristics().then(async (device) => {
-                 characteristic = await device.readCharacteristicForService(READ_CHARACTERISTIC_SERVICE_UUID, READ_CHARACTERISTIC_UUID);
-            });
-        } catch(e) {
-            console.log(e);
-            return undefined;
-        }
+        dispatch(REDUCER_SET_WAS_LAST_CONNECT_SUCCESS(true));
+        await device.discoverAllServicesAndCharacteristics().then(async (device) => {
+                characteristic = await device.readCharacteristicForService(READ_CHARACTERISTIC_SERVICE_UUID, READ_CHARACTERISTIC_UUID);
+        });
+        
     }
     else {
+        dispatch(REDUCER_SET_WAS_LAST_CONNECT_SUCCESS(false));
         console.log("Device not found");
     }
 
