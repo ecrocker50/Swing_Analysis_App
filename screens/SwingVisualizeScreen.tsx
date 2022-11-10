@@ -3,7 +3,7 @@ import Slider from '@react-native-community/slider';
 import SelectList from 'react-native-dropdown-select-list';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { Platform } from 'react-native';
+import { Button, Platform } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
@@ -70,7 +70,28 @@ export default function SwingVisualizeScreen() {
             <Text style={styles.normalText}>Position x:   {getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds).x}</Text>
             <Text style={styles.normalText}>Position y:   {getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds).y}</Text>
             <Text style={styles.normalText}>Position z:   {getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds).z}</Text>
+            <View style={styles.space_medium} />
+            <View style={{flexDirection: 'row'}}>
+            <Button title="Prev" color='red'
+                onPress={() => {
+                    if(chosenSwing > 0)
+                    {
+                        setChosenSwing(chosenSwing-1)
+                        dispatch(REDUCER_SET_SELECTED_SWING_IN_STORE(chosenSwing));
+                    }
+                }} />
+            <Button title="Next" color='green' 
+                onPress={() => {
+                    if(chosenSwing < getSwingsInsideSession(userSessions, selectedSession).length - 1)
+                    {
+                        setChosenSwing(chosenSwing+1);
+                        dispatch(REDUCER_SET_SELECTED_SWING_IN_STORE(chosenSwing));
+                    }
+                }} />
+                </View>
         </View>
+
+        
     );
 }
 
