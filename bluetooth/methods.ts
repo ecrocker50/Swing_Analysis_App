@@ -262,20 +262,22 @@ export const connectToWriteCharacteristic = async (deviceId: string): Promise<Ch
     let characteristic: Characteristic | undefined = undefined;
     let device;
 
-    const connectedDevices = await ble_Manager.connectedDevices([WRITE_CHARACTERISTIC_SERVICE_UUID]);
+    const connectedDevices = await ble_Manager.connectedDevices([WRITE_CHARACTERISTIC_SERVICE_UUID]).catch((err) => {});;
 
-    if (connectedDevices.length >= 1) {
+    if (connectedDevices && connectedDevices.length >= 1) {
         device = connectedDevices[0];
     }
     else {
-        device = await ble_Manager.connectToDevice(deviceId);
+        device = await ble_Manager.connectToDevice(deviceId).catch((err) => {});;
     }
 
 
     if (device) {
-        await device.discoverAllServicesAndCharacteristics().then(async (device) => {
+        await device.discoverAllServicesAndCharacteristics()
+        .then(async (device) => {
             characteristic = await device.readCharacteristicForService(WRITE_CHARACTERISTIC_SERVICE_UUID, WRITE_CHARACTERISTIC_UUID);
-        });
+        })
+        .catch((err) => {});
     }
     else {
         console.log("Device not found");
@@ -288,6 +290,7 @@ export const connectToWriteCharacteristic = async (deviceId: string): Promise<Ch
 
 /** Establishes a connection to the read characteristic. Using this, you can read values from the ESP32.
  * 
+ * @param dispatch The dispatch hook
  * @param deviceId The ID of the device to connect to. Generally you can find this in a selector in the bleSlice
  * @returns Promise<Characteristic | undefined> - The characteristic that can read data from the ESP32. 
  * This already has the value in it, you don't have to call read() again, just call value on it to get the info
@@ -311,11 +314,14 @@ const connectToReadCharacteristic = async (dispatch: Dispatch<AnyAction>, device
 
 
     if (device !== undefined) {
-        dispatch(REDUCER_SET_WAS_LAST_CONNECT_SUCCESS(true));
-        await device.discoverAllServicesAndCharacteristics().then(async (device) => {
-                characteristic = await device.readCharacteristicForService(READ_CHARACTERISTIC_SERVICE_UUID, READ_CHARACTERISTIC_UUID);
+        await device.discoverAllServicesAndCharacteristics()
+        .then(async (device) => {
+            characteristic = await device.readCharacteristicForService(READ_CHARACTERISTIC_SERVICE_UUID, READ_CHARACTERISTIC_UUID);
+            dispatch(REDUCER_SET_WAS_LAST_CONNECT_SUCCESS(true));
+        })
+        .catch((err) => {
+            dispatch(REDUCER_SET_WAS_LAST_CONNECT_SUCCESS(false));
         });
-        
     }
     else {
         dispatch(REDUCER_SET_WAS_LAST_CONNECT_SUCCESS(false));

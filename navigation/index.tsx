@@ -54,7 +54,17 @@ function RootNavigator() {
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="SessionInProgress" component={SessionInProgressScreen} />
+        <Stack.Screen 
+        name="SessionInProgress" 
+        component={SessionInProgressScreen}
+        options={() => ({
+          headerRight: () => (
+            <View style={{flexDirection: 'row'}}>
+              { bleStatusComponent(wasLastBluetoothConnectSuccess) }
+            </View>
+          ) 
+        })}
+         />
       </Stack.Group>
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
         <Stack.Screen 
