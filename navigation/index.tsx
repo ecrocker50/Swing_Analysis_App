@@ -44,6 +44,8 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
+  const batteryPercent = useSelector(SELECTOR_BATTERY_PERCENT);
+  
   return (
     <Stack.Navigator>
       <Stack.Screen name="Root" component={BottomTabNavigator} options={{ headerShown: false }} />
@@ -52,7 +54,15 @@ function RootNavigator() {
         <Stack.Screen name="SessionInProgress" component={SessionInProgressScreen} />
       </Stack.Group>
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-        <Stack.Screen name="SwingVisualize" component={SwingVisualizeScreen} />
+        <Stack.Screen 
+        name="SwingVisualize" 
+        component={SwingVisualizeScreen} 
+        options={() => ({
+          headerRight: () => (
+            getBatteryPercentageComponent(batteryPercent)
+          ) 
+        })}
+        />
       </Stack.Group>
     </Stack.Navigator>
   );

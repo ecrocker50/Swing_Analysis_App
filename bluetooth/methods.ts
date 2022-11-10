@@ -302,18 +302,23 @@ const connectToReadCharacteristic = async (deviceId: string): Promise<Characteri
 
     const connectedDevices = await ble_Manager.connectedDevices([READ_CHARACTERISTIC_SERVICE_UUID]);
 
-    if (connectedDevices.length >= 1) {
+    if (connectedDevices && connectedDevices.length >= 1) {
         device = connectedDevices[0];
     }
     else {
-        device = await ble_Manager.connectToDevice(deviceId);
+        device = await ble_Manager.connectToDevice(deviceId).catch((err) => {});
     }
 
 
-    if (device) {
-        await device.discoverAllServicesAndCharacteristics().then(async (device) => {
-            characteristic = await device.readCharacteristicForService(READ_CHARACTERISTIC_SERVICE_UUID, READ_CHARACTERISTIC_UUID);
-        });
+    if (device !== undefined) {
+        try {
+            await device.discoverAllServicesAndCharacteristics().then(async (device) => {
+                 characteristic = await device.readCharacteristicForService(READ_CHARACTERISTIC_SERVICE_UUID, READ_CHARACTERISTIC_UUID);
+            });
+        } catch(e) {
+            console.log(e);
+            return undefined;
+        }
     }
     else {
         console.log("Device not found");
