@@ -6,6 +6,11 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { store } from './store/store'
+import { LogBox } from 'react-native';
+
+
+
+LogBox.ignoreLogs(['new NativeEventEmitter']);
 
 export default function App() {
     const isLoadingComplete = useCachedResources();
