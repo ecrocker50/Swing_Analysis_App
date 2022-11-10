@@ -101,6 +101,11 @@ export const removeSessionFromUserData = (userData: UserSessionsData, sessionNam
     }
 };
 
+export const removeSwingFromSession = (userData: UserSessionsData, sessionName: string, swingIndex: number): void => {
+    const sessionIndex = getIndexOfSession(userData, sessionName);
+    userData[sessionIndex].swings.splice(swingIndex,1);
+};
+
 
 
 /** Renames a session inside userData. Note that this needs to be called in a reducer to have effect on store

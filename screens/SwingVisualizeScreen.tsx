@@ -7,15 +7,16 @@ import { Button, Platform } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
-import { getMaxTimeOfSwing, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
+import { doesSessionHaveSwings, getMaxTimeOfSwing, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import {
     REDUCER_SET_CURRENT_TIME_IN_STORE,
     SELECTOR_CURRENT_TIME_SECONDS, 
 } from '../store/timeSlice';
 import {
     REDUCER_SET_SELECTED_SWING_IN_STORE,
+    REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE,
     SELECTOR_SELECTED_SESSION,
-    SELECTOR_USER_SESSIONS
+    SELECTOR_USER_SESSIONS,
 } from '../store/swingDataSlice';
 import { UserSessionsData } from '../types';
 
@@ -30,12 +31,16 @@ export default function SwingVisualizeScreen() {
     //const selectedSwing   = useSelector(SELECTOR_SELECTED_SWING);
     const userSessions    = useSelector(SELECTOR_USER_SESSIONS);
     const [chosenSwing,   setChosenSwing]   = useState<number>(0);
-    const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
-    const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
+   
     
-
-    return (
-        <View style={styles.topContainer}>
+    if(chosenSwing !== -1)
+    {
+        //console.log("delete")
+        const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
+        const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
+        const swings = getSwingsInsideSession(userSessions, selectedSession).length;
+        return (
+            <View style={styles.topContainer}>
             <Text style={styles.title}>Swing Visualization</Text>
             <View style={styles.lineUnderTitle}/>
             <View style={styles.space_medium} />
@@ -80,6 +85,7 @@ export default function SwingVisualizeScreen() {
                         dispatch(REDUCER_SET_SELECTED_SWING_IN_STORE(chosenSwing));
                     }
                 }} />
+            <View style={styles.space_small} />
             <Button title="Next" color='green' 
                 onPress={() => {
                     if(chosenSwing < getSwingsInsideSession(userSessions, selectedSession).length - 1)
@@ -89,10 +95,54 @@ export default function SwingVisualizeScreen() {
                     }
                 }} />
                 </View>
+                <View style={styles.space_small} />
+                <Button 
+                            color='red' 
+                            title="Delete Swing" 
+                            onPress={() => {
+                                //console.log("button");
+                                dispatch(REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE({sessionName: selectedSession, swingIndex: chosenSwing}));
+                                //console.log("reducer");
+                                //console.log(doesSessionHaveSwings(userSessions, selectedSession));
+                                if(doesSessionHaveSwings(userSessions, selectedSession) === 1)
+                                {
+                                    //console.log("-1");
+                                    setChosenSwing(-1);
+                                }
+                                else
+                                {
+                                    if(chosenSwing === 0)
+                                    {
+                                        //console.log("0");
+                                        //console.log(chosenSwing);
+                                        setChosenSwing(chosenSwing);
+                                    }
+                                    else
+                                    {
+                                        //console.log("subtract");
+                                        setChosenSwing(chosenSwing-1);
+                                    }
+                                }
+                            }
+                            }
+                        />
         </View>
 
         
     );
+    }
+    else{
+        return(
+            <View style={styles.topContainer}>
+            <Text style={styles.title}>Swing Visualization</Text>
+            <View style={styles.lineUnderTitle}/>
+            <View style={styles.space_medium} />
+            <View style={styles.space_extra_large}/>
+            <Text style={styles.normalText}> No Swings Found </Text>
+            </View>
+        )
+
+    }
 }
 
 
@@ -140,3 +190,5 @@ const chooseASwingSection = (dispatch: Dispatch<AnyAction>, selectedSession: str
             </View>
         );
     }
+
+

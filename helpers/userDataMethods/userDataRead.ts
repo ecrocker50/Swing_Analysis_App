@@ -118,6 +118,15 @@ export const getSwingsInsideSession = (userData: UserSessionsData, sessionName: 
     return swings;
 };
 
+export const doesSessionHaveSwings = (userData: UserSessionsData, sessionName: string): number => {
+    const index = getIndexOfSession(userData, sessionName);
+    if(userData[index].swings === undefined)
+    {
+        return 0;
+    }
+    return userData[index].swings.length;
+}
+
 
 /** Gets the points inside a single swing.
  * 

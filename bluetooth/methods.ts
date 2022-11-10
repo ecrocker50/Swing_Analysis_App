@@ -31,7 +31,7 @@ const ble_Manager = new BleManager();
         dispatch(REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING(true));
 
         const intervalId = setInterval(() => { // <-- setInterval is a special React Expo function. It sets up a timer and runs the contents after 1000 milliseconds in this case
-            console.log("battery timer fired");
+            //console.log("battery timer fired");
             readBatteryPercent(deviceId, dispatch);
         }, 1000);
 

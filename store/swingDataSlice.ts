@@ -7,7 +7,8 @@ import {
     createNewEmptySession,
     removeSessionFromUserData,
     addTimeOfContactToSwing,
-    renameSessionFromUserData
+    renameSessionFromUserData,
+    removeSwingFromSession
 } from '../helpers/userDataMethods/userDataWrite';
 
 
@@ -36,6 +37,11 @@ type RenameSessionType = {
 type CreateNewSessionType = {
     sessionName: string,
     sessionMode: Mode
+};
+
+type RemoveSwingType = {
+    sessionName: string,
+    swingIndex: number
 };
 
 
@@ -84,6 +90,9 @@ export const swingDataSlice = createSlice({
         REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE: (state, action: PayloadAction<string>) => {
             removeSessionFromUserData(state.userSessions, action.payload);
         },
+        REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE: (state, action: PayloadAction<RemoveSwingType>) => {
+            removeSwingFromSession(state.userSessions, action.payload.sessionName, action.payload.swingIndex);
+        },
         /** Renames a session in the store */
         REDUCER_RENAME_SESSION_IN_STORE: (state, action: PayloadAction<RenameSessionType>) => {
             renameSessionFromUserData(state.userSessions, action.payload.oldSessionName, action.payload.newSessionName);
@@ -100,7 +109,8 @@ export const {
     REDUCER_SET_SELECTED_SESSION_IN_STORE,
     REDUCER_SET_SELECTED_SWING_IN_STORE, 
     REDUCER_SET_ALL_USER_DATA_IN_STORE, 
-    REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE, 
+    REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE,
+    REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE, 
     REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE,
     REDUCER_RENAME_SESSION_IN_STORE
 } = swingDataSlice.actions;
