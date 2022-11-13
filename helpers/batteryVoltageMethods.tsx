@@ -33,6 +33,10 @@ export const getBatteryPercentageIcon = (percentLeft: number, wasLastConnectAtte
         componentName = 'battery-off-outline';
         componentColor = 'gray';
     }
+    else if (percentLeft === 101) { // special plugged-in case
+        componentName = 'battery-charging';
+        componentColor = 'green';
+    } 
     else if (percentLeft > 95) {
         componentName = 'battery';
         componentColor = 'green';
@@ -92,7 +96,7 @@ export const getBatteryPercentageComponent = (percentLeft: number, wasLastBlueto
 
     return (
         <View style={{flexDirection: 'row'}}>
-            { wasLastBluetoothConnectSuccess ?
+            { wasLastBluetoothConnectSuccess && percentLeft !== 101 ?
                 <Text style={{fontSize: 18, marginRight: 1, marginTop: 11}}>{percentLeft + '%'}</Text>
             :
                 null

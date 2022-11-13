@@ -9,6 +9,7 @@ import { scanAndStoreDeviceConnectionInfo, writeMode, writeEndSession, readPoint
 import { getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 import React from 'react';
+import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 
 export default function Settings() {
     //const [inputtedHand, setInputtedHand] = useState<string>("");
@@ -16,6 +17,7 @@ export default function Settings() {
     const mode = useSelector(SELECTOR_MODE);
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
     const sessiondata = useSelector(SELECTOR_USER_SESSIONS)
+    const isBatteryTimerRunning = useSelector(SELECTOR_IS_BATTERY_TIMER_RUNNING);
 
     return (
         <View style={styles.topContainer}>
@@ -26,7 +28,7 @@ export default function Settings() {
 
             <View style={styles.space_small} />
             <Text style={styles.title}>{deviceId !== '' ? "Device found!" : "Device not found!"}</Text>
-            <Button title={'Reconnect BLE'} onPress={() => scanAndStoreDeviceConnectionInfo(dispatch)}></Button>
+            <Button title={'Reconnect BLE'} onPress={() => scanAndStoreDeviceConnectionInfo(dispatch, isBatteryTimerRunning)}></Button>
             
             <View style={styles.space_small} />
             <Button title={"Write Mode Selection"} onPress={() => writeMode(deviceId, mode)}></Button>
