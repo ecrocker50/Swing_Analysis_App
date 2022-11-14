@@ -44,6 +44,12 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 // The modes of swings that are supported
 export type Mode = "Serve" | "Forehand" | "Backhand" | "Unknown";
 
+export type EulerAngles = {
+    roll:  number;
+    pitch: number;
+    yaw:   number;
+};
+
 export type Quaternion = {
     real: number;
     i:    number;

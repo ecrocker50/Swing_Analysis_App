@@ -19,6 +19,7 @@ import {
     SELECTOR_USER_SESSIONS,
 } from '../store/swingDataSlice';
 import { UserSessionsData } from '../types';
+import { convertQuaternionToEuler } from '../helpers/numberConversions';
 
 
 
@@ -31,7 +32,10 @@ export default function SwingVisualizeScreen() {
     //const selectedSwing   = useSelector(SELECTOR_SELECTED_SWING);
     const userSessions    = useSelector(SELECTOR_USER_SESSIONS);
     const [chosenSwing,   setChosenSwing]   = useState<number>(0);
-   
+
+    const quaternion  = getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
+    const position    = getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
+    const eulerAngles = convertQuaternionToEuler(quaternion);
     
     if(chosenSwing !== -1)
     {
@@ -68,13 +72,16 @@ export default function SwingVisualizeScreen() {
             <Text style={styles.normalText}>Swing:   {chosenSwing}</Text>
 
             <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing)}s</Text>
-            <Text style={styles.normalText}>Quaternion real:   {getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds).real}</Text>
-            <Text style={styles.normalText}>Quaternion i:   {getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds).i}</Text>
-            <Text style={styles.normalText}>Quaternion j:   {getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds).j}</Text>
-            <Text style={styles.normalText}>Quaternion k:   {getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds).k}</Text>
-            <Text style={styles.normalText}>Position x:   {getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds).x}</Text>
-            <Text style={styles.normalText}>Position y:   {getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds).y}</Text>
-            <Text style={styles.normalText}>Position z:   {getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds).z}</Text>
+            <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
+            <Text style={styles.normalText}>Quaternion i:   {quaternion.i}</Text>
+            <Text style={styles.normalText}>Quaternion j:   {quaternion.j}</Text>
+            <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text>
+            <Text style={styles.normalText}>Roll:    {eulerAngles.roll}</Text>
+            <Text style={styles.normalText}>Pitch:   {eulerAngles.pitch}</Text>
+            <Text style={styles.normalText}>Yaw:     {eulerAngles.yaw}</Text>
+            <Text style={styles.normalText}>Position x:   {position.x}</Text>
+            <Text style={styles.normalText}>Position y:   {position.y}</Text>
+            <Text style={styles.normalText}>Position z:   {position.z}</Text>
             <View style={styles.space_medium} />
             <View style={{flexDirection: 'row'}}>
             <Button title="Prev" color='red'
