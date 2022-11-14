@@ -43,11 +43,13 @@ export const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: 'white'
     },
     topContainer: {
         flex: 1,
         paddingTop: 15,
         alignItems: 'center',
+        backgroundColor: 'white'
     },
     modalView: {
         marginTop: 150,
@@ -60,7 +62,8 @@ export const styles = StyleSheet.create({
         borderRadius: 12,
         shadowColor: '#000',
         shadowRadius: 7,
-        elevation: 5
+        elevation: 5,
+        color: 'white'
     },
 
     
@@ -68,11 +71,13 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
+        color: 'black'
     },
     normalText: {
         fontSize: 18,
         marginRight: 15,
-        marginLeft: 15
+        marginLeft: 15,
+        color: 'black'
     },
 
     

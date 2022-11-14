@@ -1,13 +1,13 @@
 
-import { Alert, Button, TextInput } from 'react-native';
-import SelectList from 'react-native-dropdown-select-list'
+import { Alert, Button, KeyboardAvoidingView, ScrollView, TextInput } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps, UserSessionsData } from '../types';
 import { SELECTOR_MODE, REDUCER_SET_MODE_IN_STORE } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
-import { Dispatch, useEffect, useState } from 'react';
+import React, { Dispatch, useEffect, useState } from 'react';
 import { AnyAction } from '@reduxjs/toolkit';
 import { doesSessionExist, getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { REDUCER_CREATE_NEW_SESSION_IN_STORE, SELECTOR_USER_SESSIONS, REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE } from '../store/swingDataSlice';
@@ -20,11 +20,12 @@ import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentageSli
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
+const ModeOptionsMap: Array<Object> = [{label: "Forehand", value: "Forehand"}, {label: "Backhand", value: "Backhand"}, {label: "Serve", value: "Serve"}]
+
 
 
 export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const dispatch = useDispatch();
-    const mode = useSelector(SELECTOR_MODE);
     const userSessions = useSelector(SELECTOR_USER_SESSIONS);
     const isBatteryTimerRunning = useSelector(SELECTOR_IS_BATTERY_TIMER_RUNNING);
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
@@ -32,6 +33,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const [isSessionActive, setIsSessionActive]             = useState<Boolean>(false);
     const [inputtedNameOfSession, setInputtedNameOfSession] = useState<string>("");
     const navigationHook = useNavigation();
+    const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
 
     //useEffect for connecting to ble device as soon as app is loaded
     useEffect(() => {
@@ -74,26 +76,29 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     else {
         return (
             <View style={styles.topContainer}>
-                <Text style={{...styles.title}}>Select your mode</Text>
+                <Text style={styles.title}>Name this session</Text>
+                <View style={styles.lineUnderTitle} />
+                <KeyboardAvoidingView behavior={"padding"} keyboardVerticalOffset={40}>
+                    <TextInput 
+                        placeholder='session name' 
+                        textAlign='left' 
+                        onChangeText={(inputtedText) => setInputtedNameOfSession(inputtedText)}
+                        style={styles.textInputSessionName}>
+                    </TextInput>
+                </KeyboardAvoidingView>
+                
+                <View style={styles.space_large} />
+
+                <Text style={styles.title}>Select your mode</Text>
                 <View style={styles.lineUnderTitle} />
 
                 <View style={styles.space_small} />
 
-                {sessionModeSelectSection(dispatch, mode, selectedModeLocal, setSelectedModeLocal)}
-
-                <View style={styles.space_medium} />
-
-                <Text style={{...styles.title}}>Name this session</Text>
-                <View style={styles.lineUnderTitle} />
                 
-                <TextInput 
-                    placeholder='session name' 
-                    textAlign='left' 
-                    onChangeText={(inputtedText) => setInputtedNameOfSession(inputtedText)}
-                    style={styles.textInputSessionName}>
-                </TextInput>
+                {sessionModeSelectSection(selectedModeLocal, setSelectedModeLocal, isDropDownOpen, setIsDropDownOpenOpen)}
 
-                <View style={styles.space_medium} />
+                <View style={styles.space_large} />
+
                 { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, deviceId, setIsSessionActive) }
                 
             </View> 
@@ -117,6 +122,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
         else
         {
             // There are no errors, proceed to start the session
+            dispatch(REDUCER_SET_MODE_IN_STORE(selectedModeLocal));
             dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
             writeMode(deviceId, selectedModeLocal)
             navigation.navigate('SessionInProgress')
@@ -127,26 +133,26 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
     }} />
 );
 
-
-
-const sessionModeSelectSection = (dispatch: Dispatch<AnyAction>, mode: Mode, selectedModeLocal: Mode, setSelectedModeLocal: React.Dispatch<React.SetStateAction<Mode>>): JSX.Element => (
-    <View style={{alignItems: 'center'}}>
-        { ModeDescriptions(mode) }
+const sessionModeSelectSection = (selectedModeLocal: Mode, setSelectedModeLocal: React.Dispatch<React.SetStateAction<Mode>>, isDropDownOpen: boolean, setIsDropDownOpenOpen: React.Dispatch<React.SetStateAction<boolean>>): JSX.Element => (
+    <View style={{alignItems: 'center', backgroundColor: 'white', zIndex: 10}}>
+        { ModeDescriptions(selectedModeLocal) }
                 
         <View style={styles.space_medium} />
-
-        <SelectList
-            placeholder={mode}
-            data={ModeOptions}
-            search={false}
-            boxStyles={styles.dropdownUnopened}
-            dropdownStyles={styles.dropdown}
-            dropdownItemStyles={styles.dropdownItem}
-            dropdownTextStyles={styles.dropdownText}
-            inputStyles={styles.dropdownSelectedText}
-            setSelected={setSelectedModeLocal}
-            onSelect={() => dispatch(REDUCER_SET_MODE_IN_STORE(selectedModeLocal))}
-        />
+        <DropDownPicker
+            open={isDropDownOpen}
+            value={selectedModeLocal}
+            items={ModeOptionsMap}
+            setOpen={setIsDropDownOpenOpen}
+            setValue={setSelectedModeLocal}
+            closeAfterSelecting={true}
+            closeOnBackPressed={true}
+            style={{width: '60%', alignSelf: 'center'}}
+            textStyle={styles.normalText}
+            placeholderStyle={styles.normalText}
+            dropDownContainerStyle={{width: '60%', alignSelf: 'center'}}
+            listItemLabelStyle={styles.normalText}
+            />
+        
     </View>
 );
 

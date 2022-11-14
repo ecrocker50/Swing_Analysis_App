@@ -1,13 +1,14 @@
 import React, { Dispatch, useState } from 'react';
 import Slider from '@react-native-community/slider';
 import SelectList from 'react-native-dropdown-select-list';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Platform } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
-import { doesSessionHaveSwings, getMaxTimeOfSwing, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
+import { doesSessionHaveSwings, getMaxTimeOfSwing, getNumberOfSwingsInsideSession, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import {
     REDUCER_SET_CURRENT_TIME_IN_STORE,
     SELECTOR_CURRENT_TIME_SECONDS, 
@@ -20,25 +21,28 @@ import {
 } from '../store/swingDataSlice';
 import { UserSessionsData } from '../types';
 import { convertQuaternionToEuler } from '../helpers/numberConversions';
+import { Entypo } from '@expo/vector-icons';
 
 
 
 export default function SwingVisualizeScreen() {
     const dispatch = useDispatch();
     
-    //const {selectedSession} = route.params
     const currentTimeSeconds   = useSelector(SELECTOR_CURRENT_TIME_SECONDS);
     const selectedSession = useSelector(SELECTOR_SELECTED_SESSION);
-    //const selectedSwing   = useSelector(SELECTOR_SELECTED_SWING);
     const userSessions    = useSelector(SELECTOR_USER_SESSIONS);
     const [chosenSwing,   setChosenSwing]   = useState<number>(0);
 
     const quaternion  = getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
     const position    = getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
     const eulerAngles = convertQuaternionToEuler(quaternion);
+
+    const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
+    const numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
     
     if(chosenSwing !== -1)
     {
+        const swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
         //console.log("delete")
         const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
         const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
@@ -49,7 +53,28 @@ export default function SwingVisualizeScreen() {
             <View style={styles.lineUnderTitle}/>
             <View style={styles.space_medium} />
 
-            {chooseASwingSection(dispatch, selectedSession, userSessions, chosenSwing, setChosenSwing)}
+            <Text style={styles.title}>
+                Select a swing
+            </Text>
+            <DropDownPicker
+                open={isDropDownOpen}
+                value={chosenSwing}
+                items={swingIndexMap}
+                setOpen={setIsDropDownOpenOpen}
+                setValue={setChosenSwing}
+                searchable={true}
+                closeAfterSelecting={true}
+                closeOnBackPressed={true}
+                TickIconComponent={({style}) => <Entypo name='magnifying-glass' size={20} style={style} />}
+                style={{width: '60%', alignSelf: 'center'}}
+                textStyle={styles.normalText}
+                placeholderStyle={styles.normalText}
+                searchPlaceholder={"Search a Swing"}
+                searchTextInputStyle={styles.normalText}
+                dropDownContainerStyle={{width: '60%', alignSelf: 'center'}}
+                listItemLabelStyle={styles.normalText}
+                ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
+                />
 
             {/* Use a light status bar on iOS to account for the black space above the modal */}
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
@@ -68,20 +93,7 @@ export default function SwingVisualizeScreen() {
                 minimumValue={0}
             />
 
-            <Text style={styles.normalText}>Session: {selectedSession}</Text>
-            <Text style={styles.normalText}>Swing:   {chosenSwing}</Text>
-
-            <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing)}s</Text>
-            <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
-            <Text style={styles.normalText}>Quaternion i:   {quaternion.i}</Text>
-            <Text style={styles.normalText}>Quaternion j:   {quaternion.j}</Text>
-            <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text>
-            <Text style={styles.normalText}>Roll:    {eulerAngles.roll}</Text>
-            <Text style={styles.normalText}>Pitch:   {eulerAngles.pitch}</Text>
-            <Text style={styles.normalText}>Yaw:     {eulerAngles.yaw}</Text>
-            <Text style={styles.normalText}>Position x:   {position.x}</Text>
-            <Text style={styles.normalText}>Position y:   {position.y}</Text>
-            <Text style={styles.normalText}>Position z:   {position.z}</Text>
+            
             <View style={styles.space_medium} />
             <View style={{flexDirection: 'row'}}>
             <Button title="Prev" color='red'
@@ -133,6 +145,21 @@ export default function SwingVisualizeScreen() {
                             }
                             }
                         />
+
+            <Text style={styles.normalText}>Session: {selectedSession}</Text>
+            <Text style={styles.normalText}>Swing:   {chosenSwing}</Text>
+
+            <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing)}s</Text>
+            <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
+            <Text style={styles.normalText}>Quaternion i:   {quaternion.i}</Text>
+            <Text style={styles.normalText}>Quaternion j:   {quaternion.j}</Text>
+            <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text>
+            <Text style={styles.normalText}>Roll (degrees):    {eulerAngles.roll.toFixed(4)}</Text>
+            <Text style={styles.normalText}>Pitch (degrees):   {eulerAngles.pitch.toFixed(4)}</Text>
+            <Text style={styles.normalText}>Yaw (degrees):     {eulerAngles.yaw.toFixed(4)}</Text>
+            <Text style={styles.normalText}>Position x:   {position.x}</Text>
+            <Text style={styles.normalText}>Position y:   {position.y}</Text>
+            <Text style={styles.normalText}>Position z:   {position.z}</Text>
         </View>
 
         
@@ -171,31 +198,3 @@ export default function SwingVisualizeScreen() {
 
     dispatch(REDUCER_SET_CURRENT_TIME_IN_STORE(parseFloat(newValue.toFixed(6))));
 };
-
-const chooseASwingSection = (dispatch: Dispatch<AnyAction>, selectedSession: string, userSessionsData: UserSessionsData, chosenSwing: number, setChosenSwing: React.Dispatch<React.SetStateAction<number>>): JSX.Element => {
-    const swings = getSwingsInsideSession(userSessionsData, selectedSession);
-    const swingIndexArray = Array.apply(null, Array(swings.length)).map((value, index) => index);
-
-    const placeholderDisplay = chosenSwing !== -1 ? chosenSwing.toString() : "select";
-        return (
-            <View>
-                <Text style={styles.title}>
-                    Select a swing
-                </Text>
-                <SelectList
-                    placeholder={placeholderDisplay}
-                    data={swingIndexArray}
-                    search={false}
-                    boxStyles={styles.dropdownUnopened}
-                    dropdownStyles={styles.dropdown}
-                    dropdownItemStyles={styles.dropdownItem}
-                    dropdownTextStyles={styles.dropdownText}
-                    inputStyles={styles.dropdownSelectedText}
-                    setSelected={setChosenSwing}
-                    onSelect={() => dispatch(REDUCER_SET_SELECTED_SWING_IN_STORE(chosenSwing))}
-                />
-            </View>
-        );
-    }
-
-

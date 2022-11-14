@@ -1,8 +1,9 @@
 import { Button, Modal, TextInput } from 'react-native';
-import React, { Dispatch, useState, useEffect } from 'react';
+import React, { Dispatch, useState } from 'react';
+import { Entypo } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { AnyAction } from '@reduxjs/toolkit';
-import SelectList from 'react-native-dropdown-select-list';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
 import { Mode, RootTabScreenProps, UserSessionsData } from '../types';
@@ -33,7 +34,11 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
     const mode = getModeOfSession(userSessionsData, chosenSession);
     const numberOfSwings = getSwingsInsideSession(userSessionsData, chosenSession).length;
 
-
+    const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
+    const itemMap = getAllSessionNames(userSessionsData).map((sessionName) => {
+        return {label: sessionName, value: sessionName}
+    });
+    
     return (
         <View style={styles.topContainer}>
             <Text style={styles.title}>Access Past Sessions</Text>
@@ -41,7 +46,28 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
 
             <View style={styles.space_medium} />
 
-            {chooseASessionSection(dispatch, userSessionsData, chosenSession, setChosenSession)}
+            <Text style={styles.title}>
+                Choose a session
+            </Text>
+            <DropDownPicker
+                open={isDropDownOpen}
+                value={chosenSession}
+                items={itemMap}
+                setOpen={setIsDropDownOpenOpen}
+                setValue={setChosenSession}
+                searchable={true}
+                closeAfterSelecting={true}
+                closeOnBackPressed={true}
+                TickIconComponent={({style}) => <Entypo name='magnifying-glass' size={20} style={style} />}
+                style={{width: '60%', alignSelf: 'center'}}
+                textStyle={styles.normalText}
+                placeholderStyle={styles.normalText}
+                searchPlaceholder={"Search a Session"}
+                searchTextInputStyle={styles.normalText}
+                dropDownContainerStyle={{width: '60%', alignSelf: 'center'}}
+                listItemLabelStyle={styles.normalText}
+                ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
+                />
 
             <View style={styles.space_extra_large} />
 
@@ -49,7 +75,7 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
                     
             <View style={styles.space_medium} />
 
-            {editSessionNameModalSection(dispatch, editNameModalVisible, setEditNameModalVisible, chosenSession)}
+            {editSessionNameModalSection(dispatch, editNameModalVisible, setEditNameModalVisible, chosenSession, setChosenSession)}
 
             <View style={styles.space_large} />
 
@@ -58,7 +84,10 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
                     <View style={{flexDirection: 'row'}}>
                         <Button 
                             title="Analyze Session" 
-                            onPress={() => navigation.navigate('SwingVisualize')} 
+                            onPress={() => {
+                                dispatch(REDUCER_SET_SELECTED_SESSION_IN_STORE(chosenSession))
+                                navigation.navigate('SwingVisualize')
+                            }} 
                         />
                         
                         <Button 
@@ -81,8 +110,8 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
 const sessionOverviewSection = (mode: Mode, numberOfSwings: number): JSX.Element => {
     if (mode !== "Unknown") {
         return (
-            <View style={{alignItems: 'center'}}>
-                <Text style={styles.title}>Session Overview</Text>
+            <View style={{alignItems: 'center', zIndex: -5}}>
+                <Text style={{...styles.title}}>Session Overview</Text>
                 <View style={styles.space_small} />
                 <Text style={styles.normalText}>Mode: {mode}</Text>
                 <Text style={styles.normalText}>Number of swings: {numberOfSwings}</Text>
@@ -97,11 +126,11 @@ const sessionOverviewSection = (mode: Mode, numberOfSwings: number): JSX.Element
 
 
 
-const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModalVisible: boolean, setEditNameModalVisible: React.Dispatch<React.SetStateAction<boolean>>, previousSessionName: string): JSX.Element => {
+const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModalVisible: boolean, setEditNameModalVisible: React.Dispatch<React.SetStateAction<boolean>>, previousSessionName: string, setChosenSession: Dispatch<React.SetStateAction<string>>): JSX.Element => {
     let inputtedText = '';
     
     return (
-        <View>
+        <View style={{zIndex: -5}}>
             <Button title='Edit Session Name' onPress={() => setEditNameModalVisible(true)}></Button>
             <Modal
                 visible={editNameModalVisible}
@@ -123,6 +152,7 @@ const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModa
                         <Button title='Save' color='green' onPress={() => {
                             setEditNameModalVisible(false);
                             dispatch(REDUCER_RENAME_SESSION_IN_STORE({oldSessionName: previousSessionName, newSessionName: inputtedText}));
+                            setChosenSession(inputtedText);
                         }} />
                         <Button title='Cancel' onPress={() => setEditNameModalVisible(false)} />
                     </View>
@@ -134,24 +164,43 @@ const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModa
 
 
 
-const chooseASessionSection = (dispatch: Dispatch<AnyAction>, userSessionsData: UserSessionsData, chosenSession: string, setChosenSession: React.Dispatch<React.SetStateAction<string>>): JSX.Element => {
+const chooseASessionSection = (dispatch: Dispatch<AnyAction>, userSessionsData: UserSessionsData, chosenSession: string, setChosenSession: React.Dispatch<React.SetStateAction<string>>, isDropDownOpen: any, setIsDropDownOpenOpen: any): JSX.Element => {
+    const itemMap = getAllSessionNames(userSessionsData).map((sessionName) => {
+        return {label: sessionName, value: sessionName}
+    });
+    
     return (
         <View style={{alignItems: 'center'}}>
             <Text style={styles.title}>
                 Choose a session
             </Text>
-            <SelectList
-                placeholder={"select a session"}
-                data={getAllSessionNames(userSessionsData)}
-                search={false}
-                boxStyles={styles.dropdownUnopened}
-                dropdownStyles={styles.dropdown}
-                dropdownItemStyles={styles.dropdownItem}
-                dropdownTextStyles={styles.dropdownText}
-                inputStyles={styles.dropdownSelectedText}
-                setSelected={setChosenSession}
-                onSelect={() => dispatch(REDUCER_SET_SELECTED_SESSION_IN_STORE(chosenSession))}
-            />
+            <DropDownPicker
+                open={isDropDownOpen}
+                value={chosenSession}
+                items={itemMap}
+                setOpen={setIsDropDownOpenOpen}
+                setValue={() => {
+                    setChosenSession; 
+                    dispatch(REDUCER_SET_SELECTED_SESSION_IN_STORE(chosenSession))
+                }}
+                searchable={true}
+                closeAfterSelecting={true}
+                closeOnBackPressed={true}
+                TickIconComponent={({style}) => <Entypo name='magnifying-glass' size={20} style={style} />}
+                style={{width: '60%', alignSelf: 'center'}}
+                textStyle={styles.normalText}
+                placeholderStyle={styles.normalText}
+                searchPlaceholder={"Search a Session"}
+                searchTextInputStyle={styles.normalText}
+                dropDownContainerStyle={{width: '60%', alignSelf: 'center'}}
+                listItemLabelStyle={styles.normalText}
+                listMode="SCROLLVIEW"
+                    scrollViewProps={{
+                        scrollEnabled: true,
+                        nestedScrollEnabled: true,
+                        scrollToOverflowEnabled: true
+                }}
+                />
         </View>
     );
 };
