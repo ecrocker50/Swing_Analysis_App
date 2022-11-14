@@ -3,6 +3,7 @@ import React, { Dispatch, useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AnyAction } from '@reduxjs/toolkit';
 import SelectList from 'react-native-dropdown-select-list';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
 import { Mode, RootTabScreenProps, UserSessionsData } from '../types';
@@ -20,7 +21,7 @@ import {
 
 
 
-
+const countries = ["Egypt", "Canada", "Australia", "Ireland"]
 
 
 
@@ -33,15 +34,41 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
     const mode = getModeOfSession(userSessionsData, chosenSession);
     const numberOfSwings = getSwingsInsideSession(userSessionsData, chosenSession).length;
 
+    const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
+    const [dropDownSelectedValue, setDropDownSelectedValue] = useState(null);
+    const itemMap = getAllSessionNames(userSessionsData).map((sessionName) => {
+        return {label: sessionName, value: sessionName}
+    });
 
     return (
         <View style={styles.topContainer}>
             <Text style={styles.title}>Access Past Sessions</Text>
             <View style={styles.lineUnderTitle} />
 
+            
             <View style={styles.space_medium} />
 
             {chooseASessionSection(dispatch, userSessionsData, chosenSession, setChosenSession)}
+
+            
+            <DropDownPicker
+                open={isDropDownOpen}
+                value={dropDownSelectedValue}
+                items={itemMap}
+                setOpen={setIsDropDownOpenOpen}
+                setValue={setDropDownSelectedValue}
+                placeholderStyle={styles.normalText}
+                customItemLabelStyle={styles.normalText}
+                selectedItemLabelStyle={styles.normalText}
+                searchable={true}
+                searchPlaceholder={"Search a Session"}
+                searchTextInputStyle={styles.normalText}
+                closeAfterSelecting={true}
+                closeOnBackPressed={true}
+                style={{width: '60%', alignSelf: 'center'}}
+                dropDownContainerStyle={{width: '60%', alignSelf: 'center'}}
+                listItemLabelStyle={styles.normalText}
+                />
 
             <View style={styles.space_extra_large} />
 
@@ -140,10 +167,11 @@ const chooseASessionSection = (dispatch: Dispatch<AnyAction>, userSessionsData: 
             <Text style={styles.title}>
                 Choose a session
             </Text>
+
+
             <SelectList
                 placeholder={"select a session"}
                 data={getAllSessionNames(userSessionsData)}
-                search={false}
                 boxStyles={styles.dropdownUnopened}
                 dropdownStyles={styles.dropdown}
                 dropdownItemStyles={styles.dropdownItem}
