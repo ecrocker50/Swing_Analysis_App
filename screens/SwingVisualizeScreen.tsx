@@ -1,6 +1,8 @@
 import React, { Dispatch, useState } from 'react';
 import Slider from '@react-native-community/slider';
-import SelectList from 'react-native-dropdown-select-list';
+import { Renderer } from 'expo-three';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
+import { Asset } from 'expo-asset';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
@@ -39,7 +41,8 @@ export default function SwingVisualizeScreen() {
 
     const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
     const numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
-    
+
+    getOBJ()
     if(chosenSwing !== -1)
     {
         const swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
@@ -177,6 +180,19 @@ export default function SwingVisualizeScreen() {
         )
 
     }
+}
+
+
+const getOBJ = async () => {
+    const asset = Asset.fromModule(require('../assets/Models/box.obj'));
+
+    await asset.downloadAsync();
+
+    const loader = new OBJLoader();
+
+    loader.load(asset.localUri, group => {
+        console.log("Loaded");
+    });
 }
 
 
