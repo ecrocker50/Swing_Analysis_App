@@ -18,15 +18,9 @@ import {
     SELECTOR_SELECTED_SESSION,
     SELECTOR_USER_SESSIONS,
 } from '../store/swingDataSlice';
-import { UserSessionsData } from '../types';
 import { convertQuaternionToEuler } from '../helpers/numberConversions';
 import { Entypo } from '@expo/vector-icons';
-import { GLView } from 'expo-gl';
-import { ThreeDTwo } from './two';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-// import * as THREE from 'https://unpkg.com/three@0.127.0/build/three.module.js';
-import { THREE, Renderer, loadObjAsync, loadTextureAsync } from 'expo-three';
-import { Asset } from 'expo-asset';
+import { RacketOrientationDisplay } from '../components/RacketOrientation';
 
 
 
@@ -45,125 +39,7 @@ export default function SwingVisualizeScreen() {
     const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
     const numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
 
-
-
-    const onContextCreate = async (gl: any) => {
-        // 1. Scene
-        var scene = new THREE.Scene();
-        // 2. Camera
-        const camera = new THREE.PerspectiveCamera(75, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.1, 1000);
-
-        gl.canvas = { width: gl.drawingBufferWidth, height: gl.drawingBufferHeight }
-        camera.position.z = 1.5
-
-        const renderer = new Renderer({ gl })
-        renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight)
-
-        const geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 'red' })
-
-        // const cube = new THREE.Mesh(geometry, material)
-        // scene.add(cube)
-
-        // const loaderGltf = new GLTFLoader();
-        // const model = Asset.fromModule(require('./box.gltf'));
-        // await model.downloadAsync();
-        // const loader = loaderGltf;
-        // loader.load(
-        //       model.uri || '', // .uri / .localUri will not work in release mode on android!
-        //       result => { scene.add(model) },
-        //       onLoad => {},
-        //       onError => {},
-        // );
-
-        
-        // const loader = new GLTFLoader();
-        // const model = Asset.fromModule(require('./box.glb'));
-        // loader.load(
-        //     // resource URL
-        //     model.uri,
-        //     // called when the resource is loaded
-        //     function ( gltf: any ) {
-        //         console.log("adding to scene");
-        //         scene.add( gltf.scene );
-        
-        //         gltf.animations; // Array<THREE.AnimationClip>
-        //         gltf.scene; // THREE.Group
-        //         gltf.scenes; // Array<THREE.Group>
-        //         gltf.cameras; // Array<THREE.Camera>
-        //         gltf.asset; // Object
-        
-        //     },
-        //     // called while loading is progressing
-        //     function ( xhr: any ) {
-        
-        //         console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-        
-        //     },
-        //     // called when loading has errors
-        //     function ( error: any ) {
-        
-        //         console.log( 'An error happened' );
-        //         console.log(error);
-        //     }
-        // );
-
-        // const texture = await loadTextureAsync({
-        //     asset: require('../assets/Models/textures.xpng'),
-        // });
-        // const texture = await loadTextureAsync({
-        //     asset: require('../assets/Models/box.mtl')
-        //   });
-        const obj = await loadObjAsync({
-            asset: require('../assets/Models/box.obj')
-        });
-          // to map texture to model (in case some newbie like me doesn't know how ><)
-        obj.traverse(function(object) {
-            if (object instanceof THREE.Mesh) {
-                const material = new THREE.MeshBasicMaterial({ color: 'red' })
-                object.materials.map = material;
-            }
-        });
-        console.log("adding to scene")
-        console.log(obj)
-        scene.add(obj);
-
-    
-
-
-        // const loader = new OBJLoader();
-
-        // loader.load( '../assets/Models/box.obj', function ( objs ) {
-
-        //     scene.add( objs.scene );
-
-        // }, undefined, function ( error ) {
-
-        //     console.error( error );
-
-        // } );
-
-        const render = () => {
-            requestAnimationFrame(render)
-            // cube.rotation.x += 0.1
-            // cube.rotation.y += 0.1
-            // obj.rotation.y += 0.1
-            renderer.render(scene, camera)
-            gl.endFrameEXP()
-        }
-
-        render()
-    };
-    
-
-    return (
-        <View>
-            <Text>Hello</Text>
-            <GLView style={{width: '90%', height: '90%'}} onContextCreate={onContextCreate} ></GLView>
-            {/* <ThreeDTwo /> */}
-        </View>
-    );
-
+  
 
     if(chosenSwing !== -1)
     {
@@ -181,9 +57,6 @@ export default function SwingVisualizeScreen() {
                 <Text style={styles.title}>
                     Select a swing
                 </Text>
-
-                {/* <GLView style={{ width: 300, height: 300 }} onContextCreate={() => console.log("create")} /> */}
-                {ThreeDTwo()}
 
                 <DropDownPicker
                     open={isDropDownOpen}
@@ -208,8 +81,7 @@ export default function SwingVisualizeScreen() {
                 {/* Use a light status bar on iOS to account for the black space above the modal */}
                 <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
 
-            
-                <View style={styles.space_extra_large}/>
+                { RacketOrientationDisplay(currentTimeSeconds, quaternion) }
 
                 <Text style={styles.title}>
                     Current Time: {currentTimeSeconds.toFixed(6)}s

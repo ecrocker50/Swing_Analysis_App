@@ -1,7 +1,7 @@
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
-import { ExpoWebGLRenderingContext, GLView } from 'expo-gl';
+import { GLView } from 'expo-gl';
 import { Asset } from 'expo-asset';
-import { Renderer, THREE} from 'expo-three';
+import { THREE, Renderer, loadObjAsync } from 'expo-three';
 import * as React from 'react';
 import {
   AmbientLight,
@@ -11,6 +11,79 @@ import {
   Scene,
   SpotLight,
 } from 'three';
+import { Quaternion } from '../types';
+
+
+let obj: any = undefined;
+let RENDERER: any = undefined;
+let glGlobal: any = undefined;
+let SCENE: any = undefined;
+let CAMERA: any = undefined;
+
+
+export function test(time: any, quaternion: Quaternion) {
+    let timeout: any;
+
+  React.useEffect(() => {
+    // Clear the animation loop when the component unmounts
+    return () => clearTimeout(timeout);
+  }, []);
+
+  React.useEffect(() => {
+    const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
+
+    if (obj !== undefined) {
+        const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
+        obj.rotation.x = euler.x;
+        obj.rotation.y = euler.y;
+        obj.rotation.z = euler.z;
+
+        RENDERER.render(SCENE, CAMERA);
+        glGlobal.endFrameEXP();
+    }
+  }, [time]);
+
+  return (
+    <GLView
+        style={{ width: '30%', height: '30%' }}
+        onTouchMove={event => {console.log(event)}}
+        onContextCreate={async (gl) => {
+            console.log(time)
+            var scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.01, 1000);
+
+            gl.canvas = { width: gl.drawingBufferWidth, height: gl.drawingBufferHeight }
+            camera.position.set(0, 0, 25);
+
+            const renderer = new Renderer({ gl })
+            renderer.setSize(gl.drawingBufferWidth, gl.drawingBufferHeight)
+
+
+            const racketObj = await loadObjAsync({
+                asset: require('../assets/Models/racket.obj'),
+            });
+
+            racketObj.scale.set(0.2, 0.2, 0.2)
+            scene.add(racketObj);
+            camera.lookAt(racketObj.position)
+
+            const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
+
+            const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
+            racketObj.rotation.x = euler.x;
+            racketObj.rotation.y = euler.y;
+            racketObj.rotation.z = euler.z;
+
+            renderer.render(scene, camera);
+            gl.endFrameEXP();
+            SCENE = scene;
+            CAMERA = camera;
+            obj = racketObj;
+            glGlobal = gl;
+            RENDERER = renderer;
+        }}
+    />);
+}
 
 export function ThreeDTwo() {
 
