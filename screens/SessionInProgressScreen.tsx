@@ -35,25 +35,31 @@ export default function SessionInProgressScreen({ navigation }: RootStackScreenP
 
         // This is our timer for reading data from the ESP32
         intervalId = setInterval(() => { // <-- setInterval is a special React Expo function. It sets up a timer and runs the contents after 500 milliseconds in this case
-            console.log("data point timer fired");
+            // console.log("data point timer fired");
+            console.log(deviceId);
+            console.log(tryReadESP32)
 
             if (deviceId != '' && tryReadESP32) {
                 // don't want to trigger another read if we're in the middle of a read, so set this to false
                 setTryReadESP32(false);
-
+                console.log('try');
                 // try reading from the ESP32
                 readPointData(deviceId, dispatch, lastAddedSessionName, userSessions).then(() => {  
                     // wait until done with this read to open up reading to the timer again
                     setTryReadESP32(true);
+                    console.log('did read pt data');
+                }).catch(() => {
+                    setTryReadESP32(true);
+                    console.log('FAILED read pt data');
                 }); 
             }
-        }, 500);
+        }, 1500);
 
         // returns from a useEffect are special. They only fire on component unmount
         return () => {
             clearInterval(intervalId);
         };
-    }, [userSessions]); 
+    }, [userSessions, tryReadESP32]); 
 
 
 
