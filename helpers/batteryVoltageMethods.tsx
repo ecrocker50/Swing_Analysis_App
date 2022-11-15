@@ -55,19 +55,19 @@ export const getBatteryPercentageIcon = (percentLeft: number, wasLastConnectAtte
     }
     else if (percentLeft > 60) {
         componentName = 'battery-60';
-        componentColor = 'yellow';
+        componentColor = '#ffc403';
     }
     else if (percentLeft > 50) {
         componentName = 'battery-50';
-        componentColor = 'yellow';
+        componentColor = '#ffc403';
     }
     else if (percentLeft > 40) {
         componentName = 'battery-40';
-        componentColor = 'yellow';
+        componentColor = '#ffc403';
     }
     else if (percentLeft > 30) {
         componentName = 'battery-30';
-        componentColor = 'yellow';
+        componentColor = '#ffc403';
     }
     else if (percentLeft > 20) {
         componentName = 'battery-20';
