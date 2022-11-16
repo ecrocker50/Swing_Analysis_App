@@ -1,43 +1,34 @@
 import { GLView } from 'expo-gl';
 import { THREE, Renderer, loadObjAsync } from 'expo-three';
 import * as React from 'react';
-import {
-  AmbientLight,
-  Fog,
-  PerspectiveCamera,
-  PointLight,
-  Scene,
-  SpotLight,
-} from 'three';
 import { Quaternion } from '../types';
 
 
-let obj: any = undefined;
-let RENDERER: any = undefined;
-let glGlobal: any = undefined;
-let SCENE: any = undefined;
-let CAMERA: any = undefined;
+let glob_obj: any = undefined;
+let glob_renderer: any = undefined;
+let glob_glRef: any = undefined;
+let glob_scene: any = undefined;
+let glob_camera: any = undefined;
 
 
 export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
     let timeout: any;
 
   React.useEffect(() => {
-    // Clear the animation loop when the component unmounts
     return () => clearTimeout(timeout);
   }, []);
 
   React.useEffect(() => {
     const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
 
-    if (obj !== undefined) {
+    if (glob_obj !== undefined) {
         const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
-        obj.rotation.x = euler.x;
-        obj.rotation.y = euler.y;
-        obj.rotation.z = euler.z;
+        glob_obj.rotation.x = euler.x;
+        glob_obj.rotation.y = euler.y;
+        glob_obj.rotation.z = euler.z;
 
-        RENDERER.render(SCENE, CAMERA);
-        glGlobal.endFrameEXP();
+        glob_renderer.render(glob_scene, glob_camera);
+        glob_glRef.endFrameEXP();
     }
   }, [time]);
 
@@ -72,11 +63,12 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
 
             renderer.render(scene, camera);
             gl.endFrameEXP();
-            SCENE = scene;
-            CAMERA = camera;
-            obj = racketObj;
-            glGlobal = gl;
-            RENDERER = renderer;
+
+            glob_scene = scene;
+            glob_camera = camera;
+            glob_obj = racketObj;
+            glob_glRef = gl;
+            glob_renderer = renderer;
         }}
     />);
 }
