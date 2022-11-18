@@ -171,21 +171,21 @@ const ModeDescriptions = (mode: Mode): JSX.Element => {
         textComponent = 
             <Text style={textStyle}>
                 This is the Forehand mode. Please perform consecutive forehand hits to compare your swing stats against others and your previous sessions!
-                Please confirm the device LED is glowing PURPLE.
+                Please confirm the device LED is glowing CYAN after you press start session.
             </Text>;
     }
     else if (mode == ModeOptions[1]) {
         textComponent = 
             <Text style={textStyle}>
                 This is the Backhand mode. Please perform consecutive backhand hits to compare your swing stats against others and your previous sessions!
-                Please confirm the device LED is glowing GREEN.
+                Please confirm the device LED is glowing MAGENTA after you press start session.
             </Text>;
     }
     else if (mode == ModeOptions[2]) {
         textComponent = 
             <Text style={textStyle}>
                 This is the Serve mode. Please perform consecutive overhand serve hits to compare your swing stats against others and your previous sessions!
-                Please confirm the device LED is glowing RED.
+                Please confirm the device LED is glowing GREEN after you press start session.
             </Text>;
     }
     else {
