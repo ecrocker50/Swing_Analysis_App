@@ -48,7 +48,6 @@ export default function SwingVisualizeScreen() {
         const swings = getSwingsInsideSession(userSessions, selectedSession).length;
         return (
             <View style={styles.topContainer}>
-                <View style={styles.space_extra_small} />
                 
                 <Text style={styles.title}>
                     Select a swing
@@ -74,7 +73,7 @@ export default function SwingVisualizeScreen() {
                     ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
                     />
 
-                <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 10}}>
+                <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 13}}>
                     <Button title="Prev" color='red'
                         onPress={() => {
                             if(chosenSwing > 0)
