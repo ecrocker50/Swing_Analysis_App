@@ -113,26 +113,12 @@ function BottomTabNavigator() {
               { getBatteryPercentageComponent(batteryPercent, wasLastBluetoothConnectSuccess) }
             </View>
           )
-        //   headerRight: () => (
-        //     <Pressable
-        //       onPress={() => navigation.navigate('SwingVisualize')}
-        //       style={({ pressed }) => ({
-        //         opacity: pressed ? 0.5 : 1,
-        //       })}>
-        //       <FontAwesome
-        //         name="info-circle"
-        //         size={25}
-        //         color={Colors[colorScheme].text}
-        //         style={{ marginRight: 15 }}
-        //       />
-        //     </Pressable>
-        //   ),
         })}
       />
       <BottomTab.Screen
         name="RecordedSessions"
         component={RecordedSessionsScreen}
-        options={{
+        options={({ navigation }: RootTabScreenProps<'RecordedSessions'>) => ({
           title: 'Recorded Sessions',
           tabBarIcon: ({ color }) => <TabBarIcon name="file-text" color={color} />,
           headerRight: () => (
@@ -141,7 +127,7 @@ function BottomTabNavigator() {
               { getBatteryPercentageComponent(batteryPercent, wasLastBluetoothConnectSuccess) }
             </View>
           )
-        }}
+        })}
       />
       <BottomTab.Screen
         name="Settings"

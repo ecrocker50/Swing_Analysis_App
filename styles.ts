@@ -35,6 +35,7 @@ export const styles = StyleSheet.create({
     // Sliders
     slider: {
         width: "80%",
+        alignSelf: 'center'
     },
 
 
@@ -71,7 +72,8 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: 'black'
+        color: 'black',
+        alignSelf: 'center'
     },
     normalText: {
         fontSize: 18,
@@ -86,14 +88,23 @@ export const styles = StyleSheet.create({
         // marginVertical: 30,
         height: 1,
         width: '80%',
-        backgroundColor: '#444444'
+        backgroundColor: '#444444',
+        alignSelf: 'center'
+    },
+    fullSeparator: {
+        // marginVertical: 30,
+        height: 1,
+        width: '100%',
+        backgroundColor: '#444444',
+        alignSelf: 'center'
     },
     lineUnderTitle: {
         marginBottom: 15,
         marginTop: 5,
         height: 1,
         width: '80%',
-        backgroundColor: '#444444'
+        backgroundColor: '#444444',
+        alignSelf: 'center'
     },
 
     
@@ -105,12 +116,12 @@ export const styles = StyleSheet.create({
         height: "2%",
     },
     space_medium: {
-        height: "4%",
+        height: "4%"
     },
     space_large: {
         height: "6%",
     },
     space_extra_large: {
-        height: "10%",
+        height: "10%"
     },
 });

@@ -3,7 +3,7 @@ import Slider from '@react-native-community/slider';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Platform } from 'react-native';
+import { Button, Platform, ScrollView } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
@@ -18,9 +18,9 @@ import {
     SELECTOR_SELECTED_SESSION,
     SELECTOR_USER_SESSIONS,
 } from '../store/swingDataSlice';
-import { convertQuaternionToEuler } from '../helpers/numberConversions';
 import { Entypo } from '@expo/vector-icons';
 import { RacketOrientationDisplay } from '../components/RacketOrientation';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 
@@ -34,7 +34,6 @@ export default function SwingVisualizeScreen() {
 
     const quaternion  = getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
     const position    = getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
-    const eulerAngles = convertQuaternionToEuler(quaternion);
 
     const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
     const numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
@@ -44,15 +43,12 @@ export default function SwingVisualizeScreen() {
     if(chosenSwing !== -1)
     {
         const swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
-        //console.log("delete")
         const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
         const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
         const swings = getSwingsInsideSession(userSessions, selectedSession).length;
         return (
             <View style={styles.topContainer}>
-                <Text style={styles.title}>Swing Visualization</Text>
-                <View style={styles.lineUnderTitle}/>
-                <View style={styles.space_medium} />
+                <View style={styles.space_extra_small} />
                 
                 <Text style={styles.title}>
                     Select a swing
@@ -78,25 +74,7 @@ export default function SwingVisualizeScreen() {
                     ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
                     />
 
-                {/* Use a light status bar on iOS to account for the black space above the modal */}
-                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
-
-                { RacketOrientationDisplay(currentTimeSeconds, quaternion) }
-
-                <Text style={styles.title}>
-                    Current Time: {currentTimeSeconds.toFixed(6)}s
-                </Text>
-
-                <Slider 
-                    style={styles.slider} 
-                    onValueChange={(value) => correctSliderValueAndSetStore(dispatch, value, allSwingTimePoints)}
-                    maximumValue={maxSwingValue}
-                    minimumValue={0}
-                />
-
-                <View style={styles.space_medium} />
-
-                <View style={{flexDirection: 'row'}}>
+                <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 10}}>
                     <Button title="Prev" color='red'
                         onPress={() => {
                             if(chosenSwing > 0)
@@ -115,52 +93,82 @@ export default function SwingVisualizeScreen() {
                             }
                         }} />
                 </View>
-                <View style={styles.space_small} />
-                <Button 
-                    color='red' 
-                    title="Delete Swing" 
-                    onPress={() => {
-                        //console.log("button");
-                        dispatch(REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE({sessionName: selectedSession, swingIndex: chosenSwing}));
-                        //console.log("reducer");
-                        //console.log(doesSessionHaveSwings(userSessions, selectedSession));
-                        if(doesSessionHaveSwings(userSessions, selectedSession) === 1)
-                        {
-                            //console.log("-1");
-                            setChosenSwing(-1);
-                        }
-                        else
-                        {
-                            if(chosenSwing === 0)
-                            {
-                                //console.log("0");
-                                //console.log(chosenSwing);
-                                setChosenSwing(chosenSwing);
-                            }
-                            else
-                            {
-                                //console.log("subtract");
-                                setChosenSwing(chosenSwing-1);
-                            }
-                        }
-                    }
-                    }
-                />
 
-                <Text style={styles.normalText}>Session: {selectedSession}</Text>
-                <Text style={styles.normalText}>Swing:   {chosenSwing}</Text>
+                <View style={styles.space_small}></View>
+                <View style={styles.fullSeparator}></View>
 
-                <Text style={styles.normalText}>Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing)}s</Text>
-                <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
-                <Text style={styles.normalText}>Quaternion i:   {quaternion.i}</Text>
-                <Text style={styles.normalText}>Quaternion j:   {quaternion.j}</Text>
-                <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text>
-                <Text style={styles.normalText}>Roll (degrees):    {eulerAngles.roll.toFixed(4)}</Text>
-                <Text style={styles.normalText}>Pitch (degrees):   {eulerAngles.pitch.toFixed(4)}</Text>
-                <Text style={styles.normalText}>Yaw (degrees):     {eulerAngles.yaw.toFixed(4)}</Text>
-                <Text style={styles.normalText}>Position x:   {position.x}</Text>
-                <Text style={styles.normalText}>Position y:   {position.y}</Text>
-                <Text style={styles.normalText}>Position z:   {position.z}</Text>
+                <ScrollView>
+                    { RacketOrientationDisplay(currentTimeSeconds, quaternion) }
+
+                    <View style={styles.separator}></View>
+
+                    
+                    <Text style={{...styles.normalText, padding: 50}}>
+                        ETHAN PUT YOUR 3D PLOT HERE
+                    </Text>
+
+
+
+
+                    <View style={styles.space_large}></View>
+
+                    <Text style={styles.title}>
+                        Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing).toFixed(6)}s   {'\n'}
+                        Current Time:      {currentTimeSeconds.toFixed(6)}s
+                    </Text>
+
+                    <Slider 
+                        style={styles.slider} 
+                        onValueChange={(value) => correctSliderValueAndSetStore(dispatch, value, allSwingTimePoints)}
+                        maximumValue={maxSwingValue}
+                        minimumValue={0}
+                    />
+
+                    <View style={styles.space_large} />
+
+                    <View style={{width: '60%', alignItems: 'center', alignSelf: 'center'}}>
+                        <Button 
+                            color='red' 
+                            title="Delete Swing" 
+                            onPress={() => {
+                                dispatch(REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE({sessionName: selectedSession, swingIndex: chosenSwing}));
+                                if(doesSessionHaveSwings(userSessions, selectedSession) === 1)
+                                {
+                                    setChosenSwing(-1);
+                                }
+                                else
+                                {
+                                    if(chosenSwing === 0)
+                                    {
+                                        setChosenSwing(chosenSwing);
+                                    }
+                                    else
+                                    {
+                                        setChosenSwing(chosenSwing-1);
+                                    }
+                                }
+                            }
+                            }
+                        />
+                    </View>
+
+                    
+                    <View style={styles.space_large} />
+
+                    <Text style={styles.normalText}>Session: {selectedSession}</Text>
+                    <Text style={styles.normalText}>Swing:   {chosenSwing}</Text>
+
+                    <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
+                    <Text style={styles.normalText}>Quaternion i:   {quaternion.i}</Text>
+                    <Text style={styles.normalText}>Quaternion j:   {quaternion.j}</Text>
+                    <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text>
+                    <Text style={styles.normalText}>Position x:   {position.x}</Text>
+                    <Text style={styles.normalText}>Position y:   {position.y}</Text>
+                    <Text style={styles.normalText}>Position z:   {position.z}</Text>
+
+                    <Text style={{color: 'white', paddingBottom: 170}}>THIS IS TO GET SCROLL TO WORK</Text>
+
+                </ScrollView>
             </View>
         );
     }

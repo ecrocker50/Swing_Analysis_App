@@ -23,7 +23,7 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
 
     if (glob_obj !== undefined) {
         const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
-        glob_obj.rotation.x = euler.x;
+        glob_obj.rotation.x = euler.x - 1.57;
         glob_obj.rotation.y = euler.y;
         glob_obj.rotation.z = euler.z;
 
@@ -34,7 +34,7 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
 
   return (
     <GLView
-        style={{ width: '95%', height: '50%', backgroundColor: 'white' }}
+        style={{ width: '70%', height: 170, backgroundColor: 'white', alignSelf: 'center' }}
         onContextCreate={async (gl) => {
             var scene = new THREE.Scene();
             const camera = new THREE.PerspectiveCamera(75, gl.drawingBufferWidth / gl.drawingBufferHeight, 0.01, 1000);
@@ -50,7 +50,7 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
                 asset: require('../assets/Models/racket.obj'),
             });
 
-            racketObj.scale.set(0.32, 0.32, 0.32)
+            racketObj.scale.set(0.35, 0.35, 0.35)
             scene.add(racketObj);
             camera.lookAt(racketObj.position)
 
