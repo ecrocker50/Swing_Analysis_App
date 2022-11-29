@@ -83,9 +83,8 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     else {
         return (
             <View style={styles.topContainer}>
-                <Text style={styles.title}>Name this session</Text>
-                <View style={styles.lineUnderTitle} />
-                <View style={styles.jumbotron_gray}>
+                <View style={{...styles.jumbotron_gray, width: '95%'}}>
+                    <Text style={styles.title}>Session Name</Text>
                     <Text style={styles.normalText}>This is the name that you will search for later to find this session</Text>
                     <TextInput 
                         placeholder='session name' 
@@ -97,14 +96,13 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 
                 <View style={styles.space_small} />
 
-                <Text style={styles.title}>Select your mode</Text>
-                <View style={styles.lineUnderTitle} />
+                <View style={{...styles.jumbotron_gray, width: '95%'}} >
+                    <Text style={styles.title}>Mode Select</Text>
 
-                <View style={styles.space_small} />
-
-                
-                {sessionModeSelectSection(selectedModeLocal, setSelectedModeLocal, isDropDownOpen, setIsDropDownOpenOpen)}
-
+                    <View style={styles.space_small} />
+                    
+                    {sessionModeSelectSection(selectedModeLocal, setSelectedModeLocal, isDropDownOpen, setIsDropDownOpenOpen)}
+                </View>
                 <View style={styles.space_small} />
 
                 { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, deviceId, setIsSessionActive) }
@@ -135,7 +133,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
     return (
         <TouchableOpacity 
             activeOpacity={.6}
-            style={buttonStyle}
+            style={{...buttonStyle, zIndex: -10}}
             onPress={async () => {
                 if (inputtedNameOfSession === "") {
                     Alert.alert("Please enter a session name");
@@ -161,7 +159,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
 };
 
 const sessionModeSelectSection = (selectedModeLocal: Mode, setSelectedModeLocal: React.Dispatch<React.SetStateAction<Mode>>, isDropDownOpen: boolean, setIsDropDownOpenOpen: React.Dispatch<React.SetStateAction<boolean>>): JSX.Element => (
-    <View style={{alignItems: 'center', zIndex: 10, ...styles.jumbotron_gray}}>
+    <View style={{zIndex: 10, backgroundColor: 'transparent'}}>
         { ModeDescriptions(selectedModeLocal) }
                 
         <View style={styles.space_small} />
@@ -197,13 +195,13 @@ const ModeDescriptions = (mode: Mode): JSX.Element => {
     if (mode == ModeOptions[0]) {
         textComponent = 
             <Text style={textStyle}>
-                Perform consecutive forehand hits to compare your swing stats against others and your previous sessions!
+                Perform consecutive forehand hits to compare your swing against others and your previous sessions!
             </Text>;
     }
     else if (mode == ModeOptions[1]) {
         textComponent = 
             <Text style={textStyle}>
-                Perform consecutive backhand hits to compare your swing stats against others and your previous sessions!
+                Perform consecutive backhand hits to compare your swing against others and your previous sessions!
             </Text>;
     }
     else if (mode == ModeOptions[2]) {

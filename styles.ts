@@ -113,7 +113,7 @@ export const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         color: 'black',
-        alignSelf: 'center'
+        marginLeft: 15
     },
     normalText: {
         fontSize: 18,
