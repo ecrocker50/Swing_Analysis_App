@@ -2,6 +2,7 @@ import { GLView } from 'expo-gl';
 import { THREE, Renderer, loadObjAsync } from 'expo-three';
 import * as React from 'react';
 import { Quaternion } from '../types';
+import { View } from './Themed';
 
 
 let glob_obj: any = undefined;
@@ -70,5 +71,6 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
             glob_glRef = gl;
             glob_renderer = renderer;
         }}
-    />);
+    />
+    );
 }

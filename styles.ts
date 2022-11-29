@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 
 const tintColorLight = '#2f95dc';
-const buttonColor = '#2196F3';
+export const buttonColor = '#2196F3';
 const buttonRed = '#ff3333';
 const buttonRadius = 20;
 export const buttonMagenta = '#e600e6';
@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1, 
         height: 50, 
         width: 200, 
-        paddingLeft: 5, 
+        paddingLeft: 15, 
         fontSize: 20, 
         borderRadius: 8,
         backgroundColor: 'white',
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
     // Sliders
     slider: {
         width: "80%",
-        alignSelf: 'center'
+        alignSelf: 'center',
     },
 
 
@@ -112,14 +112,18 @@ export const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: 'black',
-        marginLeft: 15
+        color: tintColorLight,
+        marginLeft: 15,
+        textDecorationLine: 'underline'
     },
     normalText: {
         fontSize: 18,
         marginRight: 15,
-        marginLeft: 15,
-        color: 'black'
+        marginLeft: 15
+    },
+    boldText: {
+        fontSize: 20,
+        fontWeight: 'bold',
     },
     buttonText: {
         color: '#fff',

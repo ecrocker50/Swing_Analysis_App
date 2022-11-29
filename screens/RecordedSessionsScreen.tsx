@@ -1,4 +1,4 @@
-import { Button, Modal, TextInput, TouchableOpacity } from 'react-native';
+import { Modal, TextInput, TouchableOpacity } from 'react-native';
 import React, { Dispatch, useState } from 'react';
 import { Entypo } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,6 +18,7 @@ import {
     REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE,
     REDUCER_RENAME_SESSION_IN_STORE
 } from '../store/swingDataSlice';
+import { getModeColor } from '../helpers/color';
 
 
 
@@ -41,48 +42,52 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
     
     return (
         <View style={styles.topContainer}>
-            <Text style={styles.title}>Access Past Sessions</Text>
-            <View style={styles.lineUnderTitle} />
+
+            
+            <View style={{...styles.jumbotron_gray, width: '90%'}}>
+                <Text style={styles.title}>Access Past Session</Text>
+
+                <View style={styles.space_medium} />
+
+                <DropDownPicker
+                    open={isDropDownOpen}
+                    value={chosenSession}
+                    items={itemMap}
+                    setOpen={setIsDropDownOpenOpen}
+                    setValue={setChosenSession}
+                    searchable={true}
+                    closeAfterSelecting={true}
+                    closeOnBackPressed={true}
+                    TickIconComponent={({style}) => <Entypo name='magnifying-glass' size={20} style={style} />}
+                    style={{...styles.dropdown, width: '90%'}}
+                    textStyle={styles.normalText}
+                    placeholderStyle={styles.normalText}
+                    searchPlaceholder={"Search a Session"}
+
+                    ArrowDownIconComponent={({style}) => <Entypo name='magnifying-glass' size={20} style={style} />}
+                
+                    listMode="MODAL"
+                    searchTextInputStyle={styles.normalText}
+                    dropDownContainerStyle={{...styles.dropdown, width: '90%'}}
+                    listItemLabelStyle={styles.normalText}
+                    ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
+                    />
+
+                <View style={styles.space_extra_large} />
+
+                {editSessionNameModalSection(dispatch, editNameModalVisible, setEditNameModalVisible, chosenSession, setChosenSession)}
+            </View>
 
             <View style={styles.space_medium} />
 
-            <Text style={styles.title}>
-                Choose a session
-            </Text>
-            <DropDownPicker
-                open={isDropDownOpen}
-                value={chosenSession}
-                items={itemMap}
-                setOpen={setIsDropDownOpenOpen}
-                setValue={setChosenSession}
-                searchable={true}
-                closeAfterSelecting={true}
-                closeOnBackPressed={true}
-                TickIconComponent={({style}) => <Entypo name='magnifying-glass' size={20} style={style} />}
-                style={styles.dropdown}
-                textStyle={styles.normalText}
-                placeholderStyle={styles.normalText}
-                searchPlaceholder={"Search a Session"}
-                searchTextInputStyle={styles.normalText}
-                dropDownContainerStyle={styles.dropdown}
-                listItemLabelStyle={styles.normalText}
-                ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
-                />
-
-            <View style={styles.space_medium} />
-
-            {editSessionNameModalSection(dispatch, editNameModalVisible, setEditNameModalVisible, chosenSession, setChosenSession)}
-                    
-            <View style={styles.space_medium} />
-
-            <View style={chosenSession !== "" ? styles.jumbotron_gray : undefined}>
+            <View style={chosenSession !== "" ? {...styles.jumbotron_gray, width: '90%', zIndex: -5} : undefined}>
                 {sessionOverviewSection(mode, numberOfSwings)}
 
                 <View style={styles.space_large} />
                 
                 { 
                     chosenSession ?
-                        <View style={{flexDirection: 'row', backgroundColor: "transparent"}}>
+                        <View style={{flexDirection: 'row', backgroundColor: "transparent", marginBottom: -20}}>
                             <TouchableOpacity 
                                 style={styles.buttonRegular}
                                 onPress={() => {
@@ -112,13 +117,28 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
 
 
 const sessionOverviewSection = (mode: Mode, numberOfSwings: number): JSX.Element => {
+    const color = getModeColor(mode);
+    let marginLeft;
+
+    if (mode === 'Forehand') {
+        marginLeft = '14%';
+    }
+    else if (mode === 'Backhand') {
+        marginLeft = '13%';
+    }
+    else if (mode === 'Serve') {
+        marginLeft = '25%';
+    }
+
     if (mode !== "Unknown") {
         return (
-            <View style={{alignItems: 'center', zIndex: -5, backgroundColor: "transparent"}}>
-                <Text style={{...styles.title}}>Session Overview</Text>
+            <View style={{zIndex: -5, backgroundColor: "transparent"}}>
+                <View style={{flexDirection: 'row', backgroundColor: 'transparent'}}>
+                    <Text style={{...styles.title}}>Session Details</Text>
+                    <Text style={{fontSize: 18, textAlign: 'right', flex: 1, marginLeft, borderColor: color, color, borderWidth: 2, borderRadius: 10, paddingRight: 7, paddingTop: 1}}>{mode}</Text>
+                </View>
                 <View style={styles.space_small} />
-                <Text style={styles.normalText}>Mode: {mode}</Text>
-                <Text style={styles.normalText}>Number of swings: {numberOfSwings}</Text>
+                <Text style={{...styles.normalText}}>{numberOfSwings} swings</Text>
             </View>
         );
     }
@@ -134,7 +154,7 @@ const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModa
     let inputtedText = '';
     
     return (
-        <View style={{zIndex: -5}}>
+        <View style={{zIndex: -5, backgroundColor: 'transparent', alignItems: 'center'}}>
             { previousSessionName ?
                 <TouchableOpacity 
                     style={styles.buttonRegular}
@@ -144,6 +164,7 @@ const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModa
             :
                 null
             }
+
             <Modal
                 visible={editNameModalVisible}
                 transparent={true}
@@ -225,6 +246,5 @@ const chooseASessionSection = (dispatch: Dispatch<AnyAction>, userSessionsData: 
         </View>
     );
 };
-
 
 

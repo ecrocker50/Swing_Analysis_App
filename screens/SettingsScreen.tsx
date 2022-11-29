@@ -26,7 +26,7 @@ export default function Settings() {
             <View style={styles.space_small} />
 
             <View style={styles.space_small} />
-            <Text style={styles.title}>{deviceId !== '' ? "Device found!" : "Device found!"}</Text>
+            <Text style={styles.boldText}>{deviceId !== '' ? "Device found!" : "Device found!"}</Text>
             <View style={styles.space_small} />
 
             <TouchableOpacity 

@@ -17,6 +17,7 @@ import { scanAndStoreDeviceConnectionInfo, writeMode } from '../bluetooth/method
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { populateUserDataStoreFromDB } from '../firebase/read';
 import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentageSlice';
+import { getButtonStyle, getModeColor } from '../helpers/color';
 
 const ModeOptions: Array<Mode> = ["Forehand", "Backhand", "Serve"];
 
@@ -41,41 +42,55 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         populateUserDataStoreFromDB(dispatch);
     }, []);
 
+    const color = getModeColor(selectedModeLocal);
+    let marginLeft;
+
+    if (selectedModeLocal === 'Forehand') {
+        marginLeft = '16.5%';
+    }
+    else if (selectedModeLocal === 'Backhand') {
+        marginLeft = '15.5%';
+    }
+    else if (selectedModeLocal === 'Serve') {
+        marginLeft = '27.5%';
+    }
+
 
     if (isSessionActive) {
         return (
             <View style={styles.topContainer}>
-                <Text style={{...styles.title}}>Session Ended</Text>
-                <View style={styles.lineUnderTitle} />
+                <View style={{...styles.jumbotron_gray, width: '90%' }}>
+                    <View style={{flexDirection: 'row', backgroundColor: 'transparent'}}>
+                        <Text style={{...styles.title}}>Session Ended</Text>
+                        <Text style={{fontSize: 18, textAlign: 'right', flex: 1, marginLeft, borderColor: color, color, borderWidth: 2, borderRadius: 10, paddingRight: 7, paddingTop: 1}}>{selectedModeLocal}</Text>
+                    </View>
 
-                <View style={styles.space_extra_small} />
+                    <View style={styles.space_extra_small} />
 
-                <Text style={styles.normalText}>Session name: {inputtedNameOfSession}</Text>
-                <View style={styles.space_small} />
-                <Text style={styles.normalText}>Session mode: {selectedModeLocal}</Text>
-                <View style={styles.space_large} />
-                <Text style={styles.normalText}>Number of swings recorded: {getNumberOfSwingsInsideSession(userSessions, inputtedNameOfSession)}</Text>
-                <View style={styles.space_small} />
+                    <View style={styles.space_large} />
+                    <Text style={styles.normalText}>{getNumberOfSwingsInsideSession(userSessions, inputtedNameOfSession)} swings were recorded for session {inputtedNameOfSession}</Text>
 
-                <View style={{flexDirection: 'row'}}>
-                    <TouchableOpacity 
-                        style={styles.buttonRegular}
-                        onPress={() => {
-                            setIsSessionActive(false);
-                            setDocumentInDB(userSessions);
-                        }} >
-                            <Text style={styles.buttonText}>Save Session</Text>
-                    </TouchableOpacity>
+                    <View style={styles.space_extra_large} />
 
-                    <TouchableOpacity 
-                        style={{...styles.buttonRed, marginLeft: 10}}
-                        onPress={() => {
-                            setIsSessionActive(false);
-                            dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(inputtedNameOfSession));
-                        }} >
-                            <Text style={styles.buttonText}>Discard Session</Text>
-                    </TouchableOpacity>
+                    <View style={{flexDirection: 'row', backgroundColor: 'transparent', marginBottom: -50}}>
+                        <TouchableOpacity 
+                            style={styles.buttonRegular}
+                            onPress={() => {
+                                setIsSessionActive(false);
+                                setDocumentInDB(userSessions);
+                            }} >
+                                <Text style={styles.buttonText}>Save Session</Text>
+                        </TouchableOpacity>
 
+                        <TouchableOpacity 
+                            style={{...styles.buttonRed, marginLeft: 10}}
+                            onPress={() => {
+                                setIsSessionActive(false);
+                                dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(inputtedNameOfSession));
+                            }} >
+                                <Text style={styles.buttonText}>Discard Session</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         );
@@ -117,18 +132,7 @@ const timeOut = (ms: number) => new Promise(
 )
 
 const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, deviceId: string, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>) => {
-    let buttonStyle = styles.buttonRegular;
-
-    if (selectedModeLocal === 'Forehand') {
-        buttonStyle = styles.buttonMagenta;
-    } 
-    else if (selectedModeLocal === 'Backhand') {
-        buttonStyle = styles.buttonCyan;
-    }
-    else if (selectedModeLocal === 'Serve') {
-        buttonStyle = styles.buttonGreen;
-    }
-
+    const buttonStyle = getButtonStyle(selectedModeLocal);
 
     return (
         <TouchableOpacity 
@@ -138,7 +142,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
                 if (inputtedNameOfSession === "") {
                     Alert.alert("Please enter a session name");
                 }
-                else if (doesSessionExist(userSessions, inputtedNameOfSession)){
+                else if (doesSessionExist(userSessions, inputtedNameOfSession)) {
                     Alert.alert("This session name has been used before, please enter a new name");
                 }
                 else

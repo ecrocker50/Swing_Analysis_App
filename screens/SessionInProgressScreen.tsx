@@ -10,6 +10,7 @@ import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 import { getLastAddedSessionName, getModeOfSession, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { stopBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
 import { SELECTOR_BATTERY_TIMER_REF } from '../store/batteryPercentageSlice';
+import { getModeColor } from '../helpers/color';
 
 
 
@@ -62,25 +63,15 @@ export default function SessionInProgressScreen({ navigation }: RootStackScreenP
     }, [userSessions, tryReadESP32]); 
 
 
-    let modeColor;
     const mode = getModeOfSession(userSessions, lastAddedSessionName);
-
-    if (mode === 'Forehand') {
-        modeColor = buttonMagenta;
-    }
-    else if (mode === 'Backhand') {
-        modeColor = buttonCyan;
-    }
-    else if (mode === 'Serve') {
-        modeColor = buttonGreen;
-    }
+    const modeColor = getModeColor(mode);
 
 
     return (
         <View style={styles.container}>
             <Text style={{...styles.bigText, color: modeColor}}>{mode}</Text>
             <View style={styles.space_extra_large}></View>
-            <Text style={styles.title}>Session in progress.</Text>
+            <Text style={styles.boldText}>Session in progress</Text>
             <View style={styles.space_small}></View>
 
             <Text style={styles.normalText}>Number of swings recorded: {getSwingsInsideSession(userSessions, lastAddedSessionName).length}</Text>

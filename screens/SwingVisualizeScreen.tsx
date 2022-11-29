@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
-import { styles } from '../styles';
+import { buttonColor, styles } from '../styles';
 import { doesSessionHaveSwings, getMaxTimeOfSwing, getNumberOfSwingsInsideSession, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import {
     REDUCER_SET_CURRENT_TIME_IN_STORE,
@@ -48,9 +48,8 @@ export default function SwingVisualizeScreen() {
         const swings = getSwingsInsideSession(userSessions, selectedSession).length;
         return (
             <View style={styles.topContainer}>
-                
-                <Text style={styles.title}>
-                    Select a swing
+                <Text style={{...styles.title, textAlign: 'center', marginLeft: 0}}>
+                    Selected swing
                 </Text>
 
                 <DropDownPicker
@@ -73,7 +72,7 @@ export default function SwingVisualizeScreen() {
                     ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
                     />
 
-                <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 13}}>
+                <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 13, backgroundColor: 'transparent'}}>
                     <TouchableOpacity 
                         style={styles.buttonRed}
                         onPress={() => {
@@ -99,14 +98,17 @@ export default function SwingVisualizeScreen() {
                             <Text style={styles.buttonText}>Next</Text>
                     </TouchableOpacity>
                 </View>
-
                 <View style={styles.space_small}></View>
+
                 <View style={styles.fullSeparator}></View>
 
                 <ScrollView>
-                    { RacketOrientationDisplay(currentTimeSeconds, quaternion) }
+                    
+                    <View style={styles.space_extra_small}></View>
+                    <View style={{borderWidth: 2, borderColor: buttonColor, borderRadius: 20, width: '80%', alignSelf: 'center'}}>
+                        { RacketOrientationDisplay(currentTimeSeconds, quaternion) }
+                    </View>
 
-                    <View style={styles.separator}></View>
 
                     
                     <Text style={{...styles.normalText, padding: 50}}>
@@ -118,9 +120,9 @@ export default function SwingVisualizeScreen() {
 
                     <View style={styles.space_large}></View>
 
-                    <Text style={styles.title}>
+                    <Text style={{...styles.boldText, textAlign: 'center'}}>
                         Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing).toFixed(6)}s   {'\n'}
-                        Current Time:      {currentTimeSeconds.toFixed(6)}s
+                        Current Time:   {currentTimeSeconds.toFixed(6)}s
                     </Text>
 
                     <Slider 
