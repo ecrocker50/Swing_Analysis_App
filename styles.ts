@@ -4,9 +4,9 @@ const tintColorLight = '#2f95dc';
 const buttonColor = '#2196F3';
 const buttonRed = '#ff3333';
 const buttonRadius = 20;
-const buttonMagenta = '#e600e6';
-const buttonGreen = '#00cc00';
-const buttonCyan = '#00cccc';
+export const buttonMagenta = '#e600e6';
+export const buttonGreen = '#00cc00';
+export const buttonCyan = '#00cccc';
 
 export const styles = StyleSheet.create({
 
@@ -25,6 +25,10 @@ export const styles = StyleSheet.create({
     dropdownSelectedText: {
         fontSize: 20,
     },
+    bigText:  {
+        fontSize: 48,
+        fontWeight: 'bold'
+    },
 
     // Text Input
     textInputSessionName: {
@@ -33,7 +37,10 @@ export const styles = StyleSheet.create({
         width: 200, 
         paddingLeft: 5, 
         fontSize: 20, 
-        borderRadius: 8
+        borderRadius: 8,
+        backgroundColor: 'white',
+        marginTop: 20,
+        alignSelf: 'center'
     },
 
 
@@ -73,14 +80,8 @@ export const styles = StyleSheet.create({
     },
     jumbotron_gray: {
         paddingVertical: 20,
-        paddingHorizontal: 30,
-        backgroundColor: '#EEEEEE',
-        borderRadius: 25
-    },
-    jumbotron_magenta: {
-        paddingVertical: 20,
         paddingHorizontal: 20,
-        backgroundColor: '#ffe6ff',
+        backgroundColor: '#EEEEEE',
         borderRadius: 25
     },
 
@@ -149,7 +150,7 @@ export const styles = StyleSheet.create({
     fullSeparator: {
         height: 1,
         width: '100%',
-        backgroundColor: '#444444',
+        backgroundColor: '#AAAAAA',
         alignSelf: 'center'
     },
 

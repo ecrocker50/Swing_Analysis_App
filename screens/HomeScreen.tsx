@@ -1,5 +1,5 @@
 
-import { Alert, Button, KeyboardAvoidingView, TextInput, Pressable, TouchableOpacity } from 'react-native';
+import { Alert, Button, KeyboardAvoidingView, TextInput, Pressable, TouchableOpacity, ScrollView } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { Text, View } from '../components/Themed';
@@ -85,16 +85,17 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
             <View style={styles.topContainer}>
                 <Text style={styles.title}>Name this session</Text>
                 <View style={styles.lineUnderTitle} />
-                <KeyboardAvoidingView behavior={"padding"} keyboardVerticalOffset={40}>
+                <View style={styles.jumbotron_gray}>
+                    <Text style={styles.normalText}>This is the name that you will search for later to find this session</Text>
                     <TextInput 
                         placeholder='session name' 
                         textAlign='left' 
                         onChangeText={(inputtedText) => setInputtedNameOfSession(inputtedText)}
                         style={styles.textInputSessionName}>
                     </TextInput>
-                </KeyboardAvoidingView>
+                </View>
                 
-                <View style={styles.space_large} />
+                <View style={styles.space_small} />
 
                 <Text style={styles.title}>Select your mode</Text>
                 <View style={styles.lineUnderTitle} />
@@ -104,13 +105,9 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 
                 {sessionModeSelectSection(selectedModeLocal, setSelectedModeLocal, isDropDownOpen, setIsDropDownOpenOpen)}
 
-                <View style={styles.space_large} />
+                <View style={styles.space_small} />
 
                 { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, deviceId, setIsSessionActive) }
-
-                <View style={styles.space_large} />
-
-                
             </View> 
 
         );
@@ -201,21 +198,18 @@ const ModeDescriptions = (mode: Mode): JSX.Element => {
         textComponent = 
             <Text style={textStyle}>
                 Perform consecutive forehand hits to compare your swing stats against others and your previous sessions!
-                Device will glow CYAN after you press start session.
             </Text>;
     }
     else if (mode == ModeOptions[1]) {
         textComponent = 
             <Text style={textStyle}>
                 Perform consecutive backhand hits to compare your swing stats against others and your previous sessions!
-                Device will glow MAGENTA after you press start session.
             </Text>;
     }
     else if (mode == ModeOptions[2]) {
         textComponent = 
             <Text style={textStyle}>
                 Perform consecutive overhand serve hits to compare your swing stats against others and your previous sessions!
-                Device will glow GREEN after you press start session.
             </Text>;
     }
     else {

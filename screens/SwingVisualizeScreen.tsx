@@ -3,7 +3,7 @@ import Slider from '@react-native-community/slider';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Platform, ScrollView } from 'react-native';
+import { Button, Platform, ScrollView, TouchableOpacity } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
@@ -74,23 +74,30 @@ export default function SwingVisualizeScreen() {
                     />
 
                 <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 13}}>
-                    <Button title="Prev" color='red'
+                    <TouchableOpacity 
+                        style={styles.buttonRed}
                         onPress={() => {
                             if(chosenSwing > 0)
                             {
                                 setChosenSwing(chosenSwing-1)
                                 dispatch(REDUCER_SET_SELECTED_SWING_IN_STORE(chosenSwing));
                             }
-                        }} />
+                        }} >
+                            <Text style={styles.buttonText}>Prev</Text>
+                    </TouchableOpacity>
+
                     <View style={styles.space_small} />
-                    <Button title="Next" color='green' 
+                    <TouchableOpacity 
+                        style={{...styles.buttonGreen, marginLeft: 10}}
                         onPress={() => {
                             if(chosenSwing < getSwingsInsideSession(userSessions, selectedSession).length - 1)
                             {
                                 setChosenSwing(chosenSwing+1);
                                 dispatch(REDUCER_SET_SELECTED_SWING_IN_STORE(chosenSwing));
                             }
-                        }} />
+                        }} >
+                            <Text style={styles.buttonText}>Next</Text>
+                    </TouchableOpacity>
                 </View>
 
                 <View style={styles.space_small}></View>
@@ -126,9 +133,8 @@ export default function SwingVisualizeScreen() {
                     <View style={styles.space_large} />
 
                     <View style={{width: '60%', alignItems: 'center', alignSelf: 'center'}}>
-                        <Button 
-                            color='red' 
-                            title="Delete Swing" 
+                        <TouchableOpacity 
+                            style={styles.buttonRed}
                             onPress={() => {
                                 dispatch(REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE({sessionName: selectedSession, swingIndex: chosenSwing}));
                                 if(doesSessionHaveSwings(userSessions, selectedSession) === 1)
@@ -146,9 +152,9 @@ export default function SwingVisualizeScreen() {
                                         setChosenSwing(chosenSwing-1);
                                     }
                                 }
-                            }
-                            }
-                        />
+                            }} >
+                                <Text style={styles.buttonText}>Delete Swing</Text>
+                        </TouchableOpacity>
                     </View>
 
                     

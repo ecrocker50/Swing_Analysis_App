@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from 'react-native';
+import { Button, TouchableOpacity } from 'react-native';
 import { Text, View } from '../components/Themed';
 import { RootStackScreenProps } from '../types';
-import { styles } from '../styles';
+import { buttonCyan, buttonGreen, buttonMagenta, styles } from '../styles';
 import { readPointData, writeEndSession, startBatteryVoltageRequestTimer } from '../bluetooth/methods';
 import { useDispatch, useSelector } from 'react-redux';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
-import { getLastAddedSessionName, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
+import { getLastAddedSessionName, getModeOfSession, getSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { stopBatteryVoltageRequestTimer } from '../helpers/batteryVoltageMethods';
 import { SELECTOR_BATTERY_TIMER_REF } from '../store/batteryPercentageSlice';
 
@@ -62,20 +62,40 @@ export default function SessionInProgressScreen({ navigation }: RootStackScreenP
     }, [userSessions, tryReadESP32]); 
 
 
+    let modeColor;
+    const mode = getModeOfSession(userSessions, lastAddedSessionName);
+
+    if (mode === 'Forehand') {
+        modeColor = buttonMagenta;
+    }
+    else if (mode === 'Backhand') {
+        modeColor = buttonCyan;
+    }
+    else if (mode === 'Serve') {
+        modeColor = buttonGreen;
+    }
+
 
     return (
         <View style={styles.container}>
+            <Text style={{...styles.bigText, color: modeColor}}>{mode}</Text>
+            <View style={styles.space_extra_large}></View>
             <Text style={styles.title}>Session in progress.</Text>
-            <View style={styles.space_medium}></View>
+            <View style={styles.space_small}></View>
 
             <Text style={styles.normalText}>Number of swings recorded: {getSwingsInsideSession(userSessions, lastAddedSessionName).length}</Text>
 
             <View style={styles.space_medium}></View>
 
-            <Button title="End Session" onPress={() => {
-                startBatteryVoltageRequestTimer(dispatch, false, deviceId);
-                writeEndSession(deviceId)
-                navigation.navigate('Root')}} />
+            <TouchableOpacity 
+                style={styles.buttonRegular}
+                onPress={() => {
+                    startBatteryVoltageRequestTimer(dispatch, false, deviceId);
+                    writeEndSession(deviceId)
+                    navigation.navigate('Root')
+                }} >
+                    <Text style={styles.buttonText}>End Session</Text>
+            </TouchableOpacity>
         </View>
     );
 }
