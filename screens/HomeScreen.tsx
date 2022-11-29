@@ -1,10 +1,10 @@
 
-import { Alert, Button, KeyboardAvoidingView, ScrollView, TextInput } from 'react-native';
+import { Alert, Button, KeyboardAvoidingView, TextInput, Pressable, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps, UserSessionsData } from '../types';
-import { SELECTOR_MODE, REDUCER_SET_MODE_IN_STORE } from '../store/modeSelectSlice';
+import { REDUCER_SET_MODE_IN_STORE } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
 import React, { Dispatch, useEffect, useState } from 'react';
@@ -58,17 +58,24 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 <View style={styles.space_small} />
 
                 <View style={{flexDirection: 'row'}}>
-                    <Button title="Save Session" color='green' 
+                    <TouchableOpacity 
+                        style={styles.buttonRegular}
                         onPress={() => {
                             setIsSessionActive(false);
                             setDocumentInDB(userSessions);
-                        }} />
+                        }} >
+                            <Text style={styles.buttonText}>Save Session</Text>
+                    </TouchableOpacity>
 
-                    <Button title="Discard Session" color='red'
+                    <TouchableOpacity 
+                        style={{...styles.buttonRed, marginLeft: 10}}
                         onPress={() => {
                             setIsSessionActive(false);
                             dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(inputtedNameOfSession));
-                        }} />
+                        }} >
+                            <Text style={styles.buttonText}>Discard Session</Text>
+                    </TouchableOpacity>
+
                 </View>
             </View>
         );
@@ -100,6 +107,9 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 <View style={styles.space_large} />
 
                 { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, deviceId, setIsSessionActive) }
+
+                <View style={styles.space_large} />
+
                 
             </View> 
 
@@ -111,33 +121,53 @@ const timeOut = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
 )
 
-const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, deviceId: string, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>) => (
-    <Button title="Start Session" onPress={async () => {
-        if (inputtedNameOfSession === "") {
-            Alert.alert("Please enter a session name");
-        }
-        else if (doesSessionExist(userSessions, inputtedNameOfSession)){
-            Alert.alert("This session name has been used before, please enter a new name");
-        }
-        else
-        {
-            // There are no errors, proceed to start the session
-            dispatch(REDUCER_SET_MODE_IN_STORE(selectedModeLocal));
-            dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
-            writeMode(deviceId, selectedModeLocal)
-            navigation.navigate('SessionInProgress')
-            await timeOut(1000)
-            
-            setIsSessionActive(true);
-        }
-    }} />
-);
+const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, deviceId: string, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>) => {
+    let buttonStyle = styles.buttonRegular;
+
+    if (selectedModeLocal === 'Forehand') {
+        buttonStyle = styles.buttonMagenta;
+    } 
+    else if (selectedModeLocal === 'Backhand') {
+        buttonStyle = styles.buttonCyan;
+    }
+    else if (selectedModeLocal === 'Serve') {
+        buttonStyle = styles.buttonGreen;
+    }
+
+
+    return (
+        <TouchableOpacity 
+            activeOpacity={.6}
+            style={buttonStyle}
+            onPress={async () => {
+                if (inputtedNameOfSession === "") {
+                    Alert.alert("Please enter a session name");
+                }
+                else if (doesSessionExist(userSessions, inputtedNameOfSession)){
+                    Alert.alert("This session name has been used before, please enter a new name");
+                }
+                else
+                {
+                    // There are no errors, proceed to start the session
+                    dispatch(REDUCER_SET_MODE_IN_STORE(selectedModeLocal));
+                    dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
+                    writeMode(deviceId, selectedModeLocal)
+                    navigation.navigate('SessionInProgress')
+                    await timeOut(1000)
+                    
+                    setIsSessionActive(true);
+                }
+            }}>
+            <Text style={styles.buttonText}>Start Session</Text>
+        </TouchableOpacity>
+    );
+};
 
 const sessionModeSelectSection = (selectedModeLocal: Mode, setSelectedModeLocal: React.Dispatch<React.SetStateAction<Mode>>, isDropDownOpen: boolean, setIsDropDownOpenOpen: React.Dispatch<React.SetStateAction<boolean>>): JSX.Element => (
-    <View style={{alignItems: 'center', backgroundColor: 'white', zIndex: 10}}>
+    <View style={{alignItems: 'center', zIndex: 10, ...styles.jumbotron_gray}}>
         { ModeDescriptions(selectedModeLocal) }
                 
-        <View style={styles.space_medium} />
+        <View style={styles.space_small} />
         <DropDownPicker
             open={isDropDownOpen}
             value={selectedModeLocal}
@@ -146,10 +176,10 @@ const sessionModeSelectSection = (selectedModeLocal: Mode, setSelectedModeLocal:
             setValue={setSelectedModeLocal}
             closeAfterSelecting={true}
             closeOnBackPressed={true}
-            style={{width: '60%', alignSelf: 'center'}}
+            style={styles.dropdown}
             textStyle={styles.normalText}
             placeholderStyle={styles.normalText}
-            dropDownContainerStyle={{width: '60%', alignSelf: 'center'}}
+            dropDownContainerStyle={styles.dropdown}
             listItemLabelStyle={styles.normalText}
             />
         
@@ -165,27 +195,27 @@ const sessionModeSelectSection = (selectedModeLocal: Mode, setSelectedModeLocal:
  */
 const ModeDescriptions = (mode: Mode): JSX.Element => {
     let textComponent;
-    const textStyle = styles.normalText;
+    const textStyle = {...styles.normalText, marginBottom: 20};
 
     if (mode == ModeOptions[0]) {
         textComponent = 
             <Text style={textStyle}>
-                This is the Forehand mode. Please perform consecutive forehand hits to compare your swing stats against others and your previous sessions!
-                Please confirm the device LED is glowing CYAN after you press start session.
+                Perform consecutive forehand hits to compare your swing stats against others and your previous sessions!
+                Device will glow CYAN after you press start session.
             </Text>;
     }
     else if (mode == ModeOptions[1]) {
         textComponent = 
             <Text style={textStyle}>
-                This is the Backhand mode. Please perform consecutive backhand hits to compare your swing stats against others and your previous sessions!
-                Please confirm the device LED is glowing MAGENTA after you press start session.
+                Perform consecutive backhand hits to compare your swing stats against others and your previous sessions!
+                Device will glow MAGENTA after you press start session.
             </Text>;
     }
     else if (mode == ModeOptions[2]) {
         textComponent = 
             <Text style={textStyle}>
-                This is the Serve mode. Please perform consecutive overhand serve hits to compare your swing stats against others and your previous sessions!
-                Please confirm the device LED is glowing GREEN after you press start session.
+                Perform consecutive overhand serve hits to compare your swing stats against others and your previous sessions!
+                Device will glow GREEN after you press start session.
             </Text>;
     }
     else {

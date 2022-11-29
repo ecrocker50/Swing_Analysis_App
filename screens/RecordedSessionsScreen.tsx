@@ -1,4 +1,4 @@
-import { Button, Modal, TextInput } from 'react-native';
+import { Button, Modal, TextInput, TouchableOpacity } from 'react-native';
 import React, { Dispatch, useState } from 'react';
 import { Entypo } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -59,49 +59,53 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
                 closeAfterSelecting={true}
                 closeOnBackPressed={true}
                 TickIconComponent={({style}) => <Entypo name='magnifying-glass' size={20} style={style} />}
-                style={{width: '60%', alignSelf: 'center'}}
+                style={styles.dropdown}
                 textStyle={styles.normalText}
                 placeholderStyle={styles.normalText}
                 searchPlaceholder={"Search a Session"}
                 searchTextInputStyle={styles.normalText}
-                dropDownContainerStyle={{width: '60%', alignSelf: 'center'}}
+                dropDownContainerStyle={styles.dropdown}
                 listItemLabelStyle={styles.normalText}
                 ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
                 />
 
-            <View style={styles.space_extra_large} />
-
-            {sessionOverviewSection(mode, numberOfSwings)}
-                    
             <View style={styles.space_medium} />
 
             {editSessionNameModalSection(dispatch, editNameModalVisible, setEditNameModalVisible, chosenSession, setChosenSession)}
+                    
+            <View style={styles.space_medium} />
 
-            <View style={styles.space_large} />
+            <View style={chosenSession !== "" ? styles.jumbotron_gray : undefined}>
+                {sessionOverviewSection(mode, numberOfSwings)}
 
-            { 
-                chosenSession ?
-                    <View style={{flexDirection: 'row'}}>
-                        <Button 
-                            title="Analyze Session" 
-                            onPress={() => {
-                                dispatch(REDUCER_SET_SELECTED_SESSION_IN_STORE(chosenSession))
-                                navigation.navigate('SwingVisualize')
-                            }} 
-                        />
-                        
-                        <Button 
-                            color='red' 
-                            title="Delete Session" 
-                            onPress={() => {
-                                dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(chosenSession));
-                                setChosenSession("");
-                            }}
-                        />
-                    </View>
-                :
-                    null
-            }
+                <View style={styles.space_large} />
+                
+                { 
+                    chosenSession ?
+                        <View style={{flexDirection: 'row', backgroundColor: "transparent"}}>
+                            <TouchableOpacity 
+                                style={styles.buttonRegular}
+                                onPress={() => {
+                                    dispatch(REDUCER_SET_SELECTED_SESSION_IN_STORE(chosenSession))
+                                    navigation.navigate('SwingVisualize')
+                                }} >
+                                    <Text style={styles.buttonText}>Analyze Session</Text>
+                            </TouchableOpacity>
+
+                            
+                            <TouchableOpacity 
+                                style={{...styles.buttonRed, marginLeft: 5}}
+                                onPress={() => {
+                                    dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(chosenSession));
+                                    setChosenSession("");
+                                }} >
+                                    <Text style={styles.buttonText}>Delete Session</Text>
+                            </TouchableOpacity>
+                        </View>
+                    :
+                        null
+                }
+            </View>
         </View>
     );
 }
@@ -110,7 +114,7 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
 const sessionOverviewSection = (mode: Mode, numberOfSwings: number): JSX.Element => {
     if (mode !== "Unknown") {
         return (
-            <View style={{alignItems: 'center', zIndex: -5}}>
+            <View style={{alignItems: 'center', zIndex: -5, backgroundColor: "transparent"}}>
                 <Text style={{...styles.title}}>Session Overview</Text>
                 <View style={styles.space_small} />
                 <Text style={styles.normalText}>Mode: {mode}</Text>
@@ -131,7 +135,15 @@ const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModa
     
     return (
         <View style={{zIndex: -5}}>
-            <Button title='Edit Session Name' onPress={() => setEditNameModalVisible(true)}></Button>
+            { previousSessionName ?
+                <TouchableOpacity 
+                    style={styles.buttonRegular}
+                    onPress={() => setEditNameModalVisible(true)} >
+                        <Text style={styles.buttonText}>Edit Session Name</Text>
+                </TouchableOpacity>
+            :
+                null
+            }
             <Modal
                 visible={editNameModalVisible}
                 transparent={true}
@@ -149,12 +161,21 @@ const editSessionNameModalSection = (dispatch: Dispatch<AnyAction>, editNameModa
                         style={styles.textInputSessionName}>
                     </TextInput>
                     <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginRight: 20, marginTop: 20, }}>
-                        <Button title='Save' color='green' onPress={() => {
-                            setEditNameModalVisible(false);
-                            dispatch(REDUCER_RENAME_SESSION_IN_STORE({oldSessionName: previousSessionName, newSessionName: inputtedText}));
-                            setChosenSession(inputtedText);
-                        }} />
-                        <Button title='Cancel' onPress={() => setEditNameModalVisible(false)} />
+                        <TouchableOpacity 
+                            style={styles.buttonRegular}
+                            onPress={() => {
+                                setEditNameModalVisible(false);
+                                dispatch(REDUCER_RENAME_SESSION_IN_STORE({oldSessionName: previousSessionName, newSessionName: inputtedText}));
+                                setChosenSession(inputtedText);
+                            }} >
+                                <Text style={styles.buttonText}>Save</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity 
+                            style={{...styles.buttonRed, marginLeft: 5}}
+                            onPress={() => setEditNameModalVisible(false)} >
+                                <Text style={styles.buttonText}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </Modal>

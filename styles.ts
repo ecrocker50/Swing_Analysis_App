@@ -1,15 +1,20 @@
 import { StyleSheet } from "react-native";
 
-
+const tintColorLight = '#2f95dc';
+const buttonColor = '#2196F3';
+const buttonRed = '#ff3333';
+const buttonRadius = 20;
+const buttonMagenta = '#e600e6';
+const buttonGreen = '#00cc00';
+const buttonCyan = '#00cccc';
 
 export const styles = StyleSheet.create({
 
     // Drop Down
-    dropdownUnopened: {
-        width: 200
-    },
     dropdown: {
-        fontSize: 20,
+        width: '60%', 
+        alignSelf: 'center', 
+        borderRadius: 20
     },
     dropdownItem: {
         width: "100%"
@@ -55,16 +60,50 @@ export const styles = StyleSheet.create({
     modalView: {
         marginTop: 150,
         height: 200,
-        width: '60%',
+        width: '70%',
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'center',
         backgroundColor: 'white',
-        borderRadius: 12,
+        borderRadius: 20,
         shadowColor: '#000',
         shadowRadius: 7,
         elevation: 5,
         color: 'white'
+    },
+    jumbotron_gray: {
+        paddingVertical: 20,
+        paddingHorizontal: 30,
+        backgroundColor: '#EEEEEE',
+        borderRadius: 25
+    },
+    jumbotron_magenta: {
+        paddingVertical: 20,
+        paddingHorizontal: 20,
+        backgroundColor: '#ffe6ff',
+        borderRadius: 25
+    },
+
+    // Button
+    buttonRegular: {
+        borderRadius: buttonRadius,
+        backgroundColor: buttonColor
+    },
+    buttonRed: {
+        borderRadius: buttonRadius,
+        backgroundColor: buttonRed
+    },
+    buttonMagenta: {
+        borderRadius: buttonRadius,
+        backgroundColor: buttonMagenta
+    },
+    buttonGreen: {
+        borderRadius: buttonRadius,
+        backgroundColor: buttonGreen
+    },
+    buttonCyan: {
+        borderRadius: buttonRadius,
+        backgroundColor: buttonCyan
     },
 
     
@@ -81,6 +120,14 @@ export const styles = StyleSheet.create({
         marginLeft: 15,
         color: 'black'
     },
+    buttonText: {
+        color: '#fff',
+        marginHorizontal: 13,
+        marginVertical: 10,
+        fontSize: 16,
+        fontFamily: 'Roboto',
+        fontWeight: '700'
+    },
 
     
     // Separating Lines
@@ -88,14 +135,7 @@ export const styles = StyleSheet.create({
         // marginVertical: 30,
         height: 1,
         width: '80%',
-        backgroundColor: '#444444',
-        alignSelf: 'center'
-    },
-    fullSeparator: {
-        // marginVertical: 30,
-        height: 1,
-        width: '100%',
-        backgroundColor: '#444444',
+        backgroundColor: '#AAAAAA',
         alignSelf: 'center'
     },
     lineUnderTitle: {
@@ -103,6 +143,12 @@ export const styles = StyleSheet.create({
         marginTop: 5,
         height: 1,
         width: '80%',
+        backgroundColor: '#AAAAAA',
+        alignSelf: 'center'
+    },
+    fullSeparator: {
+        height: 1,
+        width: '100%',
         backgroundColor: '#444444',
         alignSelf: 'center'
     },
@@ -111,17 +157,22 @@ export const styles = StyleSheet.create({
     // Vertical Spacing
     space_extra_small: {
         height: "1%",
+        backgroundColor: 'transparent'
     },
     space_small: {
         height: "2%",
+        backgroundColor: 'transparent'
     },
     space_medium: {
-        height: "4%"
+        height: "4%",
+        backgroundColor: 'transparent'
     },
     space_large: {
         height: "6%",
+        backgroundColor: 'transparent'
     },
     space_extra_large: {
-        height: "10%"
+        height: "10%",
+        backgroundColor: 'transparent'
     },
 });

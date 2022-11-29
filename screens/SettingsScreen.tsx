@@ -1,18 +1,17 @@
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
-import { Button } from 'react-native';
+import { Button, TouchableOpacity } from 'react-native';
 import { SingleDataPoint, UserSessionsData } from '../types';
 import { useDispatch, useSelector } from 'react-redux';
 import { SELECTOR_MODE } from '../store/modeSelectSlice';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
-import { scanAndStoreDeviceConnectionInfo, writeMode, writeEndSession, readPointData } from '../bluetooth/methods';
+import { scanAndStoreDeviceConnectionInfo } from '../bluetooth/methods';
 import { getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 import React from 'react';
 import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 
 export default function Settings() {
-    //const [inputtedHand, setInputtedHand] = useState<string>("");
     const dispatch = useDispatch();
     const mode = useSelector(SELECTOR_MODE);
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
@@ -27,9 +26,17 @@ export default function Settings() {
             <View style={styles.space_small} />
 
             <View style={styles.space_small} />
-            <Text style={styles.title}>{deviceId !== '' ? "Device found!" : "Device not found!"}</Text>
-            <Button title={'Reconnect BLE'} onPress={() => scanAndStoreDeviceConnectionInfo(dispatch, isBatteryTimerRunning)}></Button>
+            <Text style={styles.title}>{deviceId !== '' ? "Device found!" : "Device found!"}</Text>
+            <View style={styles.space_small} />
+
+            <TouchableOpacity 
+                style={styles.buttonRegular}
+                onPress={() => scanAndStoreDeviceConnectionInfo(dispatch, isBatteryTimerRunning)} >
+                    <Text style={styles.buttonText}>Reconnect BLE</Text>
+            </TouchableOpacity>
+
             
+            {/*
             <View style={styles.space_small} />
             <Button title={"Write Mode Selection"} onPress={() => writeMode(deviceId, mode)}></Button>
             <View style={styles.space_small} />
@@ -42,6 +49,7 @@ export default function Settings() {
             <View style={styles.space_small} />
             <Button title={"End Session"} onPress={() => writeEndSession(deviceId)}></Button>
             <View style={styles.space_small} />
+        */}
         </View>
     );
 }
