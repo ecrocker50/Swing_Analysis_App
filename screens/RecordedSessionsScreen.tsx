@@ -87,19 +87,19 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
                 
                 { 
                     chosenSession ?
-                        <View style={{flexDirection: 'row', backgroundColor: "transparent", marginBottom: -20}}>
+                        <View style={{flexDirection: 'row', backgroundColor: "transparent", marginBottom: -20, alignSelf: 'center'}}>
                             <TouchableOpacity 
                                 style={styles.buttonRegular}
                                 onPress={() => {
                                     dispatch(REDUCER_SET_SELECTED_SESSION_IN_STORE(chosenSession))
                                     navigation.navigate('SwingVisualize')
                                 }} >
-                                    <Text style={styles.buttonText}>Analyze Session</Text>
+                                    <Text style={styles.buttonText}>Analyze</Text>
                             </TouchableOpacity>
 
                             
                             <TouchableOpacity 
-                                style={{...styles.buttonRed, marginLeft: 5}}
+                                style={{...styles.buttonRed, marginLeft: 45}}
                                 onPress={() => {
                                     dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(chosenSession));
                                     setChosenSession("");
@@ -135,7 +135,9 @@ const sessionOverviewSection = (mode: Mode, numberOfSwings: number): JSX.Element
             <View style={{zIndex: -5, backgroundColor: "transparent"}}>
                 <View style={{flexDirection: 'row', backgroundColor: 'transparent'}}>
                     <Text style={{...styles.title}}>Session Details</Text>
-                    <Text style={{fontSize: 18, textAlign: 'right', flex: 1, marginLeft, borderColor: color, color, borderWidth: 2, borderRadius: 10, paddingRight: 7, paddingTop: 1}}>{mode}</Text>
+                    <View style={{width: marginLeft, backgroundColor: 'transparent'}}></View>
+                    <Text style={{fontSize: 18, textAlign: 'right', borderColor: color, color, borderWidth: 2, borderRadius: 10, paddingRight: 7, paddingTop: 1, paddingLeft: 1}}>{mode}</Text>
+                    
                 </View>
                 <View style={styles.space_small} />
                 <Text style={{...styles.normalText}}>{numberOfSwings} swings</Text>

@@ -1,39 +1,42 @@
 import { Text, View } from '../components/Themed';
 import { styles } from '../styles';
-import { Button, TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from 'react-native';
 import { SingleDataPoint, UserSessionsData } from '../types';
 import { useDispatch, useSelector } from 'react-redux';
-import { SELECTOR_MODE } from '../store/modeSelectSlice';
 import { SELECTOR_DEVICE_ID } from '../store/bleSlice';
 import { scanAndStoreDeviceConnectionInfo } from '../bluetooth/methods';
 import { getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
-import { SELECTOR_USER_SESSIONS } from '../store/swingDataSlice';
 import React from 'react';
 import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 
 export default function Settings() {
     const dispatch = useDispatch();
-    const mode = useSelector(SELECTOR_MODE);
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
-    const sessiondata = useSelector(SELECTOR_USER_SESSIONS)
     const isBatteryTimerRunning = useSelector(SELECTOR_IS_BATTERY_TIMER_RUNNING);
 
     return (
         <View style={styles.topContainer}>
-            <Text style={styles.title}>BLE</Text>
-            <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
+            <Text style={styles.titleCenterNoUnder}>BLE</Text>
+            <View style={styles.separator}/>
 
             <View style={styles.space_small} />
-
-            <View style={styles.space_small} />
-            <Text style={styles.boldText}>{deviceId !== '' ? "Device found!" : "Device found!"}</Text>
+            <Text style={styles.normalText}>{deviceId !== '' ? "Device found" : "Device not found"}</Text>
             <View style={styles.space_small} />
 
             <TouchableOpacity 
                 style={styles.buttonRegular}
                 onPress={() => scanAndStoreDeviceConnectionInfo(dispatch, isBatteryTimerRunning)} >
-                    <Text style={styles.buttonText}>Reconnect BLE</Text>
+                    <Text style={styles.buttonText}>Search for Device</Text>
             </TouchableOpacity>
+
+            <View style={styles.space_extra_large}></View>
+            <View style={styles.space_extra_large}></View>
+
+            
+            <Text style={styles.titleCenterNoUnder}>Application Version</Text>
+            <View style={styles.separator}/>
+            <View style={styles.space_small} />
+            <Text style={styles.normalText}>Version: 1.0.1</Text>
 
             
             {/*

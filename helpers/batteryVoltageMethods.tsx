@@ -93,9 +93,6 @@ export const getBatteryPercentageIcon = (percentLeft: number, wasLastConnectAtte
  * @returns JSX.Element - The battery percentage component. Includes the percentage as text and the icon.
  */
 export const getBatteryPercentageComponent = (percentLeft: number, wasLastBluetoothConnectSuccess: boolean): JSX.Element => {
-
-    percentLeft = 78
-    wasLastBluetoothConnectSuccess = true;
     return (
         <View style={{flexDirection: 'row'}}>
             { wasLastBluetoothConnectSuccess && percentLeft !== 101 ?

@@ -116,6 +116,11 @@ export const styles = StyleSheet.create({
         marginLeft: 15,
         textDecorationLine: 'underline'
     },
+    titleCenterNoUnder: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: tintColorLight
+    },
     normalText: {
         fontSize: 18,
         marginRight: 15,

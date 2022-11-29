@@ -52,7 +52,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
         marginLeft = '15.5%';
     }
     else if (selectedModeLocal === 'Serve') {
-        marginLeft = '27.5%';
+        marginLeft = '27%';
     }
 
 
@@ -62,7 +62,8 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 <View style={{...styles.jumbotron_gray, width: '90%' }}>
                     <View style={{flexDirection: 'row', backgroundColor: 'transparent'}}>
                         <Text style={{...styles.title}}>Session Ended</Text>
-                        <Text style={{fontSize: 18, textAlign: 'right', flex: 1, marginLeft, borderColor: color, color, borderWidth: 2, borderRadius: 10, paddingRight: 7, paddingTop: 1}}>{selectedModeLocal}</Text>
+                        <View style={{width: marginLeft, backgroundColor: 'transparent'}}></View>
+                        <Text style={{fontSize: 18, textAlign: 'right', borderColor: color, color, borderWidth: 2, borderRadius: 10, paddingRight: 7, paddingTop: 1, paddingLeft: 1}}>{selectedModeLocal}</Text>
                     </View>
 
                     <View style={styles.space_extra_small} />
@@ -72,7 +73,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
 
                     <View style={styles.space_extra_large} />
 
-                    <View style={{flexDirection: 'row', backgroundColor: 'transparent', marginBottom: -50}}>
+                    <View style={{flexDirection: 'row', backgroundColor: 'transparent', marginBottom: -50, alignItems: 'center'}}>
                         <TouchableOpacity 
                             style={styles.buttonRegular}
                             onPress={() => {
