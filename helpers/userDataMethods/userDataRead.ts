@@ -250,3 +250,17 @@ export const doesSessionExist = (userData: UserSessionsData, sessionName: string
 export const getLastAddedSessionName = (userData: UserSessionsData): string => {
     return userData[userData.length - 1].sessionName;
 };
+
+
+
+export const getPositionPointsInsideSwing = (userData: UserSessionsData, sessionName: string, swingIndex: number): Array<Position> => {
+    const arrayOfPos: Array<Position> = [];
+
+    const fullPoints = getPointsInsideASwing(userData, sessionName, swingIndex);
+
+    fullPoints.forEach((point) => {
+        arrayOfPos.push(point.position);
+    });
+
+    return arrayOfPos;
+};
