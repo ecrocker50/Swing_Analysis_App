@@ -24,7 +24,6 @@ export interface ChartData {
     /** The x-axis labels */
     labels: string[];
     datasets: Dataset[];
-    indexes: number[];
 }
 export interface ChartConfig {
     backgroundColor?: string;

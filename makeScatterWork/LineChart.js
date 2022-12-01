@@ -440,7 +440,7 @@ var LineChart = /** @class */ (function (_super) {
         var legendOffset = this.props.data.legend ? height * 0.15 : 0;
         return (<View style={style}>
         <Svg height={height + paddingBottom + legendOffset} width={width - margin * 2 - marginRight}>
-          <Rect width="100%" height={height + legendOffset} rx={borderRadius} ry={borderRadius} fill="url(#backgroundGradient)" fillOpacity={transparent ? 0 : 1}/>
+          <Rect width="100%" height={height + paddingBottom + legendOffset} rx={borderRadius} ry={borderRadius} fill="url(#backgroundGradient)" fillOpacity={transparent ? 0 : 1}/>
           {this.props.data.legend &&
             this.renderLegend(config.width, legendOffset)}
           <G x="0" y={legendOffset}>

@@ -18,13 +18,20 @@ import {
     SELECTOR_SELECTED_SESSION,
     SELECTOR_USER_SESSIONS,
 } from '../store/swingDataSlice';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 import { RacketOrientationDisplay } from '../components/RacketOrientation';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart, AbstractChart  } from 'react-native-chart-kit'
 import { ChartData } from 'react-native-chart-kit/dist/HelperTypes'
 import { Position } from '../types';
 
+
+type PositionHorizontalVertical = {
+    horiz: number,
+    vert: number,
+};
+
+type GraphViewType = 'top' | 'side';
 
 
 export default function SwingVisualizeScreen() {
@@ -34,6 +41,7 @@ export default function SwingVisualizeScreen() {
     const selectedSession = useSelector(SELECTOR_SELECTED_SESSION);
     const userSessions    = useSelector(SELECTOR_USER_SESSIONS);
     const [chosenSwing,   setChosenSwing]   = useState<number>(0);
+    const [graphView, setGraphView]   = useState<GraphViewType>('side');
 
     const quaternion  = getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
     const position    = getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
@@ -47,7 +55,7 @@ export default function SwingVisualizeScreen() {
         const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
         const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
         const swings = getSwingsInsideSession(userSessions, selectedSession).length;
-        const positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
+        let positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
 
 
         return (
@@ -115,20 +123,23 @@ export default function SwingVisualizeScreen() {
                         { RacketOrientationDisplay(currentTimeSeconds, quaternion) }
                     </View>
 
-                    <View style={styles.space_extra_small}></View>
 
-                    <TouchableOpacity 
+
+                    
+
+                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position)}
+                    
+                    <View style={{width: '60%', alignItems: 'center', alignSelf: 'center'}}>
+                        <TouchableOpacity 
                             style={styles.buttonRegular}
                             onPress={() => {
-                                
+                                setGraphView(graphView === 'side' ? 'top' : 'side')
                             }} >
-                                <Text style={styles.buttonText}>Convert to X/Z Plot</Text>
+                                <Text style={styles.buttonText}>Change View</Text>
                         </TouchableOpacity>
+                    </View>
 
-                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints)}
-                    <Text style={{...styles.boldText, textAlign: 'center'}}>X:{position.x.toFixed(2)}m   Y:{position.y.toFixed(2)}m   Z:{position.z.toFixed(2)}m</Text>
-
-                    <View style={styles.space_large}></View>
+                    <View style={styles.space_small}></View>
 
                     <Text style={{...styles.boldText, textAlign: 'center'}}>
                         Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing).toFixed(6)}s   {'\n'}
@@ -234,47 +245,124 @@ const getIndexOfTime = (currentTime: number, allSwingTimePoints: Array<Number>):
 }
 
 
+const getSideViewPositionPoints = (positionPoints: Array<Position>): Array<PositionHorizontalVertical> => {
+    // Calculate distance to point <x, y> for each point in positionPoints. This will be the horiz component of the position
+    // Then, use the z component of each point in positionPoints to get the vertical component of the position
+    // Return an array of <horiz, vert> points
+    const twoDimensionalReconstruction: Array<PositionHorizontalVertical> = [];
+    positionPoints.forEach((point) => {
+        const horizPoint: PositionHorizontalVertical = {
+            horiz: Math.sqrt(point.x**2 + point.y**2),
+            vert:  point.z
+        }
+        twoDimensionalReconstruction.push(horizPoint);
+    });
 
-const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>) => {
-    const chartData = positionPoints.map((point, index) => {
-        return {
-            ...point,
-            index
+    return twoDimensionalReconstruction;
+};
+
+
+
+const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Array<Position> => {
+    // Find the minimum value in the array
+    let minX = positionPoints[0].x;
+    let minY = positionPoints[0].y;
+    let minZ = positionPoints[0].z;
+    positionPoints.forEach((point) => {
+        if(point.x < minX)
+        {
+            minX = point.x;
+        }
+        if(point.y < minY)
+        {
+            minY = point.y;
+        }
+        if(point.z < minZ)
+        {
+            minZ = point.z;
         }
     });
+    positionPoints.forEach((point, idx) => {
+        let x = point.x;
+        let y = point.y;
+        let z = point.z;
+        if(minX < 0) {
+            x -= minX;
+        }
+        if(minY < 0) {
+            y -= minY;
+        }
+        if(minZ < 0) {
+            z -= minZ;
+        }
 
-    const xLabels: string[] = [];
-    const zValues: number[] = [];
-    const indexes: number[] = [];
-
-    chartData.forEach((point) => {
-        xLabels.push(point.x.toString());
-        zValues.push(point.z);
-        indexes.push(point.index);
+        positionPoints[idx] = {x, y, z}
     });
+};
+
+
+
+const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position) => {
+    const xLabels: string[] = [];
+    const yValues: number[] = [];
+    addOffsetToCorrectNegativeValues(positionPoints);
+
+    if (graphView === 'side') {
+        const sideViewPoints = getSideViewPositionPoints(positionPoints);
+        
+        sideViewPoints.forEach((point) => {
+            xLabels.push(point.horiz.toString());
+            yValues.push(point.vert);
+        });
+    }
+    else {
+        positionPoints.forEach((point) => {
+            xLabels.push(point.x.toString());
+            yValues.push(point.y);
+        });
+    }
+
+    // const chartData = positionPoints.map((point, index) => {
+    //     return {
+    //         ...point,
+    //         index
+    //     }
+    // });
+
+
     const indexOfTime = getIndexOfTime(selectedTime, allSwingTimePoints);
 
     return (
         <View>
-            <Text style={styles.normalText}>X/Z</Text>
+            {/* <View style={{position: 'absolute', top: -10, left: Dimensions.get('window').width - 60}}>
+                <MaterialIcons.Button name="skip-next" onPress={() => console.log('hi')} style={{backgroundColor: buttonColor, color: 'black'}} size={20} color={'white'} />
+            </View> */}
+            <Text style={{...styles.title, textAlign: 'center', marginLeft: 0}}>{graphView === 'side' ? 'Side View' : 'Top View'}</Text>
+            <View style={{position: 'absolute', top: 120, left: -85, right: 400, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200}}> 
+                <Text style={{fontSize: 14, color: 'white', zIndex: 100, transform: [{ rotate: '270deg'}]}}>{graphView === 'side' ? 'Vertical Position (meters)' : 'Side Position (meters)'}</Text>
+            </View>
+            <View style={{position: 'absolute', top: 220, left: 90, right: 0, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200, justifyContent: 'center', alignItems: 'center'}}> 
+                <Text style={{fontSize: 14, color: 'white', zIndex: 100}}>{graphView === 'side' ? 'Horizontal Position (meters)' : 'Forward Position (meters)'}</Text>
+            </View>
             <LineChart
                 data={{
                     labels: xLabels,
                     datasets: [
                         {
                             color: () => `rgba(220, 220, 220, ${0.5})`,
-                            data: zValues
+                            data: yValues
                         }
-                    ],
-                    indexes: indexes
+                    ]
                 }}
                 width={Dimensions.get('window').width}
                 height={250}
                 yAxisLabel=""
                 withShadow={false}
-                yAxisSuffix="m"
+                yAxisSuffix=""
                 verticalLabelRotation={90}
-                xLabelsOffset={-12}
+                xLabelsOffset={-16}
+                yLabelsOffset={4}
+                
                 formatXLabel={(xValue: string) => parseFloat(xValue).toFixed(2).toString()}
                 getDotColor={(dataPoint, index) => {
                     if (index === indexOfTime)
@@ -285,7 +373,7 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                     backgroundColor: "#e26a00",
                     backgroundGradientFrom: "#0a6fc2",
                     backgroundGradientTo: "#2196f3",
-                    decimalPlaces: 2, // optional, defaults to 2dp
+                    decimalPlaces: 2,
                     color: () => `rgba(255, 255, 255, ${0.3})`,
                     labelColor: () => `rgba(255, 255, 255, ${1})`,
                     propsForDots: {
@@ -293,9 +381,15 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                     },
                 }}
                 style={{
-                    borderRadius: 20
+                    borderRadius: 20,
+                    paddingBottom: 20
                 }}
             />
+            { graphView === 'side' ?
+                <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {Math.sqrt(selectedPosition.x**2 + selectedPosition.y**2).toFixed(2)}m   Y: {selectedPosition.z.toFixed(2)}m</Text>
+                :
+                <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {selectedPosition.x.toFixed(2)}m   Y: {selectedPosition.y.toFixed(2)}m</Text>
+            }
         </View>
     );
 }
