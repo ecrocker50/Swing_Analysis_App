@@ -1,9 +1,8 @@
 import React, { Dispatch, useState } from 'react';
 import Slider from '@react-native-community/slider';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { StatusBar } from 'expo-status-bar';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Dimensions, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { buttonColor, styles } from '../styles';
@@ -18,11 +17,9 @@ import {
     SELECTOR_SELECTED_SESSION,
     SELECTOR_USER_SESSIONS,
 } from '../store/swingDataSlice';
-import { Entypo, MaterialIcons } from '@expo/vector-icons';
+import { Entypo } from '@expo/vector-icons';
 import { RacketOrientationDisplay } from '../components/RacketOrientation';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LineChart, AbstractChart  } from 'react-native-chart-kit'
-import { ChartData } from 'react-native-chart-kit/dist/HelperTypes'
+import { LineChart } from 'react-native-chart-kit';
 import { Position } from '../types';
 
 
@@ -264,24 +261,49 @@ const getSideViewPositionPoints = (positionPoints: Array<Position>): Array<Posit
 
 
 const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Array<Position> => {
+    let positionPointsCorrected: Array<Position> = [];
+
+    positionPoints.forEach((point) => {
+        positionPointsCorrected.push({...point});
+    });
+
+
+
     // Find the minimum value in the array
     let minX = positionPoints[0].x;
     let minY = positionPoints[0].y;
     let minZ = positionPoints[0].z;
+
+    // Find the maximum value in the array
+    let maxX = positionPoints[0].x;
+    let maxY = positionPoints[0].y;
+    let maxZ = positionPoints[0].z;
+    
+
     positionPoints.forEach((point) => {
-        if(point.x < minX)
-        {
+        if(point.x < minX) {
             minX = point.x;
         }
-        if(point.y < minY)
-        {
+        else if (point.x > maxX) {
+            maxX = point.x;
+        }
+        if(point.y < minY) {
             minY = point.y;
         }
-        if(point.z < minZ)
-        {
+        else if (point.y > maxY) {
+            maxY = point.y;
+        }
+        if(point.z < minZ) {
             minZ = point.z;
         }
+        else if (point.z > maxX) {
+            maxZ = point.z;
+        }
     });
+
+    const averageValueZ = (maxZ - minZ) / 2;
+
+
     positionPoints.forEach((point, idx) => {
         let x = point.x;
         let y = point.y;
@@ -294,10 +316,17 @@ const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Arra
         }
         if(minZ < 0) {
             z -= minZ;
+            if (z > averageValueZ) {
+                z = averageValueZ - (z - averageValueZ);
+            } else {
+                z = averageValueZ + (averageValueZ - z);
+            }
         }
 
-        positionPoints[idx] = {x, y, z}
+        positionPointsCorrected[(positionPoints.length - 1) - idx] = {x, y, z}
     });
+
+    return positionPointsCorrected;
 };
 
 
@@ -305,7 +334,7 @@ const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Arra
 const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position) => {
     const xLabels: string[] = [];
     const yValues: number[] = [];
-    addOffsetToCorrectNegativeValues(positionPoints);
+    positionPoints = addOffsetToCorrectNegativeValues(positionPoints);
 
     if (graphView === 'side') {
         const sideViewPoints = getSideViewPositionPoints(positionPoints);
@@ -386,9 +415,9 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                 }}
             />
             { graphView === 'side' ?
-                <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {Math.sqrt(selectedPosition.x**2 + selectedPosition.y**2).toFixed(2)}m   Y: {selectedPosition.z.toFixed(2)}m</Text>
+                <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {Math.sqrt(positionPoints[indexOfTime].x**2 + positionPoints[indexOfTime].y**2).toFixed(2)}m   Y: {positionPoints[indexOfTime].z.toFixed(2)}m</Text>
                 :
-                <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {selectedPosition.x.toFixed(2)}m   Y: {selectedPosition.y.toFixed(2)}m</Text>
+                <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {positionPoints[indexOfTime].x.toFixed(2)}m   Y: {positionPoints[indexOfTime].y.toFixed(2)}m</Text>
             }
         </View>
     );

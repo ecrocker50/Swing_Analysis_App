@@ -4,9 +4,9 @@ const tintColorLight = '#2f95dc';
 export const buttonColor = '#2196F3';
 const buttonRed = '#ff3333';
 const buttonRadius = 20;
-export const buttonMagenta = '#e600e6';
+export const buttonMagenta = '#00cccc';
 export const buttonGreen = '#00cc00';
-export const buttonCyan = '#00cccc';
+export const buttonCyan = '#e600e6';
 
 export const styles = StyleSheet.create({
 

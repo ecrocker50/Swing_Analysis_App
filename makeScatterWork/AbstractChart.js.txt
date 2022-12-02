@@ -152,6 +152,8 @@ var AbstractChart = /** @class */ (function (_super) {
             // console.log("xMinValue", minXValue);
             // console.log(rightBound);
 
+            let prevLabel = '';
+
             return labels.map(function (label, i) {
                 if (hidePointsAtIndex.includes(i)) {
                     return null;
@@ -163,6 +165,14 @@ var AbstractChart = /** @class */ (function (_super) {
 
                 const percent = (x - leftBound) / rangeOfPos;
                 const value = percent * (maxXValue - minXValue) + minXValue;
+                let valueToUse;
+                if (prevLabel === '') {
+                    valueToUse = formatXLabel(value);
+                }
+                else {
+                    valueToUse = '';
+                }
+                prevLabel = valueToUse;
                 // var percentage = (labelsNumbers[i] - minXValue) / (maxXValue - minXValue);
                 // var posX = rangeOfPos * percentage + leftBound;
                 // // console.log("label: ", label, percentage, posX, x);
@@ -172,7 +182,7 @@ var AbstractChart = /** @class */ (function (_super) {
                     fontSize * 2 +
                     xLabelsOffset;
                 return (<Text origin={x + ", " + y} rotation={verticalLabelRotation} key={Math.random()} x={x} y={y} textAnchor={verticalLabelRotation === 0 ? "middle" : "start"} {..._this.getPropsForLabels()} {..._this.getPropsForVerticalLabels()}>
-          {"" + formatXLabel(value) + xAxisLabel}
+          {"" + valueToUse + xAxisLabel}
         </Text>);
             });
         };
