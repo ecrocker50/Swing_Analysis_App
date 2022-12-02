@@ -303,7 +303,6 @@ const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Arra
 
     const averageValueZ = (maxZ - minZ) / 2;
 
-
     positionPoints.forEach((point, idx) => {
         let x = point.x;
         let y = point.y;
@@ -315,12 +314,13 @@ const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Arra
             y -= minY;
         }
         if(minZ < 0) {
-            z -= minZ;
-            if (z > averageValueZ) {
-                z = averageValueZ - (z - averageValueZ);
-            } else {
-                z = averageValueZ + (averageValueZ - z);
-            }
+            z -= minZ;            
+        }
+
+        if (z > averageValueZ) {
+            z = averageValueZ - (z - averageValueZ);
+        } else {
+            z = averageValueZ + (averageValueZ - z);
         }
 
         positionPointsCorrected[(positionPoints.length - 1) - idx] = {x, y, z}
