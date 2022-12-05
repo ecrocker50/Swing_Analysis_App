@@ -309,7 +309,8 @@ const connectToReadCharacteristic = async (dispatch: Dispatch<AnyAction>, device
         device = connectedDevices[0];
     }
     else {
-        device = await ble_Manager.connectToDevice(deviceId).catch((err) => {});
+        const options = {requestMTU: 500}
+        device = await ble_Manager.connectToDevice(deviceId, options).catch((err) => {});
     }
 
 
@@ -357,7 +358,8 @@ export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAct
             ble_Manager.stopDeviceScan();
 
             // Proceed with connection.
-            device.connect()
+            const options = {requestMTU: 500}
+            device.connect(options)
             .then((device) => {
                 return device.discoverAllServicesAndCharacteristics();
             })
