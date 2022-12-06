@@ -343,7 +343,7 @@ const isOrientationMostlyFacingBackDuringMid = (userSessions: UserSessionsData, 
 };
 
 
-const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Array<Position> => {
+const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>, shouldFlip: boolean): Array<Position> => {
     let positionPointsCorrected: Array<Position> = [];
 
     positionPoints.forEach((point) => {
@@ -405,7 +405,7 @@ const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Arra
         } else {
             z = averageValueZ + (averageValueZ - z);
         }
-
+            
         positionPointsCorrected[(positionPoints.length - 1) - idx] = {x, y, z}
     });
 
@@ -545,6 +545,59 @@ const addOffsetTopView = (positionPoints: Array<Position>): Array<Position> => {
     return positionPointsCorrected;
 };
 
+
+const doesGraphNeedFlip = (eulerAngles: any): boolean => {
+    const degrees = radiansToDegrees(eulerAngles.z);
+    console.log(degrees);
+    if (degrees < 45) {
+        return false;
+    }
+
+    return true;
+};
+
+
+
+const flipGraphHorizontally = (sideViewPoints: Array<PositionHorizontalVertical>) => {
+    let positionPointsCorrected: Array<PositionHorizontalVertical> = [];
+
+
+    // Find the minimum value in the array
+    let minX = sideViewPoints[0].horiz;
+
+    // Find the maximum value in the array
+    let maxX = sideViewPoints[0].horiz;
+    
+
+    sideViewPoints.forEach((point) => {
+        if (point.horiz < minX) {
+            minX = point.horiz;
+        }
+        else if (point.horiz > maxX) {
+            maxX = point.horiz;
+        }
+    });
+
+    const averageValueX = (maxX - minX) / 2;
+
+    sideViewPoints.forEach((point, idx) => {
+        let x = point.horiz;
+        if(minX < 0) {
+            x -= minX;
+        }
+
+        if (x > averageValueX) {
+            x = averageValueX - (x - averageValueX);
+        } else {
+            x = averageValueX + (averageValueX - x);
+        }
+            
+        positionPointsCorrected.push({horiz: x, vert: sideViewPoints[idx].vert})
+    });
+
+    return positionPointsCorrected;
+}
+
 const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position, eulerAngles: any, sessionHandedness: Handedness) => {
     
     if (positionPoints === undefined || positionPoints.length === 0) {
@@ -553,21 +606,34 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
     
     const xLabels: string[] = [];
     const yValues: number[] = [];
-    positionPoints = addOffsetToCorrectNegativeValues(positionPoints);
-    console.log(eulerAngles);
+    let shouldFlip = true;
+    if (graphView === 'side') {
+        shouldFlip = doesGraphNeedFlip(eulerAngles);
+        console.log(shouldFlip);
+    }
+    // console.log(doesGraphNeedFlip(eulerAngles));
+
+    positionPoints = addOffsetToCorrectNegativeValues(positionPoints, shouldFlip);
+
+
+    // console.log(eulerAngles);
     if (isNaN(eulerAngles.x) && isNaN(eulerAngles.y) && eulerAngles.z === 0) {
         console.log("NO CALIBRATED QUATERNION IN THIS SESSION");
     };
 
     if (graphView === 'side') {
-        const sideViewPoints = getSideViewPositionPoints(positionPoints);
+        let sideViewPoints = getSideViewPositionPoints(positionPoints);
+
+        if (shouldFlip === false) {
+            sideViewPoints = flipGraphHorizontally(sideViewPoints);
+        }
         
         sideViewPoints.forEach((point) => {
             xLabels.push(point.horiz.toString());
             yValues.push(point.vert);
         });
     }
-    else {
+    else { 
         const midPointOfRotation = getMidPointOfRotation(positionPoints);
         let rotatedPoints: Array<Position> = [];
 
