@@ -34,6 +34,7 @@ const linking: LinkingOptions<RootStackParamList> = {
       },
       SwingVisualize: 'SwingVisualize',
       SessionInProgress: 'SessionInProgress',
+      Calibration: 'Calibtation',
       NotFound: '*',
     },
   },

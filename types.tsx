@@ -17,6 +17,7 @@ export type RootStackParamList = {
     Root: NavigatorScreenParams<RootTabParamList> | undefined;
     SwingVisualize: undefined;
     SessionInProgress: undefined;
+    Calibration: undefined;
     NotFound: undefined;
 };
 
@@ -95,6 +96,8 @@ export type RootState = {
     };
     modeSelect: {
         mode: Mode;
+        calibrated: boolean;
+        quaternionCentered: Quaternion;
     };
     time: {
         currentTimeSeconds: number;

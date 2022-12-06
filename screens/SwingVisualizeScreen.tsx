@@ -6,7 +6,7 @@ import { Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { buttonColor, styles } from '../styles';
-import { doesSessionHaveSwings, getMaxTimeOfSwing, getNumberOfSwingsInsideSession, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing, getPositionPointsInsideSwing } from '../helpers/userDataMethods/userDataRead';
+import { doesSessionHaveSwings, getMaxTimeOfSwing, getNumberOfSwingsInsideSession, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing, getPositionPointsInsideSwing, getTimeOfMidSwing } from '../helpers/userDataMethods/userDataRead';
 import {
     REDUCER_SET_CURRENT_TIME_IN_STORE,
     SELECTOR_CURRENT_TIME_SECONDS, 
@@ -20,7 +20,10 @@ import {
 import { Entypo } from '@expo/vector-icons';
 import { RacketOrientationDisplay } from '../components/RacketOrientation';
 import { LineChart } from 'react-native-chart-kit';
-import { Position } from '../types';
+import { EulerAngles, Position, Quaternion } from '../types';
+import { THREE } from 'expo-three';
+import { degreesToRadians, radiansToDegrees } from '../helpers/numberConversions';
+import { SELECTOR_CALIBRATED, SELECTOR_QUATERNION_CENTERED } from '../store/modeSelectSlice';
 
 
 type PositionHorizontalVertical = {
@@ -46,6 +49,9 @@ export default function SwingVisualizeScreen() {
     const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
     const numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
 
+    const isCalibrated = useSelector(SELECTOR_CALIBRATED);
+    const calibratedQuaternion = useSelector(SELECTOR_QUATERNION_CENTERED);
+
     if(chosenSwing !== -1)
     {
         const swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
@@ -54,7 +60,16 @@ export default function SwingVisualizeScreen() {
         const swings = getSwingsInsideSession(userSessions, selectedSession).length;
         let positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
 
+        const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
 
+        const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
+
+        const timeOfMidPoint = getTimeOfMidSwing(userSessions, selectedSession, chosenSwing);
+        const quaternionOfMidPoint = getQuaternion(userSessions, selectedSession, chosenSwing, timeOfMidPoint);
+        const midPointEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(quaternionOfMidPoint.i, quaternionOfMidPoint.j, quaternionOfMidPoint.k, quaternionOfMidPoint.real));
+
+        const calibratedEuler = isCalibrated ? new THREE.Euler().setFromQuaternion(calibratedQuaternion) : undefined;
+        
         return (
             <View style={styles.topContainer}>
                 
@@ -83,6 +98,7 @@ export default function SwingVisualizeScreen() {
                     listItemLabelStyle={styles.normalText}
                     ListEmptyComponent={() => <View style={{height: 35}}><Text style={{...styles.normalText, marginTop: 4, fontStyle: 'italic'}}>No Data</Text></View>}
                     />
+
 
                 <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 13, backgroundColor: 'transparent'}}>
                     <TouchableOpacity 
@@ -117,14 +133,15 @@ export default function SwingVisualizeScreen() {
                     
                     <View style={styles.space_extra_small}></View>
                     <View style={{borderWidth: 2, borderColor: buttonColor, borderRadius: 20, width: '80%', alignSelf: 'center'}}>
-                        { RacketOrientationDisplay(currentTimeSeconds, quaternion) }
+                        { RacketOrientationDisplay(currentTimeSeconds, quaternion, calibratedEuler, isCalibrated) }
                     </View>
 
 
 
+                    {/* <Text>{isOrientationFactingDown(euler) ? "D  " : "U  "} {radiansToDegrees(euler.z)}</Text> */}
                     
 
-                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position)}
+                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position, midPointEuler)}
                     
                     <View style={{width: '60%', alignItems: 'center', alignSelf: 'center'}}>
                         <TouchableOpacity 
@@ -151,11 +168,14 @@ export default function SwingVisualizeScreen() {
                     />
 
                     
+                    <Text style={styles.normalText}>Euler x:   {radiansToDegrees(euler.x)}</Text>
+                    <Text style={styles.normalText}>Euler y:   {radiansToDegrees(euler.y)}</Text>
+                    <Text style={styles.normalText}>Euler z:   {radiansToDegrees(euler.z)}</Text>
 
-                    {/* <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
+                    <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
                     <Text style={styles.normalText}>Quaternion i:   {quaternion.i}</Text>
                     <Text style={styles.normalText}>Quaternion j:   {quaternion.j}</Text>
-                    <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text> */}
+                    <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text>
 
                     <View style={styles.space_extra_large} />
                     <View style={styles.space_medium} />
@@ -260,6 +280,18 @@ const getSideViewPositionPoints = (positionPoints: Array<Position>): Array<Posit
 
 
 
+
+const isOrientationFactingDown = (euler: any): boolean => {
+    // If the euler angle is facing down, then the z component is negative
+    console.log(euler.z);
+    if (euler.z < 0) {
+        return true;
+    }
+    return false;
+};
+
+
+
 const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Array<Position> => {
     let positionPointsCorrected: Array<Position> = [];
 
@@ -330,8 +362,78 @@ const addOffsetToCorrectNegativeValues = (positionPoints: Array<Position>): Arra
 };
 
 
+const getMidPointOfRotation = (positionPoints: Array<Position>): Position => {
+    // Find the minimum value in the array
+    let minX = positionPoints[0].x;
+    let minY = positionPoints[0].y;
+    let minZ = positionPoints[0].z;
 
-const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position) => {
+    // Find the maximum value in the array
+    let maxX = positionPoints[0].x;
+    let maxY = positionPoints[0].y;
+    let maxZ = positionPoints[0].z;
+
+    positionPoints.forEach((point) => {
+        if(point.x < minX) {
+            minX = point.x;
+        }
+        else if (point.x > maxX) {
+            maxX = point.x;
+        }
+        if(point.y < minY) {
+            minY = point.y;
+        }
+        else if (point.y > maxY) {
+            maxY = point.y;
+        }
+        if(point.z < minZ) {
+            minZ = point.z;
+        }
+        else if (point.z > maxX) {
+            maxZ = point.z;
+        }
+    });
+
+    const midPoint: Position = {
+        x: (maxX - minX) / 2,
+        y: (maxY - minY) / 2,
+        z: (maxZ - minZ) / 2
+    };
+
+    return midPoint;
+};
+
+const rotatePointAroundPoint = (point: Position, midPoint: Position, angle: number): Position => {
+    // Rotate the point around the midPoint by the angle
+
+    // First, translate the point so that the midPoint is at the origin
+    const translatedPoint: Position = {
+        x: point.x - midPoint.x,
+        y: point.y - midPoint.y,
+        z: point.z - midPoint.z
+    };
+
+    // Rotate the point around the origin by the angle
+    const rotatedPoint: Position = {
+        x: translatedPoint.x * Math.cos(degreesToRadians(angle)) - translatedPoint.y * Math.sin(degreesToRadians(angle)),
+        y: translatedPoint.x * Math.sin(degreesToRadians(angle)) + translatedPoint.y * Math.cos(degreesToRadians(angle)),
+        z: translatedPoint.z
+    };
+
+    // Translate the point back to its original position
+    const rotatedTranslatedPoint: Position = {
+        x: rotatedPoint.x + midPoint.x,
+        y: rotatedPoint.y + midPoint.y,
+        z: rotatedPoint.z + midPoint.z
+    };
+
+    return rotatedTranslatedPoint;
+};
+
+
+
+
+const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position, eulerAngles: any) => {
     const xLabels: string[] = [];
     const yValues: number[] = [];
     positionPoints = addOffsetToCorrectNegativeValues(positionPoints);
@@ -345,9 +447,18 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
         });
     }
     else {
+        const midPointOfRotation = getMidPointOfRotation(positionPoints);
         positionPoints.forEach((point) => {
-            xLabels.push(point.x.toString());
-            yValues.push(point.y);
+
+            // rotate the point counterclockwise around the midPointOfRotation
+            const rotatedPoint = rotatePointAroundPoint(point, midPointOfRotation, radiansToDegrees(eulerAngles.z));
+
+            xLabels.push(rotatedPoint.x.toString());
+            yValues.push(rotatedPoint.y);
+
+            
+            // xLabels.push(point.x.toString());
+            // yValues.push(point.y);
         });
     }
 

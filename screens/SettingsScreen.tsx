@@ -8,11 +8,13 @@ import { scanAndStoreDeviceConnectionInfo } from '../bluetooth/methods';
 import { getTimesOfAllPointsInSwing } from '../helpers/userDataMethods/userDataRead';
 import React from 'react';
 import { SELECTOR_IS_BATTERY_TIMER_RUNNING } from '../store/batteryPercentageSlice';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Settings() {
     const dispatch = useDispatch();
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
     const isBatteryTimerRunning = useSelector(SELECTOR_IS_BATTERY_TIMER_RUNNING);
+    const navigation = useNavigation();
 
     return (
         <View style={styles.topContainer}>
@@ -27,6 +29,23 @@ export default function Settings() {
                 style={styles.buttonRegular}
                 onPress={() => scanAndStoreDeviceConnectionInfo(dispatch, isBatteryTimerRunning)} >
                     <Text style={styles.buttonText}>Search for Device</Text>
+            </TouchableOpacity>
+
+
+            <View style={styles.space_extra_large}></View>
+
+
+            <Text style={styles.titleCenterNoUnder}>Calibration</Text>
+            <View style={styles.separator}/>
+
+            <View style={styles.space_small} />
+            <Text style={styles.normalText}>{deviceId !== '' ? "Device calibrated" : "Device not calibrated"}</Text>
+            <View style={styles.space_small} />
+
+            <TouchableOpacity 
+                style={styles.buttonRegular}
+                onPress={() =>  navigation.navigate('Calibration') }>
+                    <Text style={styles.buttonText}>Calibrate Device</Text>
             </TouchableOpacity>
 
             <View style={styles.space_extra_large}></View>

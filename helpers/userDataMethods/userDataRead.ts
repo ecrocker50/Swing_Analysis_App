@@ -264,3 +264,13 @@ export const getPositionPointsInsideSwing = (userData: UserSessionsData, session
 
     return arrayOfPos;
 };
+
+
+export const getTimeOfMidSwing = (userData: UserSessionsData, sessionName: string, swingIndex: number): number => {
+    const swing = getSwing(userData, sessionName, swingIndex);
+
+    const numOfPoints = swing.points.length;
+    const time = swing.points[Math.floor(numOfPoints / 2)].time;
+
+    return time;
+}

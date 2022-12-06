@@ -7,6 +7,7 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
 import { getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { REDUCER_SET_BATTERY_PERCENT, REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentageSlice';
+import { REDUCER_SET_CALIBRATED_IN_STORE, REDUCER_SET_QUATERNION_CENTERED_IN_STORE } from '../store/modeSelectSlice';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC_UUID = "0000ee01-0000-1000-8000-00805f9b34fb";
@@ -385,3 +386,46 @@ export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAct
 };
 
 
+
+
+export const calibrate = async (dispatch: Dispatch<AnyAction>, deviceId: string) => {
+    const writeCharacteristic = await connectToWriteCharacteristic(deviceId);
+
+
+    if (writeCharacteristic !== undefined) {
+        // This is the string that will store all our hex values as one long string as we read them in
+        let hexString: string = '';
+
+        // Read in the first string of data 
+        let newStringOfData = writeCharacteristic.value;
+
+        if (newStringOfData === null) {
+            return;
+        }
+
+        hexString = convertBase64StringToHexString(newStringOfData);
+
+
+        // Check to see if we received something
+        if (newStringOfData === null || newStringOfData == '') {
+            // If we didn't get anything at all, save some time and just return right now
+            return;
+        }
+        
+        const numOfBytes = hexString.length / 2;
+        const view = convertHexStringToUint8DataView(hexString);
+        const quaternion = {
+            real: view.getInt32(0, true) / 1000000,
+            i: view.getInt32(4, true) / 1000000,
+            j: view.getInt32(8, true) / 1000000,
+            k: view.getInt32(12, true) / 1000000,
+        };
+
+        dispatch(REDUCER_SET_QUATERNION_CENTERED_IN_STORE(quaternion));
+        dispatch(REDUCER_SET_CALIBRATED_IN_STORE(true));
+
+        console.log(quaternion);
+    } else {
+        console.log("ERR CALIBRATE");
+    }
+};

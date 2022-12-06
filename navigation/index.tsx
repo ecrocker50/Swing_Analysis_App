@@ -26,6 +26,7 @@ import { SELECTOR_BATTERY_PERCENT } from '../store/batteryPercentageSlice';
 import SessionInProgressScreen from '../screens/SessionInProgressScreen';
 import { SELECTOR_WAS_LAST_CONNECT_SUCCESS } from '../store/bleSlice';
 import { bleStatusComponent } from '../bluetooth/icon';
+import CalibrationScreen from '../screens/CalibrationScreen';
 
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -79,6 +80,20 @@ function RootNavigator() {
           ) 
         })}
         />
+      </Stack.Group>
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+        <Stack.Screen 
+        name="Calibration" 
+        component={CalibrationScreen}
+        options={() => ({
+          headerRight: () => (
+            <View style={{flexDirection: 'row'}}>
+              { bleStatusComponent(wasLastBluetoothConnectSuccess) }
+              { getBatteryPercentageComponent(batteryPercent, wasLastBluetoothConnectSuccess) }
+            </View>
+          ) 
+        })}
+         />
       </Stack.Group>
     </Stack.Navigator>
   );

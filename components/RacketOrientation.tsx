@@ -12,7 +12,7 @@ let glob_scene: any = undefined;
 let glob_camera: any = undefined;
 
 
-export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
+export function RacketOrientationDisplay(time: number, quaternion: Quaternion, midPointEuler: any, isCalibrated: boolean) {
     let timeout: any;
 
   React.useEffect(() => {
@@ -26,7 +26,11 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
         const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
         glob_obj.rotation.x = euler.x - 1.57;
         glob_obj.rotation.y = euler.y;
-        glob_obj.rotation.z = euler.z;
+        if (isCalibrated) {
+            glob_obj.rotation.z = euler.z - midPointEuler.z;
+        } else {
+            glob_obj.rotation.z = euler.z;
+        }
 
         glob_renderer.render(glob_scene, glob_camera);
         glob_glRef.endFrameEXP();
@@ -58,9 +62,13 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion) {
             const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
 
             const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
-            racketObj.rotation.x = euler.x;
+            racketObj.rotation.x = euler.x - 1.57;
             racketObj.rotation.y = euler.y;
-            racketObj.rotation.z = euler.z;
+            if (isCalibrated) {
+                glob_obj.rotation.z = euler.z - midPointEuler.z;
+            } else {
+                glob_obj.rotation.z = euler.z;
+            }
 
             renderer.render(scene, camera);
             gl.endFrameEXP();

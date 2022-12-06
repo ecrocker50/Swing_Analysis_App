@@ -12,6 +12,7 @@ import { LogBox } from 'react-native';
 (global as any).THREE = (global as any).THREE || THREE;
 (global as any).Image = undefined;
 LogBox.ignoreLogs(['new NativeEventEmitter']);
+LogBox.ignoreAllLogs(true);
 
 export default function App() {
     const isLoadingComplete = useCachedResources();
