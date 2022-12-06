@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SingleDataPoint, SingleSwing, RootState, Mode, UserSessionsData } from '../types';
+import { SingleDataPoint, SingleSwing, RootState, Mode, UserSessionsData, Quaternion, Handedness } from '../types';
 import { userDataMock } from '../helpers/userDataMethods/userDataMock';
 import { 
     pushSwing,
@@ -8,7 +8,8 @@ import {
     removeSessionFromUserData,
     addTimeOfContactToSwing,
     renameSessionFromUserData,
-    removeSwingFromSession
+    removeSwingFromSession,
+    setCalibratedQuaternion
 } from '../helpers/userDataMethods/userDataWrite';
 
 
@@ -36,7 +37,9 @@ type RenameSessionType = {
 
 type CreateNewSessionType = {
     sessionName: string,
-    sessionMode: Mode
+    sessionMode: Mode,
+    calibratedQuaternion: Quaternion,
+    handedness: Handedness
 };
 
 type RemoveSwingType = {
@@ -72,7 +75,7 @@ export const swingDataSlice = createSlice({
         },
         /** Creates a new, empty session that can have data pushed into it **/
         REDUCER_CREATE_NEW_SESSION_IN_STORE: (state, action: PayloadAction<CreateNewSessionType>) => {
-            createNewEmptySession(state.userSessions, action.payload.sessionName, action.payload.sessionMode);
+            createNewEmptySession(state.userSessions, action.payload.sessionName, action.payload.sessionMode, action.payload.calibratedQuaternion, action.payload.handedness);
         },
         /** Sets the session that was selected to analyze/view **/
         REDUCER_SET_SELECTED_SESSION_IN_STORE: (state, action: PayloadAction<string>) => {
@@ -96,6 +99,9 @@ export const swingDataSlice = createSlice({
         /** Renames a session in the store */
         REDUCER_RENAME_SESSION_IN_STORE: (state, action: PayloadAction<RenameSessionType>) => {
             renameSessionFromUserData(state.userSessions, action.payload.oldSessionName, action.payload.newSessionName);
+        },
+        REDUCER_SET_CALIBRATED_QUATERNION_IN_SESSION: (state, action: PayloadAction<Quaternion>) => {
+            setCalibratedQuaternion(state.userSessions, state.selectedSession, action.payload);
         }
     }
 });

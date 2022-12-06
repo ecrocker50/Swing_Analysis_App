@@ -3,8 +3,8 @@ import { Alert, Button, KeyboardAvoidingView, TextInput, Pressable, TouchableOpa
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch, useSelector } from 'react-redux';
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps, UserSessionsData } from '../types';
-import { REDUCER_SET_MODE_IN_STORE } from '../store/modeSelectSlice';
+import { Handedness, Quaternion, RootTabScreenProps, UserSessionsData } from '../types';
+import { REDUCER_SET_MODE_IN_STORE, SELECTOR_HANDEDNESS, SELECTOR_QUATERNION_CENTERED } from '../store/modeSelectSlice';
 import { Mode } from '../types';
 import { styles } from '../styles';
 import React, { Dispatch, useEffect, useState } from 'react';
@@ -35,6 +35,8 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
     const [inputtedNameOfSession, setInputtedNameOfSession] = useState<string>("");
     const navigationHook = useNavigation();
     const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
+    const calibratedQuaternion = useSelector(SELECTOR_QUATERNION_CENTERED);
+    const handedness = useSelector(SELECTOR_HANDEDNESS);
 
     //useEffect for connecting to ble device as soon as app is loaded
     useEffect(() => {
@@ -121,7 +123,7 @@ export default function HomeScreen({ navigation }: RootTabScreenProps<'Home'>) {
                 </View>
                 <View style={styles.space_small} />
 
-                { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, deviceId, setIsSessionActive) }
+                { startSessionButton(dispatch, navigationHook, userSessions, inputtedNameOfSession, selectedModeLocal, deviceId, setIsSessionActive, calibratedQuaternion, handedness) }
             </View> 
 
         );
@@ -132,7 +134,7 @@ const timeOut = (ms: number) => new Promise(
     resolve => setTimeout(resolve, ms)
 )
 
-const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, deviceId: string, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>) => {
+const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, userSessions: UserSessionsData, inputtedNameOfSession: string, selectedModeLocal: Mode, deviceId: string, setIsSessionActive: Dispatch<React.SetStateAction<Boolean>>, calibratedQuaternion: Quaternion, handedness: Handedness) => {
     const buttonStyle = getButtonStyle(selectedModeLocal);
 
     return (
@@ -150,7 +152,7 @@ const startSessionButton = (dispatch: Dispatch<AnyAction>, navigation: any, user
                 {
                     // There are no errors, proceed to start the session
                     dispatch(REDUCER_SET_MODE_IN_STORE(selectedModeLocal));
-                    dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal}));
+                    dispatch(REDUCER_CREATE_NEW_SESSION_IN_STORE({sessionName: inputtedNameOfSession, sessionMode: selectedModeLocal, calibratedQuaternion, handedness}));
                     writeMode(deviceId, selectedModeLocal)
                     navigation.navigate('SessionInProgress')
                     await timeOut(1000)

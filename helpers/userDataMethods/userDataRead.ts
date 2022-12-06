@@ -1,4 +1,4 @@
-import { UserSessionsData, SingleSwing, SingleDataPoint, Quaternion, Position, Mode } from '../../types'
+import { UserSessionsData, SingleSwing, SingleDataPoint, Quaternion, Position, Mode, Handedness } from '../../types'
 
 
 
@@ -274,3 +274,30 @@ export const getTimeOfMidSwing = (userData: UserSessionsData, sessionName: strin
 
     return time;
 }
+
+
+
+export const getCalibratedQuaternionFromSession = (userData: UserSessionsData, sessionName: string): Quaternion => {
+    const sessionIndex = getIndexOfSession(userData, sessionName);
+
+    if (sessionIndex === -1 || userData[sessionIndex].calibratedQuaternion === undefined)
+    {
+        return {real: 0, i: 0, j: 0, k: 0};
+    }
+
+    
+    
+    return userData[sessionIndex].calibratedQuaternion;
+};
+
+
+export const getSessionHandedness = (userData: UserSessionsData, sessionName: string): Handedness => {
+    const sessionIndex = getIndexOfSession(userData, sessionName);
+
+    if (sessionIndex === -1 || userData[sessionIndex].handedness === undefined)
+    {
+        return "Right";
+    }
+
+    return userData[sessionIndex].handedness;
+};

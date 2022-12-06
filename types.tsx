@@ -42,6 +42,8 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
  * Below here is where our defined types will go
  */
 
+export type Handedness = "Left" | "Right";
+
 // The modes of swings that are supported
 export type Mode = "Serve" | "Forehand" | "Backhand" | "Unknown";
 
@@ -78,7 +80,9 @@ export type SingleSwing = {
 export type SingleSession = {
     sessionName: string;
     mode: Mode;
-    swings: Array<SingleSwing>
+    swings: Array<SingleSwing>;
+    calibratedQuaternion: Quaternion;
+    handedness: Handedness;
 };
 
 export type UserSessionsData = Array<SingleSession>;
@@ -98,6 +102,7 @@ export type RootState = {
         mode: Mode;
         calibrated: boolean;
         quaternionCentered: Quaternion;
+        handedness: Handedness;
     };
     time: {
         currentTimeSeconds: number;

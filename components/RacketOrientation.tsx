@@ -27,7 +27,7 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion, m
         glob_obj.rotation.x = euler.x - 1.57;
         glob_obj.rotation.y = euler.y;
         if (isCalibrated) {
-            glob_obj.rotation.z = euler.z - midPointEuler.z;
+            glob_obj.rotation.z = euler.z;
         } else {
             glob_obj.rotation.z = euler.z;
         }
@@ -65,9 +65,9 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion, m
             racketObj.rotation.x = euler.x - 1.57;
             racketObj.rotation.y = euler.y;
             if (isCalibrated) {
-                glob_obj.rotation.z = euler.z - midPointEuler.z;
+                racketObj.rotation.z = euler.z; //- midPointEuler.x;
             } else {
-                glob_obj.rotation.z = euler.z;
+                racketObj.rotation.z = euler.z;
             }
 
             renderer.render(scene, camera);

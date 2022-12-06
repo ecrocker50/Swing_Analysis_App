@@ -413,6 +413,11 @@ export const calibrate = async (dispatch: Dispatch<AnyAction>, deviceId: string)
         }
         
         const numOfBytes = hexString.length / 2;
+        if (numOfBytes === 0) {
+            console.log("NO READ DONE");
+            return;
+        }
+        console.log(numOfBytes);
         const view = convertHexStringToUint8DataView(hexString);
         const quaternion = {
             real: view.getInt32(0, true) / 1000000,

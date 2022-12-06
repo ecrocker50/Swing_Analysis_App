@@ -36,6 +36,10 @@ var AbstractChart = /** @class */ (function (_super) {
     __extends(AbstractChart, _super);
     function AbstractChart() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
+        let valueDist = .1;
+        let pixelDist = 10;
+        let specialScalar = 1;
+        let maxLabelHeight = 100;
         _this.calcScaler = function (data) {
             if (_this.props.fromZero && _this.props.fromNumber) {
                 return Math.max.apply(Math, __spreadArrays(data, [_this.props.fromNumber])) - Math.min.apply(Math, __spreadArrays(data, [0])) || 1;
@@ -47,6 +51,8 @@ var AbstractChart = /** @class */ (function (_super) {
                 return (Math.max.apply(Math, __spreadArrays(data, [_this.props.fromNumber])) - Math.min.apply(Math, __spreadArrays(data, [_this.props.fromNumber])) || 1);
             }
             else {
+                // THIS ONE FIRES ALWAYS
+                // console.log("scalar: " + (Math.max.apply(Math, data) - Math.min.apply(Math, data) || 1))
                 return Math.max.apply(Math, data) - Math.min.apply(Math, data) || 1;
             }
         };
@@ -66,25 +72,54 @@ var AbstractChart = /** @class */ (function (_super) {
         _this.calcHeight = function (val, data, height) {
             var max = Math.max.apply(Math, data);
             var min = Math.min.apply(Math, data);
+
+            // console.log(max, min)
+            const minCorrection = height * specialScalar * (min / _this.calcScaler(data)) - height;
+            const maxCorrection = height * specialScalar * (max / _this.calcScaler(data)) - height;
+            // console.log(maxCorrection);
+
+
             if (min < 0 && max > 0) {
-                return height * (val / _this.calcScaler(data));
+                // console.log(height * specialScalar * (val / _this.calcScaler(data)) - height + 87)
+
+                // if ((height * specialScalar * (val / _this.calcScaler(data)) - height + 87) <= 0) {
+                //     // return height * specialScalar * (val / _this.calcScaler(data)) - height + 213
+                // }
+
+                if (minCorrection < 0 && maxCorrection + 2 > maxLabelHeight) { 
+                    console.log(maxCorrection);
+                    // minCorrection += maxCorrection 
+                }
+
+                if (minCorrection < 0) {
+                    // console.log(minCorrection);
+                    return height * specialScalar * (val / _this.calcScaler(data)) - height - minCorrection;
+                } else if (maxCorrection + 2 > maxLabelHeight) {
+                    return height * specialScalar * (val / _this.calcScaler(data)) - height - maxCorrection;
+                }
+
+                return height * specialScalar * (val / _this.calcScaler(data)) - height;// + 243;//87; //213
             }
             else if (min >= 0 && max >= 0) {
-                return _this.props.fromZero
-                    ? height * (val / _this.calcScaler(data))
-                    : height * ((val - min) / _this.calcScaler(data));
+                // THIS ONE FIRES ALL TIMES
+                // return _this.props.fromZero
+                //     ? height * (val / _this.calcScaler(data))
+                    // : height * ((val - min) / _this.calcScaler(data));
+
+                    // console.log("special: " + specialScalar);
+                return height * specialScalar * ((val - min) / _this.calcScaler(data));
             }
             else if (min < 0 && max <= 0) {
                 return _this.props.fromZero
-                    ? height * (val / _this.calcScaler(data))
-                    : height * ((val - max) / _this.calcScaler(data));
+                    ? height * specialScalar * (val / _this.calcScaler(data))
+                    : height * specialScalar * ((val - max) / _this.calcScaler(data));
             }
         };
         _this.renderHorizontalLines = function (config) {
             var count = config.count, width = config.width, height = config.height, paddingTop = config.paddingTop, paddingRight = config.paddingRight, _a = config.verticalLabelsHeightPercentage, verticalLabelsHeightPercentage = _a === void 0 ? DEFAULT_X_LABELS_HEIGHT_PERCENTAGE : _a;
             var basePosition = height * verticalLabelsHeightPercentage;
             return __spreadArrays(new Array(count + 1)).map(function (_, i) {
-                var y = (basePosition / count) * i + paddingTop;
+                var y = basePosition - pixelDist * i + paddingTop;
                 return (<Line key={Math.random()} x1={paddingRight} y1={y} x2={width} y2={y} {..._this.getPropsForBackgroundLines()}/>);
             });
         };
@@ -95,6 +130,19 @@ var AbstractChart = /** @class */ (function (_super) {
         _this.renderHorizontalLabels = function (config) {
             var count = config.count, data = config.data, height = config.height, paddingTop = config.paddingTop, paddingRight = config.paddingRight, _a = config.horizontalLabelRotation, horizontalLabelRotation = _a === void 0 ? 0 : _a, _b = config.decimalPlaces, decimalPlaces = _b === void 0 ? 2 : _b, _c = config.formatYLabel, formatYLabel = _c === void 0 ? function (yLabel) { return yLabel; } : _c, _d = config.verticalLabelsHeightPercentage, verticalLabelsHeightPercentage = _d === void 0 ? DEFAULT_X_LABELS_HEIGHT_PERCENTAGE : _d;
             var _e = _this.props, _f = _e.yAxisLabel, yAxisLabel = _f === void 0 ? "" : _f, _g = _e.yAxisSuffix, yAxisSuffix = _g === void 0 ? "" : _g, _h = _e.yLabelsOffset, yLabelsOffset = _h === void 0 ? 12 : _h;
+            // console.log(valueDist);
+            
+            const valueDiffOfYLabels = (_this.calcScaler(data) / count) + Math.min.apply(Math, data) - Math.min.apply(Math, data);
+            // console.log(valueDiffOfYLabels);
+            // console.log(pixelDist);
+
+            var basePos = height * verticalLabelsHeightPercentage;
+            specialScalar = pixelDist / (basePos / count);
+
+            maxLabelHeight = pixelDist * count;
+
+            console.log(maxLabelHeight);
+
             return new Array(count === 1 ? 1 : count + 1).fill(1).map(function (_, i) {
                 var yLabel = String(i * count);
                 if (count === 1) {
@@ -111,8 +159,8 @@ var AbstractChart = /** @class */ (function (_super) {
                 var y = count === 1 && _this.props.fromZero
                     ? paddingTop + 4
                     : height * verticalLabelsHeightPercentage -
-                        (basePosition / count) * i +
-                        paddingTop;
+                        pixelDist * i +//(basePosition / count) * i +
+                        paddingTop + 2;
                 return (<Text rotation={horizontalLabelRotation} origin={x + ", " + y} key={Math.random()} x={x} textAnchor="end" y={y} {..._this.getPropsForLabels()} {..._this.getPropsForHorizontalLabels()}>
           {yLabel}
         </Text>);
@@ -138,60 +186,84 @@ var AbstractChart = /** @class */ (function (_super) {
              * 
              */
 
-            const labelsNumbers = [];
-            labels.forEach((label) => {
-                labelsNumbers.push(Number(label));
-            });
-            const maxXValue = Math.max(...labelsNumbers);
-            const minXValue = Math.min(...labelsNumbers);
-            const leftBound = (paddingRight + horizontalOffset) * fac;
-            const rightBound = ((width - paddingRight) / labelsNumbers.length) * (labelsNumbers.length - 1) + leftBound;
-            const rangeOfPos = rightBound - leftBound;
+             const labelsNumbers = [];
+             labels.forEach((label) => {
+                 labelsNumbers.push(Number(label));
+             });
+             const maxXValue = Math.max(...labelsNumbers);
+             const minXValue = Math.min(...labelsNumbers);
+             const leftBound = (paddingRight + horizontalOffset) * fac;
+             const rightBound = ((width - paddingRight) / labelsNumbers.length) * (labelsNumbers.length - 1) + leftBound;
+             const rangeOfPos = rightBound - leftBound;
+ 
+             // console.log("xMaxValue", maxXValue);
+             // console.log("xMinValue", minXValue);
+             // console.log(rightBound);
+ 
+             let prevLabel = '';
 
-            // console.log("xMaxValue", maxXValue);
-            // console.log("xMinValue", minXValue);
-            // console.log(rightBound);
+             let xLabelSecondValue = 0;
+             let xLabelThirdValue = 0;
+             let xLabelsValueDiff = 0; 
+             let xLabelsPixelDiff = ((((width - paddingRight) / labels.length) + paddingRight + horizontalOffset) * fac - 4) - ((paddingRight + horizontalOffset) * fac - 4);
+             
+             pixelDist = 2 * xLabelsPixelDiff;
+ 
+             return labels.map(function (label, i) {
+                 if (hidePointsAtIndex.includes(i)) {
+                     return null;
+                 }
 
-            let prevLabel = '';
 
-            return labels.map(function (label, i) {
-                if (hidePointsAtIndex.includes(i)) {
-                    return null;
-                }
-                var x = (((width - paddingRight) / labels.length) * i +
-                    paddingRight +
-                    horizontalOffset) *
-                    fac - 4;
+                 var x = (((width - paddingRight) / labels.length) * i +
+                     paddingRight +
+                     horizontalOffset) *
+                     fac - 4;
+ 
+                 const percent = (x - leftBound) / rangeOfPos;
+                 const value = percent * (maxXValue - minXValue) + minXValue;
 
-                const percent = (x - leftBound) / rangeOfPos;
-                const value = percent * (maxXValue - minXValue) + minXValue;
-                let valueToUse;
-                if (prevLabel === '') {
-                    valueToUse = formatXLabel(value);
-                }
-                else {
-                    valueToUse = '';
-                }
-                prevLabel = valueToUse;
-                // var percentage = (labelsNumbers[i] - minXValue) / (maxXValue - minXValue);
-                // var posX = rangeOfPos * percentage + leftBound;
-                // // console.log("label: ", label, percentage, posX, x);
-                // x = posX;
-                var y = height * verticalLabelsHeightPercentage +
-                    paddingTop +
-                    fontSize * 2 +
-                    xLabelsOffset;
-                return (<Text origin={x + ", " + y} rotation={verticalLabelRotation} key={Math.random()} x={x} y={y} textAnchor={verticalLabelRotation === 0 ? "middle" : "start"} {..._this.getPropsForLabels()} {..._this.getPropsForVerticalLabels()}>
-          {"" + valueToUse + xAxisLabel}
+                 
+                 if (i === 1) {
+                    xLabelSecondValue = value;
+                 } else if (i === 2) {
+                    xLabelThirdValue = value;
+                 } else if (i === 3) {
+                    xLabelsValueDiff = xLabelThirdValue - xLabelSecondValue;
+                    // console.log(xLabelsValueDiff);
+                    valueDist = xLabelsValueDiff;
+                 }
+
+
+                 let valueToUse;
+                 if (prevLabel === '') {
+                     valueToUse = formatXLabel(value);
+                 }
+                 else {
+                     valueToUse = '';
+                 }
+                 prevLabel = valueToUse;
+                 // var percentage = (labelsNumbers[i] - minXValue) / (maxXValue - minXValue);
+                 // var posX = rangeOfPos * percentage + leftBound;
+                 // // console.log("label: ", label, percentage, posX, x);
+                 // x = posX;
+                 var y = height * verticalLabelsHeightPercentage +
+                     paddingTop +
+                     fontSize * 2 +
+                     xLabelsOffset;
+                 return (<Text origin={x + ", " + y} rotation={verticalLabelRotation} key={Math.random()} x={x} y={y} textAnchor={verticalLabelRotation === 0 ? "middle" : "start"} {..._this.getPropsForLabels()} {..._this.getPropsForVerticalLabels()}>
+           {"" + valueToUse + xAxisLabel}
         </Text>);
             });
         };
         _this.renderVerticalLines = function (_a) {
             var data = _a.data, width = _a.width, height = _a.height, paddingTop = _a.paddingTop, paddingRight = _a.paddingRight, _b = _a.verticalLabelsHeightPercentage, verticalLabelsHeightPercentage = _b === void 0 ? DEFAULT_X_LABELS_HEIGHT_PERCENTAGE : _b;
             var _c = _this.props.yAxisInterval, yAxisInterval = _c === void 0 ? 1 : _c;
-            return __spreadArrays(new Array(Math.ceil(data.length / yAxisInterval))).map(function (_, i) {
-                return (<Line key={Math.random()} x1={Math.floor(((width - paddingRight) / (data.length / yAxisInterval)) * i +
-                    paddingRight)} y1={0} x2={Math.floor(((width - paddingRight) / (data.length / yAxisInterval)) * i +
+            const numberOfVerticalLines = (data.length / 2) / (yAxisInterval)
+            console.log(numberOfVerticalLines)
+            return __spreadArrays(new Array(Math.ceil((data.length / 2) / (yAxisInterval)))).map(function (_, i) {
+                return (<Line key={Math.random()} x1={Math.floor(((width - paddingRight) / (data.length / 2) / (yAxisInterval)) * i +
+                    paddingRight)} y1={0} x2={Math.floor(((width - paddingRight) / (data.length / 2) / (yAxisInterval)) * i +
                     paddingRight)} y2={height * verticalLabelsHeightPercentage + paddingTop} {..._this.getPropsForBackgroundLines()}/>);
             });
         };

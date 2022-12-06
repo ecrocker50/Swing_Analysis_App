@@ -1,4 +1,4 @@
-import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession, Mode } from '../../types'
+import { UserSessionsData, SingleSwing, SingleDataPoint, SingleSession, Mode, Quaternion, Handedness } from '../../types'
 import { getIndexOfSession } from './userDataRead';
 
 
@@ -77,11 +77,13 @@ export const setPosition = (userData: UserSessionsData, sessionName: string, swi
  * @param sessionName the name of the session to create
  * @param sessionMode the mode of the session
  */
-export const createNewEmptySession = (userData: UserSessionsData, sessionName: string, sessionMode: Mode) => {
+export const createNewEmptySession = (userData: UserSessionsData, sessionName: string, sessionMode: Mode, calibratedQuaternion: Quaternion, handedness: Handedness) => {
     const newSession: SingleSession = {
         sessionName,
         mode: sessionMode,
-        swings: []
+        swings: [],
+        calibratedQuaternion: {real: calibratedQuaternion.real, i: calibratedQuaternion.i, j: calibratedQuaternion.j, k: calibratedQuaternion.k},
+        handedness
     }
 
     userData.push(newSession);
@@ -118,4 +120,16 @@ export const renameSessionFromUserData = (userData: UserSessionsData, oldSession
     const index = getIndexOfSession(userData, oldSessionName);
 
     userData[index].sessionName = newSessionName;
+};
+
+
+
+
+export const setCalibratedQuaternion = (userData: UserSessionsData, sessionName: string, calibratedQuaternion: Quaternion) => {
+    const index = getIndexOfSession(userData, sessionName);
+
+    userData[index].calibratedQuaternion.i = calibratedQuaternion.i;
+    userData[index].calibratedQuaternion.j = calibratedQuaternion.j;
+    userData[index].calibratedQuaternion.k = calibratedQuaternion.k;
+    userData[index].calibratedQuaternion.real = calibratedQuaternion.real;
 };

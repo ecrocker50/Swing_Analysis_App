@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Mode, Quaternion, RootState } from '../types';
+import { Handedness, Mode, Quaternion, RootState } from '../types';
 
 // default state that mode initializes to on app bootup
 const initialState = {
     mode: 'Forehand',
     calibrated: false,
     quaternionCentered: {real: 0, i: 0, j: 0, k: 0},
+    handedness: 'Right'
 };
 
 
@@ -26,18 +27,23 @@ export const modeSelectSlice = createSlice({
             state.quaternionCentered.i    = action.payload.i;
             state.quaternionCentered.j    = action.payload.j;
             state.quaternionCentered.k    = action.payload.k;
+        },
+        REDUCER_SET_HANDEDNESS_IN_STORE: (state, action: PayloadAction<Handedness>) => {
+            state.handedness = action.payload;
         }
     }
 });
 
 
 // these are the actions we can dispatch
-export const { REDUCER_SET_MODE_IN_STORE, REDUCER_SET_CALIBRATED_IN_STORE, REDUCER_SET_QUATERNION_CENTERED_IN_STORE } = modeSelectSlice.actions;
+export const { REDUCER_SET_MODE_IN_STORE, REDUCER_SET_CALIBRATED_IN_STORE, REDUCER_SET_QUATERNION_CENTERED_IN_STORE, REDUCER_SET_HANDEDNESS_IN_STORE } = modeSelectSlice.actions;
 
 // this is a 'selector' that is used to peek what state.modeSelect.mode contains
 export const SELECTOR_MODE       = (state: RootState) => state.modeSelect.mode;
 export const SELECTOR_CALIBRATED = (state: RootState) => state.modeSelect.calibrated;
 export const SELECTOR_QUATERNION_CENTERED = (state: RootState) => state.modeSelect.quaternionCentered;
+export const SELECTOR_HANDEDNESS = (state: RootState) => state.modeSelect.handedness;
+
 
 // this is for configureStore()
 export const modeSelectReducer = modeSelectSlice.reducer;
