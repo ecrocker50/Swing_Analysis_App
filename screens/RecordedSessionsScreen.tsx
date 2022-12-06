@@ -19,6 +19,7 @@ import {
     REDUCER_RENAME_SESSION_IN_STORE
 } from '../store/swingDataSlice';
 import { getModeColor } from '../helpers/color';
+import { setDocumentInDB } from '../firebase/write';
 
 
 
@@ -103,6 +104,7 @@ export default function RecordedSessionsScreen({ navigation }: RootTabScreenProp
                                 onPress={() => {
                                     dispatch(REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE(chosenSession));
                                     setChosenSession("");
+                                    setDocumentInDB(userSessionsData);
                                 }} >
                                     <Text style={styles.buttonText}>Delete Session</Text>
                             </TouchableOpacity>

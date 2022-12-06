@@ -2,7 +2,7 @@ import React, { Dispatch, useState } from 'react';
 import Slider from '@react-native-community/slider';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch, useSelector } from 'react-redux';
-import { Dimensions, ScrollView, TouchableOpacity } from 'react-native';
+import { Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { buttonColor, styles } from '../styles';
@@ -49,7 +49,7 @@ export default function SwingVisualizeScreen() {
     const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
     const numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
 
-    const isCalibrated = useSelector(SELECTOR_CALIBRATED);
+    // const isCalibrated = useSelector(SELECTOR_CALIBRATED);
 
 
     if(chosenSwing !== -1)
@@ -71,6 +71,8 @@ export default function SwingVisualizeScreen() {
         const calibratedQuaternion = getCalibratedQuaternionFromSession(userSessions, selectedSession);
         const calibratedEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(calibratedQuaternion.i, calibratedQuaternion.j, calibratedQuaternion.k, calibratedQuaternion.real));
         const sessionHandedness = getSessionHandedness(userSessions, selectedSession);
+
+        const isCalibrated = isNaN(calibratedEuler.x) && isNaN(calibratedEuler.y) && calibratedEuler.z === 0;
         
         return (
             <View style={styles.topContainer}>
@@ -140,14 +142,13 @@ export default function SwingVisualizeScreen() {
 
 
 
-                    <Text>{isOrientationFactingDown(euler) ? "D  " : "U  "} {radiansToDegrees(euler.z)}</Text>
+                    {/* <Text>{isOrientationFactingDown(euler) ? "D  " : "U  "} {radiansToDegrees(euler.z)}</Text>
                     <Text>{isOrientationFactingBack(euler) ? "B  " : "F  "} {radiansToDegrees(euler.x)}</Text>
-                    <Text>{isOrientationMostlyFacingBackDuringMid(userSessions, selectedSession, chosenSwing) ? "Mostly Back  " : "Mostly Forward  "} {radiansToDegrees(euler.x)}</Text>
+                    <Text>{isOrientationMostlyFacingBackDuringMid(userSessions, selectedSession, chosenSwing) ? "Mostly Back  " : "Mostly Forward  "} {radiansToDegrees(euler.x)}</Text> */}
                     
 
                     {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position, calibratedEuler, sessionHandedness)}
-                    
-                    <View style={{width: '60%', alignItems: 'center', alignSelf: 'center'}}>
+                    <View style={{width: '60%', alignItems: 'center', alignSelf: 'center', marginTop: -50}}>
                         <TouchableOpacity 
                             style={styles.buttonRegular}
                             onPress={() => {
@@ -157,10 +158,10 @@ export default function SwingVisualizeScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <View style={styles.space_small}></View>
+                    <View style={styles.space_extra_small}></View>
 
                     <Text style={{...styles.boldText, textAlign: 'center'}}>
-                        Time of Contact: {getTimeOfContact(userSessions, selectedSession, chosenSwing).toFixed(6)}s   {'\n'}
+                        Time of Contact: {getTimeOfContactDisplay(userSessions, selectedSession, chosenSwing)}   {'\n'}
                         Current Time:   {currentTimeSeconds.toFixed(6)}s
                     </Text>
 
@@ -171,7 +172,7 @@ export default function SwingVisualizeScreen() {
                         minimumValue={0}
                     />
 
-                    
+{/*                     
                     <Text style={styles.normalText}>Euler x:   {radiansToDegrees(euler.x)}</Text>
                     <Text style={styles.normalText}>Euler y:   {radiansToDegrees(euler.y)}</Text>
                     <Text style={styles.normalText}>Euler z:   {radiansToDegrees(euler.z)}</Text>
@@ -179,7 +180,7 @@ export default function SwingVisualizeScreen() {
                     <Text style={styles.normalText}>Quaternion real:   {quaternion.real}</Text>
                     <Text style={styles.normalText}>Quaternion i:   {quaternion.i}</Text>
                     <Text style={styles.normalText}>Quaternion j:   {quaternion.j}</Text>
-                    <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text>
+                    <Text style={styles.normalText}>Quaternion k:   {quaternion.k}</Text> */}
 
                     <View style={styles.space_extra_large} />
                     <View style={styles.space_medium} />
@@ -229,6 +230,16 @@ export default function SwingVisualizeScreen() {
             </View>
         );
     }
+}
+
+
+const getTimeOfContactDisplay = (userSessions: UserSessionsData, selectedSession: string, selectedSwing: number): string => {
+    const contact = getTimeOfContact(userSessions, selectedSession, selectedSwing).toFixed(6) + "s";
+
+    if (contact === "-1.000000s") {
+        return "N/A";
+    }
+    return contact;
 }
 
 
@@ -704,13 +715,20 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
             {/* <View style={{position: 'absolute', top: -10, left: Dimensions.get('window').width - 60}}>
                 <MaterialIcons.Button name="skip-next" onPress={() => console.log('hi')} style={{backgroundColor: buttonColor, color: 'black'}} size={20} color={'white'} />
             </View> */}
-            <Text style={{...styles.title, textAlign: 'center', marginLeft: 0}}>{graphView === 'side' ? 'Side View' : 'Top View'}</Text>
-            <View style={{position: 'absolute', top: 120, left: -85, right: 400, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200}}> 
-                <Text style={{fontSize: 14, color: 'white', zIndex: 100, transform: [{ rotate: '270deg'}]}}>{graphView === 'side' ? 'Vertical Position (meters)' : 'Side Position (meters)'}</Text>
+            { graphView === 'side' ?
+                <Image source={require("../assets/images/side.png")} style={{width: 40, height: 40, marginBottom: -30}} />
+            :
+                <Image source={require("../assets/images/overhead.png")} style={{width: 40, height: 40, marginBottom: -30}} />
+            }
+            
+            <Text style={{...styles.title, textAlign: 'center', marginLeft: 0}}>{graphView === 'side' ? 'Side View' : 'Overhead View'}</Text>
+            <View style={{position: 'absolute', top: 50, left: -85, right: 400, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200}}> 
+                <Text style={{fontSize: 14, color: 'white', zIndex: 100, transform: [{ rotate: '270deg'}]}}>{graphView === 'side' ? 'Vertical Position\n       (meters)' : 'Side Position\n    (meters)'}</Text>
             </View>
-            <View style={{position: 'absolute', top: 220, left: 90, right: 0, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200, justifyContent: 'center', alignItems: 'center'}}> 
+            <View style={{position: 'absolute', top: 100, left: 90, right: 0, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200, justifyContent: 'center', alignItems: 'center'}}> 
                 <Text style={{fontSize: 14, color: 'white', zIndex: 100}}>{graphView === 'side' ? 'Horizontal Position (meters)' : 'Forward Position (meters)'}</Text>
             </View>
+
             <LineChart
                 data={{
                     labels: xLabels,
@@ -722,7 +740,7 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                     ]
                 }}
                 width={Dimensions.get('window').width}
-                height={250}
+                height={120}
                 yAxisLabel=""
                 withShadow={false}
                 yAxisSuffix=""
@@ -749,14 +767,14 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                 }}
                 style={{
                     borderRadius: 20,
-                    paddingBottom: 20
+                    paddingBottom: 60
                 }}
             />
-            { graphView === 'side' ?
+            {/* { graphView === 'side' ?
                 <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {Math.sqrt(positionPoints[indexOfTime].x**2 + positionPoints[indexOfTime].y**2).toFixed(2)}m   Y: {positionPoints[indexOfTime].z.toFixed(2)}m</Text>
                 :
                 <Text style={{...styles.boldText, textAlign: 'center', marginTop: -15, marginBottom: 5}}>X: {positionPoints[indexOfTime].x.toFixed(2)}m   Y: {positionPoints[indexOfTime].y.toFixed(2)}m</Text>
-            }
+            } */}
         </View>
     );
 }

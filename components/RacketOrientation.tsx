@@ -26,11 +26,16 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion, m
         const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
         glob_obj.rotation.x = euler.x - 1.57;
         glob_obj.rotation.y = euler.y;
-        if (isCalibrated) {
-            glob_obj.rotation.z = euler.z;
-        } else {
-            glob_obj.rotation.z = euler.z;
+        if (midPointEuler.z < 0) {
+            glob_obj.rotation.z = euler.z - midPointEuler.z - 1.57;
+        } else {  
+            glob_obj.rotation.z = euler.z - midPointEuler.z;
         }
+        // if (isCalibrated) {
+        //     glob_obj.rotation.z = euler.z;
+        // } else {
+        //     glob_obj.rotation.z = euler.z;
+        // }
 
         glob_renderer.render(glob_scene, glob_camera);
         glob_glRef.endFrameEXP();
@@ -65,7 +70,7 @@ export function RacketOrientationDisplay(time: number, quaternion: Quaternion, m
             racketObj.rotation.x = euler.x - 1.57;
             racketObj.rotation.y = euler.y;
             if (isCalibrated) {
-                racketObj.rotation.z = euler.z; //- midPointEuler.x;
+                racketObj.rotation.z = euler.z - midPointEuler.z;
             } else {
                 racketObj.rotation.z = euler.z;
             }
