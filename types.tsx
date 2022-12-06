@@ -75,6 +75,7 @@ export type SingleDataPoint = {
 export type SingleSwing = {
     points: Array<SingleDataPoint>;
     timeOfContact: number;
+    contactSpeed:  number;
 };
 
 export type SingleSession = {

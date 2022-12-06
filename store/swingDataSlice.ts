@@ -9,7 +9,8 @@ import {
     addTimeOfContactToSwing,
     renameSessionFromUserData,
     removeSwingFromSession,
-    setCalibratedQuaternion
+    setCalibratedQuaternion,
+    setSpeedAtContact
 } from '../helpers/userDataMethods/userDataWrite';
 
 
@@ -28,6 +29,12 @@ type AddTimeOfContactType = {
     sessionName: string,
     swingIndex: number,
     timeOfContact: number
+};
+
+type AddContactSpeedType = {
+    sessionName: string,
+    swingIndex:  number,
+    contactSpeed: number
 };
 
 type RenameSessionType = {
@@ -102,6 +109,9 @@ export const swingDataSlice = createSlice({
         },
         REDUCER_SET_CALIBRATED_QUATERNION_IN_SESSION: (state, action: PayloadAction<Quaternion>) => {
             setCalibratedQuaternion(state.userSessions, state.selectedSession, action.payload);
+        },
+        REDUCER_ADD_CONTACT_SPEED_TO_SWING_IN_STORE: (state, action: PayloadAction<AddContactSpeedType>) => {
+            setSpeedAtContact(state.userSessions, action.payload.sessionName, action.payload.swingIndex, action.payload.contactSpeed);
         }
     }
 });
@@ -118,7 +128,8 @@ export const {
     REDUCER_REMOVE_SESSION_FROM_USER_DATA_IN_STORE,
     REDUCER_REMOVE_SWING_FROM_SESSION_IN_STORE, 
     REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE,
-    REDUCER_RENAME_SESSION_IN_STORE
+    REDUCER_RENAME_SESSION_IN_STORE,
+    REDUCER_ADD_CONTACT_SPEED_TO_SWING_IN_STORE
 } = swingDataSlice.actions;
 
 // these are the 'selectors' that are used to peek what the state.swingData contains

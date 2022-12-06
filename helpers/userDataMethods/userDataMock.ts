@@ -5,8 +5,11 @@ export const userDataMock: UserSessionsData = [
     {
         sessionName: "session0",
         mode: "Backhand",
+        handedness: 'Right',
+        calibratedQuaternion: {real: 0, i: 0, j: 0, k: 0},
         swings: [
             {
+                contactSpeed: 11.54,
                 points: [
                     {
                         time: 0,
@@ -52,6 +55,7 @@ export const userDataMock: UserSessionsData = [
                 timeOfContact: 8
             },
             {
+                contactSpeed: 12,
                 points: [
                     {
                         time: 0,
@@ -97,101 +101,5 @@ export const userDataMock: UserSessionsData = [
                 timeOfContact: 6
             }
         ]
-    },
-    {
-        sessionName: "session1",
-        mode: "Forehand",
-        swings: [
-            {
-                points: [
-                    {
-                        time: 0,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 1,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 4,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 6,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 12,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 22,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 26,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 27,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                ],
-                timeOfContact: 22
-            },
-            {
-                points: [
-                    {
-                        time: 0,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 2,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 4,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 9,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 11,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 13,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 14,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                    {
-                        time: 19,
-                        quaternion: {real: 0.1, i: 0.1, j: 0.1, k: 0.1},
-                        position: {x: 1, y: 1, z: 1}
-                    },
-                ],
-                timeOfContact: 9
-            }
-        ]
-    },
+    }
 ];

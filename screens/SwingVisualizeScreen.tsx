@@ -20,7 +20,7 @@ import {
 import { Entypo } from '@expo/vector-icons';
 import { RacketOrientationDisplay } from '../components/RacketOrientation';
 import { LineChart } from 'react-native-chart-kit';
-import { EulerAngles, Handedness, Position, Quaternion, SingleSession, UserSessionsData } from '../types';
+import { EulerAngles, Handedness, Position, Quaternion, SingleSession, SingleSwing, UserSessionsData } from '../types';
 import { THREE } from 'expo-three';
 import { degreesToRadians, radiansToDegrees } from '../helpers/numberConversions';
 import { SELECTOR_CALIBRATED, SELECTOR_QUATERNION_CENTERED } from '../store/modeSelectSlice';
@@ -41,7 +41,7 @@ export default function SwingVisualizeScreen() {
     const selectedSession = useSelector(SELECTOR_SELECTED_SESSION);
     const userSessions    = useSelector(SELECTOR_USER_SESSIONS);
     const [chosenSwing,   setChosenSwing]   = useState<number>(0);
-    const [graphView, setGraphView]   = useState<GraphViewType>('side');
+    const [graphView, setGraphView]         = useState<GraphViewType>('side');
 
     const quaternion  = getQuaternion(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
     const position    = getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
@@ -57,12 +57,12 @@ export default function SwingVisualizeScreen() {
         const swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
         const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
         const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
-        const swings = getSwingsInsideSession(userSessions, selectedSession).length;
+        const swings = getSwingsInsideSession(userSessions, selectedSession);
         let positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
 
-        const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
+        // const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
 
-        const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
+        // const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
 
         // const timeOfMidPoint = getTimeOfMidSwing(userSessions, selectedSession, chosenSwing);
         // const quaternionOfMidPoint = getQuaternion(userSessions, selectedSession, chosenSwing, timeOfMidPoint);
@@ -171,7 +171,8 @@ export default function SwingVisualizeScreen() {
                         maximumValue={maxSwingValue}
                         minimumValue={0}
                     />
-
+                    
+                    <Text style={{...styles.boldText, textAlign: 'center'}}>Speed at Contact: {swings[chosenSwing].contactSpeed}</Text>
 {/*                     
                     <Text style={styles.normalText}>Euler x:   {radiansToDegrees(euler.x)}</Text>
                     <Text style={styles.normalText}>Euler y:   {radiansToDegrees(euler.y)}</Text>
@@ -240,6 +241,15 @@ const getTimeOfContactDisplay = (userSessions: UserSessionsData, selectedSession
         return "N/A";
     }
     return contact;
+}
+
+
+const getSpeedOfContactDisplay = (swings: SingleSwing[], chosenSwing: number, timeOfContactDisplay: string) => {
+    const speed = swings[chosenSwing].contactSpeed;
+
+    if (speed === 0 || timeOfContactDisplay === 'N/A') {
+
+    }
 }
 
 

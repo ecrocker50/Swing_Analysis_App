@@ -133,3 +133,11 @@ export const setCalibratedQuaternion = (userData: UserSessionsData, sessionName:
     userData[index].calibratedQuaternion.k = calibratedQuaternion.k;
     userData[index].calibratedQuaternion.real = calibratedQuaternion.real;
 };
+
+
+
+export const setSpeedAtContact = (userData: UserSessionsData, sessionName: string, swingIndex: number, contactSpeed: number) => {
+    const index = getIndexOfSession(userData, sessionName);
+
+    userData[index].swings[swingIndex].contactSpeed = contactSpeed;
+};

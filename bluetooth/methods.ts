@@ -4,7 +4,7 @@ import { Dispatch } from 'react';
 import { Mode, SingleDataPoint, UserSessionsData } from '../types';
 import { REDUCER_SET_DEVICE_ID_IN_STORE, REDUCER_SET_WAS_LAST_CONNECT_SUCCESS } from '../store/bleSlice';
 import { AnyAction } from '@reduxjs/toolkit';
-import { REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
+import { REDUCER_ADD_CONTACT_SPEED_TO_SWING_IN_STORE, REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE, REDUCER_PUSH_POINT_TO_SWING_IN_STORE, REDUCER_PUSH_SWING_TO_SESSION_IN_STORE } from '../store/swingDataSlice';
 import { getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { REDUCER_SET_BATTERY_PERCENT, REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 import { REDUCER_SET_CALIBRATED_IN_STORE, REDUCER_SET_QUATERNION_CENTERED_IN_STORE } from '../store/modeSelectSlice';
@@ -174,9 +174,9 @@ export const readPointData = async (deviceId: string, dispatch: Dispatch <AnyAct
         // The data is coming in little endian format, so read 32 bits (4 bytes) at a time and convert to uint32_t.
         // To convert to float, we simply divide by the same number we multiplied by on the ESP32 side (giving us 6 decimal precision)
         const swingIndex = getNumberOfSwingsInsideSession(userdata, sessionName);
-        dispatch(REDUCER_PUSH_SWING_TO_SESSION_IN_STORE({sessionName: sessionName, swingToPush: {timeOfContact: 0, points: []}}))
+        dispatch(REDUCER_PUSH_SWING_TO_SESSION_IN_STORE({sessionName: sessionName, swingToPush: {timeOfContact: 0, contactSpeed: 0, points: []}}))
 
-        for (let i = 0; i < numOfBytes - 4; i += 32) {
+        for (let i = 0; i < numOfBytes - 8; i += 32) {
             const singlePoint = {
                 time: view.getInt32(i + 28, true) / 1000000, //might try 7 0s later
                 quaternion: {
@@ -195,7 +195,8 @@ export const readPointData = async (deviceId: string, dispatch: Dispatch <AnyAct
         }
 
         if (numOfBytes > 0) {
-            dispatch(REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE({sessionName, swingIndex, timeOfContact: view.getInt32(numOfBytes - 4, true) / 1000000}));
+            dispatch(REDUCER_ADD_TIME_OF_CONTACT_TO_SWING_IN_STORE({sessionName, swingIndex, timeOfContact: view.getInt32(numOfBytes - 8, true) / 1000000}));
+            dispatch(REDUCER_ADD_CONTACT_SPEED_TO_SWING_IN_STORE({sessionName, swingIndex, contactSpeed: view.getInt32(numOfBytes - 4, true) / 1000000}));
         }
 
         return;
