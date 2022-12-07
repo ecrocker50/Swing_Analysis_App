@@ -8,6 +8,7 @@ import { REDUCER_ADD_CONTACT_SPEED_TO_SWING_IN_STORE, REDUCER_ADD_TIME_OF_CONTAC
 import { getNumberOfSwingsInsideSession } from '../helpers/userDataMethods/userDataRead';
 import { REDUCER_SET_BATTERY_PERCENT, REDUCER_SET_BATTER_TIMER_REF, REDUCER_SET_IS_BATTERY_REQUEST_TIMER_RUNNING } from '../store/batteryPercentageSlice';
 import { REDUCER_SET_CALIBRATED_IN_STORE, REDUCER_SET_QUATERNION_CENTERED_IN_STORE } from '../store/modeSelectSlice';
+import { THREE } from 'expo-three';
 
 const WRITE_CHARACTERISTIC_SERVICE_UUID = '000000ee-0000-1000-8000-00805f9b34fb';
 const WRITE_CHARACTERISTIC_UUID = "0000ee01-0000-1000-8000-00805f9b34fb";
@@ -389,7 +390,7 @@ export const scanAndStoreDeviceConnectionInfo = async (dispatch: Dispatch<AnyAct
 
 
 
-export const calibrate = async (dispatch: Dispatch<AnyAction>, deviceId: string) => {
+export const calibrate = async (dispatch: Dispatch<AnyAction>, deviceId: string): Promise<boolean | undefined> => {
     const writeCharacteristic = await connectToWriteCharacteristic(deviceId);
 
 
@@ -401,7 +402,7 @@ export const calibrate = async (dispatch: Dispatch<AnyAction>, deviceId: string)
         let newStringOfData = writeCharacteristic.value;
 
         if (newStringOfData === null) {
-            return;
+            return undefined;
         }
 
         hexString = convertBase64StringToHexString(newStringOfData);
@@ -410,13 +411,13 @@ export const calibrate = async (dispatch: Dispatch<AnyAction>, deviceId: string)
         // Check to see if we received something
         if (newStringOfData === null || newStringOfData == '') {
             // If we didn't get anything at all, save some time and just return right now
-            return;
+            return undefined;
         }
         
         const numOfBytes = hexString.length / 2;
         if (numOfBytes === 0) {
             console.log("NO READ DONE");
-            return;
+            return false;
         }
         console.log(numOfBytes);
         const view = convertHexStringToUint8DataView(hexString);
@@ -431,7 +432,21 @@ export const calibrate = async (dispatch: Dispatch<AnyAction>, deviceId: string)
         dispatch(REDUCER_SET_CALIBRATED_IN_STORE(true));
 
         console.log(quaternion);
+
+        
+    
+        const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
+
+        const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
+
+        if (euler.x < 1 && euler.x > -1) {
+            return true;
+        } else {
+            return false;
+        }
+
     } else {
         console.log("ERR CALIBRATE");
+        return undefined;
     }
 };

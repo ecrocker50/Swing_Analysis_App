@@ -19,6 +19,8 @@ export default function CalibrationScreen({ navigation }: RootStackScreenProps<'
     const deviceId = useSelector(SELECTOR_DEVICE_ID);
     const isCalibrated = useSelector(SELECTOR_CALIBRATED);
 
+    let wasCalibratedRight: boolean | undefined | null = null;
+
 
     return (
         <View style={styles.topContainer}>
@@ -43,8 +45,8 @@ export default function CalibrationScreen({ navigation }: RootStackScreenProps<'
 
             <TouchableOpacity 
                 style={styles.buttonRegular}
-                onPress={() => {
-                    calibrate(dispatch, deviceId);
+                onPress={async () => {
+                    wasCalibratedRight = await calibrate(dispatch, deviceId);
                 }} >
                     <Text style={styles.buttonText}>Calibrate</Text>
             </TouchableOpacity>
@@ -52,10 +54,16 @@ export default function CalibrationScreen({ navigation }: RootStackScreenProps<'
             <View style={styles.space_medium}></View>
 
             { isCalibrated ?
-                <Text style={styles.normalText}>{deviceId !== '' ? "Device calibrated" : "Device not calibrated"}</Text>
+                <Text style={styles.normalText}>Device calibrated</Text>
                 :
-                null
+                wasCalibratedRight === false ?
+                    <Text style={styles.errorText}>Turn Device Upside Down</Text>
+                    : 
+                    null
             }
+
+
+            
         </View>
     );
 }

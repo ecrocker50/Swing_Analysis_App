@@ -126,6 +126,12 @@ export const styles = StyleSheet.create({
         marginRight: 15,
         marginLeft: 15
     },
+    errorText: {
+        fontSize: 18,
+        marginRight: 15,
+        marginLeft: 15,
+        color: 'red'
+    },
     boldText: {
         fontSize: 20,
         fontWeight: 'bold',

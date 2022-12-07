@@ -73,6 +73,10 @@ export default function SwingVisualizeScreen() {
         const sessionHandedness = getSessionHandedness(userSessions, selectedSession);
 
         const isCalibrated = isNaN(calibratedEuler.x) && isNaN(calibratedEuler.y) && calibratedEuler.z === 0;
+
+        const timeOfContactText = getTimeOfContactDisplay(userSessions, selectedSession, chosenSwing);
+
+        const indexOfContact = getIndexOfTime(getTimeOfContact(userSessions, selectedSession, chosenSwing), allSwingTimePoints);
         
         return (
             <View style={styles.topContainer}>
@@ -104,7 +108,7 @@ export default function SwingVisualizeScreen() {
                     />
 
 
-                <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 13, backgroundColor: 'transparent'}}>
+                <View style={{flexDirection: 'row', alignSelf: 'center', paddingTop: 8, backgroundColor: 'transparent'}}>
                     <TouchableOpacity 
                         style={styles.buttonRed}
                         onPress={() => {
@@ -130,7 +134,7 @@ export default function SwingVisualizeScreen() {
                             <Text style={styles.buttonText}>Next</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.space_small}></View>
+                <View style={styles.space_extra_small}></View>
 
                 <View style={styles.fullSeparator}></View>
 
@@ -147,8 +151,8 @@ export default function SwingVisualizeScreen() {
                     <Text>{isOrientationMostlyFacingBackDuringMid(userSessions, selectedSession, chosenSwing) ? "Mostly Back  " : "Mostly Forward  "} {radiansToDegrees(euler.x)}</Text> */}
                     
 
-                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position, calibratedEuler, sessionHandedness)}
-                    <View style={{width: '60%', alignItems: 'center', alignSelf: 'center', marginTop: -50}}>
+                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position, calibratedEuler, sessionHandedness, indexOfContact)}
+                    <View style={{width: '60%', alignItems: 'center', alignSelf: 'center', marginTop: -25}}>
                         <TouchableOpacity 
                             style={styles.buttonRegular}
                             onPress={() => {
@@ -161,7 +165,7 @@ export default function SwingVisualizeScreen() {
                     <View style={styles.space_extra_small}></View>
 
                     <Text style={{...styles.boldText, textAlign: 'center'}}>
-                        Time of Contact: {getTimeOfContactDisplay(userSessions, selectedSession, chosenSwing)}   {'\n'}
+                        Time of Contact: {timeOfContactText}   {'\n'}
                         Current Time:   {currentTimeSeconds.toFixed(6)}s
                     </Text>
 
@@ -171,8 +175,10 @@ export default function SwingVisualizeScreen() {
                         maximumValue={maxSwingValue}
                         minimumValue={0}
                     />
+
+                    <View style={styles.space_small}></View>
                     
-                    <Text style={{...styles.boldText, textAlign: 'center'}}>Speed at Contact: {swings[chosenSwing].contactSpeed}</Text>
+                    <Text style={{...styles.boldText, textAlign: 'center'}}>Speed at Contact: {getSpeedOfContactDisplay(swings, chosenSwing, timeOfContactText)}</Text>
 {/*                     
                     <Text style={styles.normalText}>Euler x:   {radiansToDegrees(euler.x)}</Text>
                     <Text style={styles.normalText}>Euler y:   {radiansToDegrees(euler.y)}</Text>
@@ -223,11 +229,11 @@ export default function SwingVisualizeScreen() {
     else{
         return(
             <View style={styles.topContainer}>
-            <Text style={styles.title}>Swing Visualization</Text>
-            <View style={styles.lineUnderTitle}/>
-            <View style={styles.space_medium} />
-            <View style={styles.space_extra_large}/>
-            <Text style={styles.normalText}> No Swings Found </Text>
+                <Text style={styles.title}>Swing Visualization</Text>
+                <View style={styles.lineUnderTitle}/>
+                <View style={styles.space_medium} />
+                <View style={styles.space_extra_large}/>
+                <Text style={styles.normalText}> No Swings Found </Text>
             </View>
         );
     }
@@ -244,12 +250,14 @@ const getTimeOfContactDisplay = (userSessions: UserSessionsData, selectedSession
 }
 
 
-const getSpeedOfContactDisplay = (swings: SingleSwing[], chosenSwing: number, timeOfContactDisplay: string) => {
+const getSpeedOfContactDisplay = (swings: SingleSwing[], chosenSwing: number, timeOfContactDisplay: string): string => {
     const speed = swings[chosenSwing].contactSpeed;
 
-    if (speed === 0 || timeOfContactDisplay === 'N/A') {
-
+    if (speed === 0 || speed === undefined || timeOfContactDisplay === 'N/A') {
+        return "N/A";
     }
+
+    return speed.toString();
 }
 
 
@@ -276,6 +284,10 @@ const getSpeedOfContactDisplay = (swings: SingleSwing[], chosenSwing: number, ti
 const getIndexOfTime = (currentTime: number, allSwingTimePoints: Array<Number>): number => {
     // Find the element that is the first one to be >= the raw value it tries to set to.
     // This ONLY works if allSwingTimePoints is in ascending order. 
+    if (currentTime === -1 || currentTime === 0) {
+        return -1;
+    }
+
     let index: number = 0;
     const element = allSwingTimePoints.find((time, idx) => { 
         if (time >= currentTime) {
@@ -579,9 +591,10 @@ const doesGraphNeedFlip = (eulerAngles: any): boolean => {
 
 
 
+
+
 const flipGraphHorizontally = (sideViewPoints: Array<PositionHorizontalVertical>) => {
     let positionPointsCorrected: Array<PositionHorizontalVertical> = [];
-
 
     // Find the minimum value in the array
     let minX = sideViewPoints[0].horiz;
@@ -619,7 +632,7 @@ const flipGraphHorizontally = (sideViewPoints: Array<PositionHorizontalVertical>
     return positionPointsCorrected;
 }
 
-const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position, eulerAngles: any, sessionHandedness: Handedness) => {
+const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position, eulerAngles: any, sessionHandedness: Handedness, indexOfContact: number) => {
     
     if (positionPoints === undefined || positionPoints.length === 0) {
         return (<View></View>);
@@ -732,10 +745,10 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
             }
             
             <Text style={{...styles.title, textAlign: 'center', marginLeft: 0}}>{graphView === 'side' ? 'Side View' : 'Overhead View'}</Text>
-            <View style={{position: 'absolute', top: 50, left: -85, right: 400, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200}}> 
+            <View style={{position: 'absolute', top: 70, left: -85, right: 400, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200}}> 
                 <Text style={{fontSize: 14, color: 'white', zIndex: 100, transform: [{ rotate: '270deg'}]}}>{graphView === 'side' ? 'Vertical Position\n       (meters)' : 'Side Position\n    (meters)'}</Text>
             </View>
-            <View style={{position: 'absolute', top: 100, left: 90, right: 0, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200, justifyContent: 'center', alignItems: 'center'}}> 
+            <View style={{position: 'absolute', top: 195, left: 90, right: 0, bottom: 0, backgroundColor: 'transparent', zIndex: 100, width: 200, justifyContent: 'center', alignItems: 'center'}}> 
                 <Text style={{fontSize: 14, color: 'white', zIndex: 100}}>{graphView === 'side' ? 'Horizontal Position (meters)' : 'Forward Position (meters)'}</Text>
             </View>
 
@@ -750,7 +763,7 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                     ]
                 }}
                 width={Dimensions.get('window').width}
-                height={120}
+                height={200}
                 yAxisLabel=""
                 withShadow={false}
                 yAxisSuffix=""
@@ -762,6 +775,8 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                 getDotColor={(dataPoint, index) => {
                     if (index === indexOfTime)
                         return '#ff0000'
+                    else if (index === indexOfContact)
+                        return '#00ff00'
                     return '#ffffff'
                 }}
                 chartConfig={{
@@ -777,7 +792,7 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                 }}
                 style={{
                     borderRadius: 20,
-                    paddingBottom: 60
+                    paddingBottom: 30
                 }}
             />
             {/* { graphView === 'side' ?

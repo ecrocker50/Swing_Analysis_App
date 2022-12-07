@@ -458,6 +458,10 @@ var LineChart = /** @class */ (function (_super) {
             this.renderVerticalLabels(__assign(__assign({}, config), { labels: labels, paddingTop: paddingTop, paddingRight: paddingRight, formatXLabel: formatXLabel }))}
             </G>
             <G>
+              {withHorizontalLabels &&
+            this.renderHorizontalLabels(__assign(__assign({}, config), { count: count, data: datas, paddingTop: paddingTop, paddingRight: paddingRight, formatYLabel: formatYLabel, decimalPlaces: chartConfig.decimalPlaces }))}
+            </G>
+            <G>
               {withHorizontalLines &&
             (withInnerLines
                 ? this.renderHorizontalLines(__assign(__assign({}, config), { count: count, paddingTop: paddingTop,
@@ -467,11 +471,6 @@ var LineChart = /** @class */ (function (_super) {
                         paddingRight: paddingRight }))
                     : null)}
             </G>
-            <G>
-              {withHorizontalLabels &&
-            this.renderHorizontalLabels(__assign(__assign({}, config), { count: count, data: datas, paddingTop: paddingTop, paddingRight: paddingRight, formatYLabel: formatYLabel, decimalPlaces: chartConfig.decimalPlaces }))}
-            </G>
-            
             <G>
               {this.renderLine(__assign(__assign(__assign({}, config), chartConfig), { paddingRight: paddingRight, paddingTop: paddingTop, data: data.datasets, indexes: data.indexes, labels: data.labels }))}
             </G>
