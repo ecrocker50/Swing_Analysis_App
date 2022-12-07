@@ -1,4 +1,4 @@
-import React, { Dispatch, useState } from 'react';
+import React, { Dispatch, useEffect, useState } from 'react';
 import Slider from '@react-native-community/slider';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,7 +17,7 @@ import {
     SELECTOR_SELECTED_SESSION,
     SELECTOR_USER_SESSIONS,
 } from '../store/swingDataSlice';
-import { Entypo } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { RacketOrientationDisplay } from '../components/RacketOrientation';
 import { LineChart } from 'react-native-chart-kit';
 import { EulerAngles, Handedness, Position, Quaternion, SingleSession, SingleSwing, UserSessionsData } from '../types';
@@ -33,6 +33,11 @@ type PositionHorizontalVertical = {
 
 type GraphViewType = 'top' | 'side';
 
+type GraphLabels = {
+    xLabels: string[],
+    yValues: number[],
+};
+
 
 export default function SwingVisualizeScreen() {
     const dispatch = useDispatch();
@@ -47,29 +52,92 @@ export default function SwingVisualizeScreen() {
     const position    = getPosition(userSessions, selectedSession, chosenSwing, currentTimeSeconds);
 
     const [isDropDownOpen, setIsDropDownOpenOpen] = useState(false);
-    const numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
+    let numOfSwings = getNumberOfSwingsInsideSession(userSessions, selectedSession);
+
+    // const [hit, setHit] = useState<boolean>(false);
+    // let xandYLabelsPlot: GraphLabels | undefined = undefined;
+    // let swingIndexMap: any;
+    // let allSwingTimePoints: number[] = [];
+    // let maxSwingValue: number = 0;
+    // let swings: SingleSwing[] = [];
+    // let positionPoints: Position[];
+    // let calibratedQuaternion: Quaternion;
+    // let calibratedEuler: any = {x: NaN, y: NaN, z: 0};
+    // // const [calibratedEuler, setCalibratedEuler] = useState({x: NaN, y: NaN, z: 0});
+    // let sessionHandedness: Handedness | undefined = undefined;
+    // let isCalibrated: boolean = true;
+    // let timeOfContactText: string = '';
+    // let indexOfContact: number = 0;
+
+    
+    // useEffect(() => {
+    //     if (chosenSwing !== -1) {
+    //         console.log("run")
+    //         // swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
+            
+    //         allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
+    //         maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
+    //         swings = getSwingsInsideSession(userSessions, selectedSession);
+    //         positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
+
+    //         calibratedQuaternion = getCalibratedQuaternionFromSession(userSessions, selectedSession);
+    //         calibratedEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(calibratedQuaternion.i, calibratedQuaternion.j, calibratedQuaternion.k, calibratedQuaternion.real));
+    //         // setCalibratedEuler(calibratedEulerLocal);
+    //         sessionHandedness = getSessionHandedness(userSessions, selectedSession);
+    //         setHit(true);
+    //     } 
+    // }, [chosenSwing]);
+
+    // useEffect(() => {
+    //     if (chosenSwing !== -1) {
+    //         console.log("run")
+            // swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
+            // allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
+            // maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
+            // swings = getSwingsInsideSession(userSessions, selectedSession);
+            // positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
+
+            // // const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
+
+            // // const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
+
+            // // const timeOfMidPoint = getTimeOfMidSwing(userSessions, selectedSession, chosenSwing);
+            // // const quaternionOfMidPoint = getQuaternion(userSessions, selectedSession, chosenSwing, timeOfMidPoint);
+            // // const midPointEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(quaternionOfMidPoint.i, quaternionOfMidPoint.j, quaternionOfMidPoint.k, quaternionOfMidPoint.real));
+
+            // calibratedQuaternion = getCalibratedQuaternionFromSession(userSessions, selectedSession);
+            // calibratedEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(calibratedQuaternion.i, calibratedQuaternion.j, calibratedQuaternion.k, calibratedQuaternion.real));
+            // sessionHandedness = getSessionHandedness(userSessions, selectedSession);
+
+            // isCalibrated = isNaN(calibratedEuler.x) && isNaN(calibratedEuler.y) && calibratedEuler.z === 0;
+
+            // timeOfContactText = getTimeOfContactDisplay(userSessions, selectedSession, chosenSwing);
+
+            // indexOfContact = getIndexOfTime(getTimeOfContact(userSessions, selectedSession, chosenSwing), allSwingTimePoints);
+
+            // xandYLabelsPlot = getXandYLabelsPlot(positionPoints, graphView, calibratedEuler, sessionHandedness);
+
+    //     }
+    // }, []);
 
     // const isCalibrated = useSelector(SELECTOR_CALIBRATED);
 
 
+
     if(chosenSwing !== -1)
     {
+        console.log("1");
         const swingIndexMap = Array.apply(null, Array(numOfSwings)).map((val, index) => {return {label: index.toString(), value: index}});
         const allSwingTimePoints = getTimesOfAllPointsInSwing(userSessions, selectedSession, chosenSwing);
         const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
         const swings = getSwingsInsideSession(userSessions, selectedSession);
-        let positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
+        const positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
 
-        // const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
-
-        // const euler = new THREE.Euler().setFromQuaternion(quaternionToSet);
-
-        // const timeOfMidPoint = getTimeOfMidSwing(userSessions, selectedSession, chosenSwing);
-        // const quaternionOfMidPoint = getQuaternion(userSessions, selectedSession, chosenSwing, timeOfMidPoint);
-        // const midPointEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(quaternionOfMidPoint.i, quaternionOfMidPoint.j, quaternionOfMidPoint.k, quaternionOfMidPoint.real));
 
         const calibratedQuaternion = getCalibratedQuaternionFromSession(userSessions, selectedSession);
         const calibratedEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(calibratedQuaternion.i, calibratedQuaternion.j, calibratedQuaternion.k, calibratedQuaternion.real));
+ 
+            
         const sessionHandedness = getSessionHandedness(userSessions, selectedSession);
 
         const isCalibrated = isNaN(calibratedEuler.x) && isNaN(calibratedEuler.y) && calibratedEuler.z === 0;
@@ -77,6 +145,9 @@ export default function SwingVisualizeScreen() {
         const timeOfContactText = getTimeOfContactDisplay(userSessions, selectedSession, chosenSwing);
 
         const indexOfContact = getIndexOfTime(getTimeOfContact(userSessions, selectedSession, chosenSwing), allSwingTimePoints);
+
+        const xandYLabelsPlot = getXandYLabelsPlot(positionPoints, graphView, calibratedEuler, sessionHandedness);
+        console.log("2");
         
         return (
             <View style={styles.topContainer}>
@@ -151,7 +222,7 @@ export default function SwingVisualizeScreen() {
                     <Text>{isOrientationMostlyFacingBackDuringMid(userSessions, selectedSession, chosenSwing) ? "Mostly Back  " : "Mostly Forward  "} {radiansToDegrees(euler.x)}</Text> */}
                     
 
-                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position, calibratedEuler, sessionHandedness, indexOfContact)}
+                    {renderScatterPlot(currentTimeSeconds, allSwingTimePoints, graphView, indexOfContact, xandYLabelsPlot)}
                     <View style={{width: '60%', alignItems: 'center', alignSelf: 'center', marginTop: -25}}>
                         <TouchableOpacity 
                             style={styles.buttonRegular}
@@ -168,13 +239,28 @@ export default function SwingVisualizeScreen() {
                         Time of Contact: {timeOfContactText}   {'\n'}
                         Current Time:   {currentTimeSeconds.toFixed(6)}s
                     </Text>
-
-                    <Slider 
-                        style={styles.slider} 
-                        onValueChange={(value) => correctSliderValueAndSetStore(dispatch, value, allSwingTimePoints)}
-                        maximumValue={maxSwingValue}
-                        minimumValue={0}
-                    />
+                    <View style={{flexDirection: 'row'}}>
+                        <TouchableOpacity 
+                            style={{...styles.buttonRegular, marginLeft: 1}}
+                            onPress={() => {
+                                
+                            }} >
+                                <AntDesign name="caretleft" size={24} style={{padding: 5}} color="white" />
+                        </TouchableOpacity>
+                        <Slider 
+                            style={styles.slider} 
+                            onValueChange={(value) => correctSliderValueAndSetStore(dispatch, value, allSwingTimePoints)}
+                            maximumValue={maxSwingValue}
+                            minimumValue={0}
+                            // value={currentTimeSeconds}
+                        />
+                        <TouchableOpacity 
+                            style={{...styles.buttonRegular, marginRight: 1}}
+                            onPress={() => {
+                            }} >
+                                <AntDesign name="caretright" size={24} style={{padding: 5}} color="white" />
+                        </TouchableOpacity>
+                    </View>
 
                     <View style={styles.space_small}></View>
                     
@@ -251,7 +337,8 @@ const getTimeOfContactDisplay = (userSessions: UserSessionsData, selectedSession
 
 
 const getSpeedOfContactDisplay = (swings: SingleSwing[], chosenSwing: number, timeOfContactDisplay: string): string => {
-    const speed = swings[chosenSwing].contactSpeed;
+    
+    const speed = swings[chosenSwing]?.contactSpeed;
 
     if (speed === 0 || speed === undefined || timeOfContactDisplay === 'N/A') {
         return "N/A";
@@ -581,7 +668,7 @@ const addOffsetTopView = (positionPoints: Array<Position>): Array<Position> => {
 
 const doesGraphNeedFlip = (eulerAngles: any): boolean => {
     const degrees = radiansToDegrees(eulerAngles.z);
-    console.log(degrees);
+    // console.log(degrees);
     if (degrees < 45) {
         return false;
     }
@@ -632,18 +719,26 @@ const flipGraphHorizontally = (sideViewPoints: Array<PositionHorizontalVertical>
     return positionPointsCorrected;
 }
 
-const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position, eulerAngles: any, sessionHandedness: Handedness, indexOfContact: number) => {
-    
+
+
+const getXandYLabelsPlot = (positionPoints: Array<Position>, graphView: GraphViewType, eulerAngles: any, sessionHandedness: Handedness): GraphLabels | undefined => {
     if (positionPoints === undefined || positionPoints.length === 0) {
-        return (<View></View>);
+        return undefined;
     };
     
-    const xLabels: string[] = [];
-    const yValues: number[] = [];
+    // const xLabels: string[] = [];
+    // const yValues: number[] = [];
+
+    let graphLabels: GraphLabels = {
+        xLabels: [],
+        yValues: []
+    };
+
+
     let shouldFlip = true;
     if (graphView === 'side') {
         shouldFlip = doesGraphNeedFlip(eulerAngles);
-        console.log(shouldFlip);
+        // console.log(shouldFlip);
     }
     // console.log(doesGraphNeedFlip(eulerAngles));
 
@@ -658,13 +753,13 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
     if (graphView === 'side') {
         let sideViewPoints = getSideViewPositionPoints(positionPoints);
 
-        if (shouldFlip === false) {
-            sideViewPoints = flipGraphHorizontally(sideViewPoints);
-        }
+        // if (shouldFlip === false) {
+        //     sideViewPoints = flipGraphHorizontally(sideViewPoints);
+        // }
         
         sideViewPoints.forEach((point) => {
-            xLabels.push(point.horiz.toString());
-            yValues.push(point.vert);
+            graphLabels.xLabels.push(point.horiz.toString());
+            graphLabels.yValues.push(point.vert);
         });
     }
     else { 
@@ -674,8 +769,8 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
         positionPoints.forEach((point) => {
             // rotate the point counterclockwise around the midPointOfRotation 
             if (isNaN(eulerAngles.x) && isNaN(eulerAngles.y) && eulerAngles.z === 0 && 0) {
-                xLabels.push(point.x.toString());
-                yValues.push(point.y);
+                graphLabels.xLabels.push(point.x.toString());
+                graphLabels.yValues.push(point.y);
             } else {
                 let degreeToRotate;
                 if (sessionHandedness === 'Right') {
@@ -714,23 +809,25 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
         });
 
         
-        // rotatedPoints = addOffsetToCorrectNegativeValues(rotatedPoints);
         rotatedPoints = addOffsetTopView(rotatedPoints);
 
         rotatedPoints.forEach((point) => { 
-            xLabels.push(point.x.toString());
-            yValues.push(point.y);
+            graphLabels.xLabels.push(point.x.toString());
+            graphLabels.yValues.push(point.y);
         });
     }
-
-    // const chartData = positionPoints.map((point, index) => {
-    //     return {
-    //         ...point,
-    //         index
-    //     }
-    // });
+    return graphLabels;
+}
 
 
+
+const renderScatterPlot = (selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, indexOfContact: number, graphLabels: GraphLabels | undefined) => {
+    if (graphLabels === undefined) {
+        return (<View></View>);
+    }
+    
+    
+    console.log("3");
     const indexOfTime = getIndexOfTime(selectedTime, allSwingTimePoints);
 
     return (
@@ -754,11 +851,11 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
 
             <LineChart
                 data={{
-                    labels: xLabels,
+                    labels: graphLabels.xLabels,
                     datasets: [
                         {
                             color: () => `rgba(220, 220, 220, ${0.5})`,
-                            data: yValues
+                            data: graphLabels.yValues
                         }
                     ]
                 }}
