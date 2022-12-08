@@ -70,7 +70,7 @@ export default function SwingVisualizeScreen() {
         // const midPointEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(quaternionOfMidPoint.i, quaternionOfMidPoint.j, quaternionOfMidPoint.k, quaternionOfMidPoint.real));
 
         const calibratedQuaternion = getCalibratedQuaternionFromSession(userSessions, selectedSession);
-        const calibratedEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(calibratedQuaternion.i, calibratedQuaternion.j, calibratedQuaternion.k, calibratedQuaternion.real));
+        const calibratedEuler = new THREE.Euler().setFromQuaternion(new THREE.Quaternion(calibratedQuaternion.i, calibratedQuaternion.j, calibratedQuaternion.k, calibratedQuaternion.real), 'ZYX');
         const sessionHandedness = getSessionHandedness(userSessions, selectedSession);
 
         const isCalibrated = isNaN(calibratedEuler.x) && isNaN(calibratedEuler.y) && calibratedEuler.z === 0;
@@ -142,7 +142,7 @@ export default function SwingVisualizeScreen() {
                     
                     <View style={styles.space_extra_small}></View>
                     <View style={{borderWidth: 2, borderColor: buttonColor, borderRadius: 20, width: '80%', alignSelf: 'center'}}>
-                        { RacketOrientationDisplay(currentTimeSeconds, quaternion, calibratedEuler, isCalibrated) }
+                        { RacketOrientationDisplay(currentTimeSeconds, quaternion, calibratedEuler, isCalibrated, sessionMode) }
                     </View>
 
 
@@ -595,25 +595,25 @@ const flipFullGraphVertically = (positionPoints: Array<Position>) => {
     let positionPointsCorrected: Array<Position> = [];
 
     // Find the minimum value in the array
-    let minY = positionPoints[0].x;
+    let minY = positionPoints[0].y;
 
     // Find the maximum value in the array
-    let maxY = positionPoints[0].x;
+    let maxY = positionPoints[0].y;
     
 
     positionPoints.forEach((point) => {
-        if (point.x < minY) {
-            minY = point.x;
+        if (point.y < minY) {
+            minY = point.y;
         }
-        else if (point.x > maxY) {
-            maxY = point.x;
+        else if (point.y > maxY) {
+            maxY = point.y;
         }
     });
 
     const averageValueY = (maxY - minY) / 2;
 
     positionPoints.forEach((point, idx) => {
-        let y = point.x;
+        let y = point.y;
         if(minY < 0) {
             y -= minY;
         }
@@ -624,7 +624,7 @@ const flipFullGraphVertically = (positionPoints: Array<Position>) => {
             y = averageValueY + (averageValueY - y);
         }
             
-        positionPointsCorrected.push({x: y, y: point.y, z: point.z});
+        positionPointsCorrected.push({x: point.x, y, z: point.z});
     });
 
     return positionPointsCorrected;
@@ -722,6 +722,10 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
     let shouldFlip = true;
     if (graphView === 'side') {
         shouldFlip = doesGraphNeedFlip(eulerAngles);
+
+        if (sessionMode === 'Serve' || sessionMode === 'Backhand') {
+            shouldFlip = !shouldFlip;
+        }
         console.log(shouldFlip);
     }
     // console.log(doesGraphNeedFlip(eulerAngles));
@@ -767,7 +771,7 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                     // } else {
                     //     degreeToRotate = eulerAngles.z + 270;
                     // }
-                    if (sessionMode !== 'Serve') {
+                    if (sessionMode !== 'Serve' && sessionMode !== 'Backhand') {
                         degreeToRotate = 180 + radiansToDegrees(eulerAngles.z);
                     } else {
                         degreeToRotate = radiansToDegrees(eulerAngles.z);
@@ -806,6 +810,10 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
         
         // rotatedPoints = addOffsetToCorrectNegativeValues(rotatedPoints);
         rotatedPoints = addOffsetTopView(rotatedPoints);
+        if (sessionMode === 'Serve') {
+            rotatedPoints = flipFullGraphVertically(rotatedPoints);
+            rotatedPoints = addOffsetTopView(rotatedPoints);
+        }
 
         rotatedPoints.forEach((point) => { 
             xLabels.push(point.x.toString());
