@@ -59,7 +59,7 @@ export default function Settings() {
 
             <View style={styles.space_small} />
             <Text style={styles.normalText}>{calibrated ? "Device calibrated" : "Device not calibrated"}</Text>
-            <Text style={styles.normalText}>x: {euler.x} y: {euler.y} z: {euler.z}</Text>
+            {/* <Text style={styles.normalText}>x: {euler.x} y: {euler.y} z: {euler.z}</Text> */}
             
             <View style={styles.space_small} />
 

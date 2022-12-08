@@ -6,7 +6,7 @@ import { Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { AnyAction } from '@reduxjs/toolkit';
 import { Text, View } from '../components/Themed';
 import { buttonColor, styles } from '../styles';
-import { doesSessionHaveSwings, getMaxTimeOfSwing, getNumberOfSwingsInsideSession, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing, getPositionPointsInsideSwing, getTimeOfMidSwing, getCalibratedQuaternionFromSession, getSessionHandedness } from '../helpers/userDataMethods/userDataRead';
+import { doesSessionHaveSwings, getMaxTimeOfSwing, getNumberOfSwingsInsideSession, getPosition, getQuaternion, getSwingsInsideSession, getTimeOfContact, getTimesOfAllPointsInSwing, getPositionPointsInsideSwing, getTimeOfMidSwing, getCalibratedQuaternionFromSession, getSessionHandedness, getModeOfSession } from '../helpers/userDataMethods/userDataRead';
 import {
     REDUCER_SET_CURRENT_TIME_IN_STORE,
     SELECTOR_CURRENT_TIME_SECONDS, 
@@ -20,7 +20,7 @@ import {
 import { Entypo } from '@expo/vector-icons';
 import { RacketOrientationDisplay } from '../components/RacketOrientation';
 import { LineChart } from 'react-native-chart-kit';
-import { EulerAngles, Handedness, Position, Quaternion, SingleSession, SingleSwing, UserSessionsData } from '../types';
+import { EulerAngles, Handedness, Mode, Position, Quaternion, SingleSession, SingleSwing, UserSessionsData } from '../types';
 import { THREE } from 'expo-three';
 import { degreesToRadians, radiansToDegrees } from '../helpers/numberConversions';
 import { SELECTOR_CALIBRATED, SELECTOR_QUATERNION_CENTERED } from '../store/modeSelectSlice';
@@ -59,6 +59,7 @@ export default function SwingVisualizeScreen() {
         const maxSwingValue = getMaxTimeOfSwing(userSessions, selectedSession, chosenSwing);
         const swings = getSwingsInsideSession(userSessions, selectedSession);
         let positionPoints = getPositionPointsInsideSwing(userSessions, selectedSession, chosenSwing);
+        const sessionMode = getModeOfSession(userSessions, selectedSession);
 
         // const quaternionToSet = new THREE.Quaternion(quaternion.i, quaternion.j, quaternion.k, quaternion.real);
 
@@ -151,7 +152,7 @@ export default function SwingVisualizeScreen() {
                     <Text>{isOrientationMostlyFacingBackDuringMid(userSessions, selectedSession, chosenSwing) ? "Mostly Back  " : "Mostly Forward  "} {radiansToDegrees(euler.x)}</Text> */}
                     
 
-                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position, calibratedEuler, sessionHandedness, indexOfContact)}
+                    {renderScatterPlot(positionPoints, currentTimeSeconds, allSwingTimePoints, graphView, position, calibratedEuler, sessionHandedness, indexOfContact, sessionMode)}
                     <View style={{width: '60%', alignItems: 'center', alignSelf: 'center', marginTop: -25}}>
                         <TouchableOpacity 
                             style={styles.buttonRegular}
@@ -257,7 +258,7 @@ const getSpeedOfContactDisplay = (swings: SingleSwing[], chosenSwing: number, ti
         return "N/A";
     }
 
-    return speed.toString();
+    return speed.toString() + " m/s";
 }
 
 
@@ -590,7 +591,85 @@ const doesGraphNeedFlip = (eulerAngles: any): boolean => {
 };
 
 
+const flipFullGraphVertically = (positionPoints: Array<Position>) => {
+    let positionPointsCorrected: Array<Position> = [];
 
+    // Find the minimum value in the array
+    let minY = positionPoints[0].x;
+
+    // Find the maximum value in the array
+    let maxY = positionPoints[0].x;
+    
+
+    positionPoints.forEach((point) => {
+        if (point.x < minY) {
+            minY = point.x;
+        }
+        else if (point.x > maxY) {
+            maxY = point.x;
+        }
+    });
+
+    const averageValueY = (maxY - minY) / 2;
+
+    positionPoints.forEach((point, idx) => {
+        let y = point.x;
+        if(minY < 0) {
+            y -= minY;
+        }
+
+        if (y > averageValueY) {
+            y = averageValueY - (y - averageValueY);
+        } else {
+            y = averageValueY + (averageValueY - y);
+        }
+            
+        positionPointsCorrected.push({x: y, y: point.y, z: point.z});
+    });
+
+    return positionPointsCorrected;
+}
+
+
+
+const flipGraphVertically = (sideViewPoints: Array<PositionHorizontalVertical>) => {
+    let positionPointsCorrected: Array<PositionHorizontalVertical> = [];
+
+    // Find the minimum value in the array
+    let minY = sideViewPoints[0].vert;
+
+    // Find the maximum value in the array
+    let maxY = sideViewPoints[0].vert;
+    
+
+    sideViewPoints.forEach((point) => {
+        if (point.vert < minY) {
+            minY = point.vert;
+        }
+        else if (point.vert > maxY) {
+            maxY = point.vert;
+        }
+    });
+
+    const averageValueY = (maxY - minY) / 2;
+
+    sideViewPoints.forEach((point, idx) => {
+        let y = point.vert;
+        if(minY < 0) {
+            y -= minY;
+        }
+
+        if (y > averageValueY) {
+            y = averageValueY - (y - averageValueY);
+        } else {
+            y = averageValueY + (averageValueY - y);
+        }
+            
+        positionPointsCorrected.push({vert: y, horiz: sideViewPoints[idx].horiz})
+    });
+
+    return positionPointsCorrected;
+}
 
 
 const flipGraphHorizontally = (sideViewPoints: Array<PositionHorizontalVertical>) => {
@@ -632,7 +711,7 @@ const flipGraphHorizontally = (sideViewPoints: Array<PositionHorizontalVertical>
     return positionPointsCorrected;
 }
 
-const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position, eulerAngles: any, sessionHandedness: Handedness, indexOfContact: number) => {
+const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number, allSwingTimePoints: Array<number>, graphView: GraphViewType, selectedPosition: Position, eulerAngles: any, sessionHandedness: Handedness, indexOfContact: number, sessionMode: Mode) => {
     
     if (positionPoints === undefined || positionPoints.length === 0) {
         return (<View></View>);
@@ -661,6 +740,10 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
         if (shouldFlip === false) {
             sideViewPoints = flipGraphHorizontally(sideViewPoints);
         }
+
+        if (sessionMode === 'Serve') {
+            sideViewPoints = flipGraphVertically(sideViewPoints);
+        }
         
         sideViewPoints.forEach((point) => {
             xLabels.push(point.horiz.toString());
@@ -673,7 +756,7 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
 
         positionPoints.forEach((point) => {
             // rotate the point counterclockwise around the midPointOfRotation 
-            if (isNaN(eulerAngles.x) && isNaN(eulerAngles.y) && eulerAngles.z === 0 && 0) {
+            if (isNaN(eulerAngles.x) && isNaN(eulerAngles.y) && eulerAngles.z === 0) {
                 xLabels.push(point.x.toString());
                 yValues.push(point.y);
             } else {
@@ -684,8 +767,11 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                     // } else {
                     //     degreeToRotate = eulerAngles.z + 270;
                     // }
-
-                    degreeToRotate = 180 + radiansToDegrees(eulerAngles.z);
+                    if (sessionMode !== 'Serve') {
+                        degreeToRotate = 180 + radiansToDegrees(eulerAngles.z);
+                    } else {
+                        degreeToRotate = radiansToDegrees(eulerAngles.z);
+                    }
                     // if (eulerAngles.z >= 0) {
                     //     degreeToRotate = 180 + radiansToDegrees(eulerAngles.z);
                     // } else if (eulerAngles.z > -1.5) {
@@ -704,11 +790,15 @@ const renderScatterPlot = (positionPoints: Array<Position>, selectedTime: number
                 // const degreeToRotate = sessionHandedness === 'Right' ? 180 + radiansToDegrees(eulerAngles.z) : radiansToDegrees(eulerAngles.z);
                 const rotatedPoint = rotatePointAroundPoint(point, midPointOfRotation, degreeToRotate);//radiansToDegrees(eulerAngles.x));  radiansToDegrees(eulerAngles.z) + 180
                 rotatedPoints.push(rotatedPoint);
+
+                // rotatedPoints = flipFullGraphVertically(rotatedPoints);
+
+                // if (sessionMode === 'Serve') {
+                //     rotatedPoints = flipGraphVertically(rotatedPoints);
+                // }
                 // xLabels.push(rotatedPoint.x.toString());
                 // yValues.push(rotatedPoint.y);
             }
-
-            
             // xLabels.push(point.x.toString());
             // yValues.push(point.y);
         });
